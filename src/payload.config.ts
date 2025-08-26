@@ -1,17 +1,16 @@
 import { postgresAdapter } from "@payloadcms/db-postgres";
+import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import path from "path";
 import { buildConfig } from "payload";
 import { fileURLToPath } from "url";
-
+import { isSuperAdmin } from "./access/isSuperAdmin";
 import { Pages } from "./collections/Pages";
 import { Tenants } from "./collections/Tenants";
 import Users from "./collections/Users";
-import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
-import { isSuperAdmin } from "./access/isSuperAdmin";
 import type { Config } from "./payload-types";
-import { getUserTenantIDs } from "./utilities/getUserTenantIDs";
 import { seed } from "./seed";
+import { getUserTenantIDs } from "./utilities/getUserTenantIDs";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);

@@ -1,10 +1,10 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from "payload";
 
-import { isSuperAdminAccess } from '@/access/isSuperAdmin'
-import { updateAndDeleteAccess } from './access/updateAndDelete'
+import { isSuperAdminAccess } from "@/access/isSuperAdmin";
+import { updateAndDeleteAccess } from "./access/updateAndDelete";
 
 export const Tenants: CollectionConfig = {
-  slug: 'tenants',
+  slug: "tenants",
   access: {
     create: isSuperAdminAccess,
     delete: updateAndDeleteAccess,
@@ -12,40 +12,42 @@ export const Tenants: CollectionConfig = {
     update: updateAndDeleteAccess,
   },
   admin: {
-    useAsTitle: 'name',
+    useAsTitle: "name",
   },
   fields: [
     {
-      name: 'name',
-      type: 'text',
+      name: "name",
+      type: "text",
       required: true,
+      unique: true,
     },
     {
-      name: 'domain',
-      type: 'text',
+      name: "domain",
+      type: "text",
       admin: {
-        description: 'Used for domain-based tenant handling',
+        description: "Used for domain-based tenant handling",
       },
     },
     {
-      name: 'slug',
-      type: 'text',
+      name: "slug",
+      type: "text",
       admin: {
-        description: 'Used for url paths, example: /tenant-slug/page-slug',
+        description: "Used for url paths, example: /tenant-slug/page-slug",
       },
       index: true,
       required: true,
+      unique: true,
     },
     {
-      name: 'allowPublicRead',
-      type: 'checkbox',
+      name: "allowPublicRead",
+      type: "checkbox",
       admin: {
         description:
-          'If checked, logging in is not required to read. Useful for building public pages.',
-        position: 'sidebar',
+          "If checked, logging in is not required to read. Useful for building public pages.",
+        position: "sidebar",
       },
       defaultValue: false,
       index: true,
     },
   ],
-}
+};

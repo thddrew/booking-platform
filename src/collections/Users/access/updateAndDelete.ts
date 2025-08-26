@@ -1,18 +1,17 @@
-import type { Access } from 'payload'
-
-import { getUserTenantIDs } from '../../../utilities/getUserTenantIDs'
-import { isSuperAdmin } from '@/access/isSuperAdmin'
-import { isAccessingSelf } from './isAccessingSelf'
+import type { Access } from "payload";
+import { isSuperAdmin } from "@/access/isSuperAdmin";
+import { getUserTenantIDs } from "../../../utilities/getUserTenantIDs";
+import { isAccessingSelf } from "./isAccessingSelf";
 
 export const updateAndDeleteAccess: Access = ({ req, id }) => {
-  const { user } = req
+  const { user } = req;
 
   if (!user) {
-    return false
+    return false;
   }
 
   if (isSuperAdmin(user) || isAccessingSelf({ user, id })) {
-    return true
+    return true;
   }
 
   /**
@@ -24,8 +23,8 @@ export const updateAndDeleteAccess: Access = ({ req, id }) => {
    * from their own tenant in the tenants array.
    */
   return {
-    'tenants.tenant': {
-      in: getUserTenantIDs(user, 'tenant-admin'),
+    "tenants.tenant": {
+      in: getUserTenantIDs(user, "tenant-admin"),
     },
-  }
-}
+  };
+};
