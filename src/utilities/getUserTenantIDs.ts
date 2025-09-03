@@ -1,5 +1,6 @@
-import type { Tenant, User } from '../payload-types'
-import { extractID } from './extractID'
+import { TypedUser } from "payload";
+import type { Tenant, User } from "../payload-types";
+import { extractID } from "./extractID";
 
 /**
  * Returns array of all tenant IDs assigned to a user
@@ -8,24 +9,24 @@ import { extractID } from './extractID'
  * @param role - Optional role to filter by
  */
 export const getUserTenantIDs = (
-  user: null | User,
-  role?: NonNullable<User['tenants']>[number]['roles'][number],
-): Tenant['id'][] => {
+  user: null | User | TypedUser,
+  role?: NonNullable<User["tenants"]>[number]["roles"][number]
+): Tenant["id"][] => {
   if (!user) {
-    return []
+    return [];
   }
 
   return (
-    user?.tenants?.reduce<Tenant['id'][]>((acc, { roles, tenant }) => {
+    user?.tenants?.reduce<Tenant["id"][]>((acc, { roles, tenant }) => {
       if (role && !roles.includes(role)) {
-        return acc
+        return acc;
       }
 
       if (tenant) {
-        acc.push(extractID(tenant))
+        acc.push(extractID(tenant));
       }
 
-      return acc
+      return acc;
     }, []) || []
-  )
-}
+  );
+};

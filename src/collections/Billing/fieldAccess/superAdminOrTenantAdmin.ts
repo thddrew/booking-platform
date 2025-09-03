@@ -1,11 +1,11 @@
-import type { Access } from "payload";
+import type { FieldAccess } from "payload";
 import { getUserTenantIDs } from "@/utilities/getUserTenantIDs";
 import { isSuperAdmin } from "../../../access/isSuperAdmin";
 
 /**
  * Tenant admins and super admins can will be allowed access
  */
-export const superAdminOrTenantAdminAccess: Access = ({ req }) => {
+export const superAdminOrTenantAdminFieldAccess: FieldAccess = ({ req }) => {
   if (!req.user) {
     return false;
   }

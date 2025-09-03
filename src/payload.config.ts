@@ -1,16 +1,19 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
-import path from "path";
 import { buildConfig } from "payload";
-import { fileURLToPath } from "url";
 import { isSuperAdmin } from "./access/isSuperAdmin";
+import { superAdminFieldAccess } from "./access/superAdminFieldAccess";
+import { ConnectedAccounts } from "./collections/Billing/ConnectedAccounts";
+import { Payments } from "./collections/Billing/Payments";
+import { Customers } from "./collections/Customers";
 import { Pages } from "./collections/Pages";
 import { Tenants } from "./collections/Tenants";
 import Users from "./collections/Users";
 import type { Config } from "./payload-types";
 import { seed } from "./seed";
-import { getUserTenantIDs } from "./utilities/getUserTenantIDs";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -18,8 +21,12 @@ const dirname = path.dirname(filename);
 export default buildConfig({
   admin: {
     user: "users",
+    autoLogin:
+      process.env.NODE_ENV === "development"
+        ? { email: "demo@payloadcms.com", password: "demo" }
+        : undefined,
   },
-  collections: [Pages, Users, Tenants],
+  collections: [Pages, Users, Tenants, Customers, ConnectedAccounts, Payments],
   db: postgresAdapter({
     pool: {
       connectionString: process.env.POSTGRES_URL,
@@ -42,16 +49,14 @@ export default buildConfig({
     multiTenantPlugin<Config>({
       collections: {
         pages: {},
+        customers: {},
+        connectedAccounts: {},
+        payments: {},
       },
       tenantField: {
         access: {
-          read: () => true,
-          update: ({ req }) => {
-            if (isSuperAdmin(req.user)) {
-              return true;
-            }
-            return getUserTenantIDs(req.user).length > 0;
-          },
+          read: superAdminFieldAccess,
+          update: superAdminFieldAccess,
         },
       },
       tenantsArrayField: {
