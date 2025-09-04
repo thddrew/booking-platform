@@ -3,11 +3,9 @@
 import { isSuperAdminOrTenantAdmin } from "@/access/isSuperAdminOrTenantAdmin";
 import { getTenantFromCookie } from "@payloadcms/plugin-multi-tenant/utilities";
 import { Gutter } from "@payloadcms/ui";
-import { loadConnectAndInitialize } from "@stripe/connect-js";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ListViewServerProps } from "payload";
-import { createStripeDashboardSession } from "../../utils/stripe-account-sessions";
 import ConnectPaymentsView from "./connect-payments-view";
 
 export const ListView = async (args: ListViewServerProps) => {

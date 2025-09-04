@@ -10,7 +10,7 @@ import {
   ConnectPayments,
 } from "@stripe/react-connect-js";
 import { useEffect, useState } from "react";
-import { createStripeDashboardSession } from "../../utils/stripe-account-sessions";
+import { createStripeDashboardSession } from "@/lib/stripe/account-sessions";
 import { User } from "@/payload-types";
 
 export const ConnectPaymentsView = ({

@@ -2,7 +2,7 @@ import { Button, Gutter, Link, Banner } from "@payloadcms/ui";
 import { CheckCircle2Icon, LoaderCircleIcon } from "lucide-react";
 import type { UIFieldServerProps } from "payload";
 import { Suspense } from "react";
-import { stripe } from "@/lib/stripe";
+import { stripe } from "@/lib/stripe/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const OnboardStripeAccountLink = (args: UIFieldServerProps) => {

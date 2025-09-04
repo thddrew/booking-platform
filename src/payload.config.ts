@@ -25,6 +25,13 @@ export default buildConfig({
       process.env.NODE_ENV === "development"
         ? { email: "demo@payloadcms.com", password: "demo" }
         : undefined,
+    components: {
+      beforeDashboard: [
+        {
+          path: "/src/components/stripe-notification/banner.server",
+        },
+      ],
+    },
   },
   collections: [Pages, Users, Tenants, Customers, ConnectedAccounts, Payments],
   db: postgresAdapter({

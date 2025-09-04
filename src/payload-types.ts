@@ -208,6 +208,10 @@ export interface Customer {
 export interface ConnectedAccount {
   id: number;
   tenant?: (number | null) | Tenant;
+  /**
+   * When enabled, this will be the default connected account for the tenant
+   */
+  default?: boolean | null;
   name?: string | null;
   stripeAccountId?: string | null;
   updatedAt: string;
@@ -368,6 +372,7 @@ export interface CustomersSelect<T extends boolean = true> {
  */
 export interface ConnectedAccountsSelect<T extends boolean = true> {
   tenant?: T;
+  default?: T;
   name?: T;
   stripeAccountId?: T;
   updatedAt?: T;

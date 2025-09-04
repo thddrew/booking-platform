@@ -33,6 +33,17 @@ export const ConnectedAccounts: CollectionConfig<"connectedAccounts"> = {
   },
   fields: [
     {
+      name: "default",
+      type: "checkbox",
+      admin: {
+        description:
+          "When enabled, this will be the default connected account for the tenant",
+      },
+      access: {
+        read: superAdminOrTenantAdminFieldAccess,
+      },
+    },
+    {
       name: "name",
       type: "text",
     },

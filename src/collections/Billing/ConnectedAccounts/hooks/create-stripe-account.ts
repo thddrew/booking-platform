@@ -1,5 +1,5 @@
 import type { CollectionBeforeChangeHook } from "payload";
-import { stripe } from "@/lib/stripe";
+import { stripe } from "@/lib/stripe/client";
 import type { ConnectedAccount } from "@/payload-types";
 
 export const createStripeAccount: CollectionBeforeChangeHook<

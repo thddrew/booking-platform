@@ -11,7 +11,7 @@ import {
 } from "@stripe/react-connect-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createStripeOnboardingSession } from "../../utils/stripe-account-sessions";
+import { createStripeOnboardingSession } from "@/lib/stripe/account-sessions";
 import { DocumentViewClientProps } from "payload";
 
 export const OnboardingView = (args: DocumentViewClientProps) => {

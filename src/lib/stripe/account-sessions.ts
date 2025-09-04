@@ -2,10 +2,10 @@
 
 import type Stripe from "stripe";
 import { isSuperAdminOrTenantAdmin } from "@/access/isSuperAdminOrTenantAdmin";
-import { stripe } from "@/lib/stripe";
+import { stripe } from "@/lib/stripe/client";
 import type { User } from "@/payload-types";
 
-type CreateStripeAccountSession = (
+export type CreateStripeAccountSession = (
   user: User | null | undefined,
   {
     account,
@@ -75,3 +75,15 @@ export const createStripeDashboardSession: CreateStripeAccountSession = async (
     ...params,
   });
 };
+
+export const createStripeNotificationBannerSession: CreateStripeAccountSession =
+  async (user, { account, tenant, ...params }) => {
+    return createStripeAccountSession(user, {
+      account,
+      tenant,
+      components: {
+        notification_banner: { enabled: true },
+      },
+      ...params,
+    });
+  };

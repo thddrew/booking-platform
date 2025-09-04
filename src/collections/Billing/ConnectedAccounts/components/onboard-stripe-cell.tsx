@@ -5,7 +5,7 @@ import type {
   DefaultServerCellComponentProps,
 } from "payload";
 import { Suspense } from "react";
-import { stripe } from "@/lib/stripe";
+import { stripe } from "@/lib/stripe/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const OnboardStripeAccountCell = async (
