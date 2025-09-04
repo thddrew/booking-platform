@@ -7,7 +7,7 @@ export const Payments: CollectionConfig<"payments"> = {
     components: {
       views: {
         list: {
-          Component: "/src/collections/Billing/Payments/views/list-view",
+          Component: "/src/collections/Billing/Payments/views/list/index",
         },
       },
     },

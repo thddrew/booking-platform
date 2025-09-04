@@ -2,8 +2,8 @@ import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@pa
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { default as default_7991b87cc0bae9985fd5baa05c1cac9b } from '../../../../src/collections/Billing/ConnectedAccounts/components/onboard-stripe-cell'
 import { default as default_3e98d3dc976673ff46f9b53611c9a011 } from '../../../../src/collections/Billing/ConnectedAccounts/components/onboard-stripe-field'
-import { default as default_c0ce6e52e96b4ac91994dd247c41cb17 } from '../../../../src/collections/Billing/ConnectedAccounts/views/onboarding-view'
-import { default as default_9ddd636b3999d8355b759105abaacd6d } from '../../../../src/collections/Billing/Payments/views/list-view'
+import { default as default_51936567376f48bbca3c2b3097756e2c } from '../../../../src/collections/Billing/ConnectedAccounts/views/onboarding/index'
+import { default as default_b42dc357258496846168c65da7ecbeeb } from '../../../../src/collections/Billing/Payments/views/list/index'
 import { default as default_6a45e4f5620d40cdf60c9fd3da134521 } from '../../../../src/components/stripe-notification/banner.server'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
@@ -13,8 +13,8 @@ export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "/src/collections/Billing/ConnectedAccounts/components/onboard-stripe-cell#default": default_7991b87cc0bae9985fd5baa05c1cac9b,
   "/src/collections/Billing/ConnectedAccounts/components/onboard-stripe-field#default": default_3e98d3dc976673ff46f9b53611c9a011,
-  "/src/collections/Billing/ConnectedAccounts/views/onboarding-view#default": default_c0ce6e52e96b4ac91994dd247c41cb17,
-  "/src/collections/Billing/Payments/views/list-view#default": default_9ddd636b3999d8355b759105abaacd6d,
+  "/src/collections/Billing/ConnectedAccounts/views/onboarding/index#default": default_51936567376f48bbca3c2b3097756e2c,
+  "/src/collections/Billing/Payments/views/list/index#default": default_b42dc357258496846168c65da7ecbeeb,
   "/src/components/stripe-notification/banner.server#default": default_6a45e4f5620d40cdf60c9fd3da134521,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62

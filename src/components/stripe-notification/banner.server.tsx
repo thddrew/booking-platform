@@ -6,6 +6,7 @@
 import { ServerProps } from "payload";
 import { getDefaultConnectedAccounts } from "@/utilities/getDefaultConnectedAccount";
 import { StripeNotificationBannerClient } from "./banner.client";
+import { extractTenantIdFromAccount } from "@/utilities/extractTenantIdFromAccount";
 
 const StripeNotificationBannerServer = async (args: ServerProps) => {
   const data = await getDefaultConnectedAccounts();
@@ -13,13 +14,7 @@ const StripeNotificationBannerServer = async (args: ServerProps) => {
   if (!data || !args.user) return null;
 
   const account = data[0];
-
-  const tenantId =
-    account?.tenant &&
-    typeof account.tenant === "object" &&
-    "id" in account.tenant
-      ? account.tenant.id
-      : undefined;
+  const tenantId = extractTenantIdFromAccount(account);
 
   if (account?.stripeAccountId && tenantId) {
     return (

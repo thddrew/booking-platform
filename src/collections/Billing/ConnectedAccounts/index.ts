@@ -14,7 +14,7 @@ export const ConnectedAccounts: CollectionConfig<"connectedAccounts"> = {
         edit: {
           onboardStripe: {
             Component:
-              "/src/collections/Billing/ConnectedAccounts/views/onboarding-view",
+              "/src/collections/Billing/ConnectedAccounts/views/onboarding/index",
             path: "/onboard-stripe",
           },
         },
@@ -35,6 +35,7 @@ export const ConnectedAccounts: CollectionConfig<"connectedAccounts"> = {
     {
       name: "default",
       type: "checkbox",
+      defaultValue: false,
       admin: {
         description:
           "When enabled, this will be the default connected account for the tenant",
