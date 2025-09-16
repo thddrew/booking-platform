@@ -15,7 +15,16 @@ export const Events: CollectionConfig<"events"> = {
     read: () => true,
     update: superAdminOrTenantAdminAccess,
   },
-  versions: true,
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 5000,
+        showSaveDraftButton: true,
+      },
+      validate: false,
+      schedulePublish: true,
+    },
+  },
   admin: {
     useAsTitle: "title",
   },
@@ -344,6 +353,7 @@ export const Events: CollectionConfig<"events"> = {
                   name: "quantityUnit",
                   defaultValue: 1,
                   admin: {
+                    hidden: true,
                     description:
                       "Number of spots one unit represents (typically 1). Eg. 1 order of this may take up 2 spots.",
                   },
@@ -372,11 +382,23 @@ export const Events: CollectionConfig<"events"> = {
               defaultValue: 4,
             },
             {
+              virtual: true,
+              name: "customMax",
+              label: "Custom",
+              type: "checkbox",
+            },
+            {
               name: "minQuantity",
               type: "number",
               label: "Min Quantity",
-              required: false,
               min: 1,
+              defaultValue: 1,
+            },
+            {
+              virtual: true,
+              name: "customMin",
+              label: "Custom",
+              type: "checkbox",
             },
           ],
         },

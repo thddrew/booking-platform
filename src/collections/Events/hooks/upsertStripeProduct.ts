@@ -27,6 +27,11 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
       return;
     }
 
+    if (doc._status === "draft") {
+      debugLog("Skipping upsertStripeProduct because doc is a draft");
+      return;
+    }
+
     const defaultConnectedAccount = await getDefaultConnectedAccount();
     const stripeAccountId =
       defaultConnectedAccount?.stripeAccountId ?? undefined;
