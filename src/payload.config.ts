@@ -1,17 +1,25 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
+// Plugins
 import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
+import { stripePlugin } from "@payloadcms/plugin-stripe";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
+// Access
 import { isSuperAdmin } from "./access/isSuperAdmin";
 import { superAdminFieldAccess } from "./access/superAdminFieldAccess";
+// Collections
 import { ConnectedAccounts } from "./collections/Billing/ConnectedAccounts";
 import { Payments } from "./collections/Billing/Payments";
+import { PaymentsSettings } from "./collections/Billing/payments-settings";
 import { Customers } from "./collections/Customers";
+import { Events } from "./collections/Events";
+import { Logs } from "./collections/Logs";
 import { Pages } from "./collections/Pages";
 import { Tenants } from "./collections/Tenants";
 import Users from "./collections/Users";
+// import { customerCreatedWebhook } from "./lib/stripe/webhookHandlers/customer.created";
 import type { Config } from "./payload-types";
 import { seed } from "./seed";
 
@@ -33,7 +41,17 @@ export default buildConfig({
       ],
     },
   },
-  collections: [Pages, Users, Tenants, Customers, ConnectedAccounts, Payments],
+  collections: [
+    Pages,
+    Users,
+    Tenants,
+    Customers,
+    ConnectedAccounts,
+    Payments,
+    PaymentsSettings,
+    Logs,
+    Events,
+  ],
   db: postgresAdapter({
     pool: {
       connectionString: process.env.POSTGRES_URL,
@@ -59,6 +77,7 @@ export default buildConfig({
         customers: {},
         connectedAccounts: {},
         payments: {},
+        events: {},
       },
       tenantField: {
         access: {
@@ -69,7 +88,18 @@ export default buildConfig({
       tenantsArrayField: {
         includeDefaultField: false,
       },
-      userHasAccessToAllTenants: (user) => isSuperAdmin(user),
+      userHasAccessToAllTenants: isSuperAdmin,
+    }),
+    stripePlugin({
+      logs: true,
+      stripeSecretKey: process.env.STRIPE_SECRET_KEY as string,
+      stripeWebhooksEndpointSecret: process.env
+        .STRIPE_WEBHOOKS_ENDPOINT_SECRET as string,
+      // TODO: handle appropriate webhooks
+      // https://docs.stripe.com/cli/trigger#trigger-event
+      // webhooks: {
+      //   "customer.created": customerCreatedWebhook,
+      // },
     }),
   ],
 });

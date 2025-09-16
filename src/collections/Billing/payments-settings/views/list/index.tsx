@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import type { ListViewServerProps } from "payload";
 import { extractTenantIdFromAccount } from "@/utilities/extractTenantIdFromAccount";
 import { getDefaultConnectedAccounts } from "@/utilities/getDefaultConnectedAccount";
-import PaymentsList from "./payments-list";
+import PaymentMethods from "./payment-methods";
 
 export const ListView = async (args: ListViewServerProps) => {
   const data = await getDefaultConnectedAccounts();
@@ -31,7 +31,7 @@ export const ListView = async (args: ListViewServerProps) => {
 
   return (
     <Gutter>
-      <PaymentsList
+      <PaymentMethods
         user={args.user}
         accountId={account.stripeAccountId}
         tenant={tenantId}

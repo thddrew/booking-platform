@@ -2,11 +2,11 @@
 
 import { toast } from "@payloadcms/ui";
 import { ConnectPayments } from "@stripe/react-connect-js";
-import { createStripeDashboardSession } from "@/lib/stripe/account-sessions";
-import { User } from "@/payload-types";
 import StripeConnect from "@/components/stripe-connect";
+import { createStripeDashboardSession } from "@/lib/stripe/account-sessions";
+import type { User } from "@/payload-types";
 
-export const ConnectPaymentsView = ({
+export const PaymentMethods = ({
   accountId,
   tenant,
   user,
@@ -36,4 +36,4 @@ export const ConnectPaymentsView = ({
   );
 };
 
-export default ConnectPaymentsView;
+export default PaymentMethods;

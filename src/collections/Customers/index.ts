@@ -1,7 +1,8 @@
 import type { CollectionConfig } from "payload";
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
+import { superAdminOrTenantAdminFieldAccess } from "../Billing/fieldAccess/superAdminOrTenantAdmin";
 
-export const Customers: CollectionConfig = {
+export const Customers: CollectionConfig<"customers"> = {
   slug: "customers",
   access: {
     create: superAdminOrTenantAdminAccess,
@@ -16,6 +17,7 @@ export const Customers: CollectionConfig = {
     {
       name: "name",
       type: "text",
+      required: true,
     },
     {
       name: "email",
@@ -23,10 +25,18 @@ export const Customers: CollectionConfig = {
       required: true,
     },
     {
+      name: "phone",
+      type: "text",
+    },
+    {
       name: "stripeCustomerId",
       type: "text",
       admin: {
         readOnly: true,
+        position: "sidebar",
+      },
+      access: {
+        read: superAdminOrTenantAdminFieldAccess,
       },
     },
   ],

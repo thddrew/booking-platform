@@ -7,7 +7,6 @@ import { updateAndDeleteAccess } from "./access/updateAndDelete";
 import { externalUsersLogin } from "./endpoints/externalUsersLogin";
 import { ensureUniqueUsername } from "./hooks/ensureUniqueUsername";
 import { setCookieBasedOnDomain } from "./hooks/setCookieBasedOnDomain";
-import { superAdminAccess } from "@/access/superAdminAccess";
 
 const defaultTenantArrayField = tenantsArrayField({
   tenantsArrayFieldName: "tenants",

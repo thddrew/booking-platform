@@ -1,4 +1,4 @@
-import { TypedUser } from "payload";
+import type { TypedUser } from "payload";
 import type { Tenant, User } from "../payload-types";
 import { extractID } from "./extractID";
 

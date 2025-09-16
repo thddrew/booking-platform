@@ -3,9 +3,9 @@
 import { toast } from "@payloadcms/ui";
 import { ConnectAccountOnboarding } from "@stripe/react-connect-js";
 import { useRouter } from "next/navigation";
-import { createStripeOnboardingSession } from "@/lib/stripe/account-sessions";
 import StripeConnect from "@/components/stripe-connect";
-import { User } from "@/payload-types";
+import { createStripeOnboardingSession } from "@/lib/stripe/account-sessions";
+import type { User } from "@/payload-types";
 
 export const OnboardingView = ({
   docId,
@@ -23,8 +23,6 @@ export const OnboardingView = ({
   return (
     <StripeConnect
       fetchClientSecret={async () => {
-        console.log("user", user);
-
         const res = await createStripeOnboardingSession(user, {
           account: accountId,
           tenant,

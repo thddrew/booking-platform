@@ -73,6 +73,9 @@ export interface Config {
     customers: Customer;
     connectedAccounts: ConnectedAccount;
     payments: Payment;
+    paymentsSettings: PaymentsSetting;
+    logs: Log;
+    events: Event;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -85,6 +88,9 @@ export interface Config {
     customers: CustomersSelect<false> | CustomersSelect<true>;
     connectedAccounts: ConnectedAccountsSelect<false> | ConnectedAccountsSelect<true>;
     payments: PaymentsSelect<false> | PaymentsSelect<true>;
+    paymentsSettings: PaymentsSettingsSelect<false> | PaymentsSettingsSelect<true>;
+    logs: LogsSelect<false> | LogsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -195,8 +201,9 @@ export interface User {
 export interface Customer {
   id: number;
   tenant?: (number | null) | Tenant;
-  name?: string | null;
+  name: string;
   email: string;
+  phone?: string | null;
   stripeCustomerId?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -224,6 +231,112 @@ export interface ConnectedAccount {
 export interface Payment {
   id: number;
   tenant?: (number | null) | Tenant;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "paymentsSettings".
+ */
+export interface PaymentsSetting {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "logs".
+ */
+export interface Log {
+  id: number;
+  user: number | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  title: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Create one or more schedules for the event
+   */
+  schedules?: {
+    schedule?:
+      | {
+          isActive?: boolean | null;
+          scheduleName?: string | null;
+          dtstart: string;
+          dtend: string;
+          isRecurring?: boolean | null;
+          interval?: number | null;
+          frequency?: ('DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY') | null;
+          SU?: boolean | null;
+          MO?: boolean | null;
+          TU?: boolean | null;
+          WE?: boolean | null;
+          TH?: boolean | null;
+          FR?: boolean | null;
+          SA?: boolean | null;
+          monthDays?: string | null;
+          months?: string | null;
+          /**
+           * The last date the event will occur. Leave blank to repeat indefinitely.
+           */
+          until?: string | null;
+          /**
+           * Set a total number of occurrences for the event. Leave blank for no limit.
+           */
+          count?: number | null;
+          /**
+           * Automatically generated rrule string. HIDE THIS FIELD LATER.
+           */
+          rrulestring?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  maxQuantity: number;
+  minQuantity?: number | null;
+  prices?:
+    | {
+        stripePriceId?: string | null;
+        isActive?: boolean | null;
+        label: string;
+        /**
+         * Helpful description for the pricing tier
+         */
+        description?: string | null;
+        /**
+         * Amount in dollars
+         */
+        amount: number;
+        /**
+         * Number of spots one unit represents (typically 1). Eg. 1 order of this may take up 2 spots.
+         */
+        quantityUnit?: number | null;
+        quantity?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -257,6 +370,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'payments';
         value: number | Payment;
+      } | null)
+    | ({
+        relationTo: 'paymentsSettings';
+        value: number | PaymentsSetting;
+      } | null)
+    | ({
+        relationTo: 'logs';
+        value: number | Log;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -362,6 +487,7 @@ export interface CustomersSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   email?: T;
+  phone?: T;
   stripeCustomerId?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -384,6 +510,76 @@ export interface ConnectedAccountsSelect<T extends boolean = true> {
  */
 export interface PaymentsSelect<T extends boolean = true> {
   tenant?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "paymentsSettings_select".
+ */
+export interface PaymentsSettingsSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "logs_select".
+ */
+export interface LogsSelect<T extends boolean = true> {
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  description?: T;
+  schedules?:
+    | T
+    | {
+        schedule?:
+          | T
+          | {
+              isActive?: T;
+              scheduleName?: T;
+              dtstart?: T;
+              dtend?: T;
+              isRecurring?: T;
+              interval?: T;
+              frequency?: T;
+              SU?: T;
+              MO?: T;
+              TU?: T;
+              WE?: T;
+              TH?: T;
+              FR?: T;
+              SA?: T;
+              monthDays?: T;
+              months?: T;
+              until?: T;
+              count?: T;
+              rrulestring?: T;
+              id?: T;
+            };
+      };
+  maxQuantity?: T;
+  minQuantity?: T;
+  prices?:
+    | T
+    | {
+        stripePriceId?: T;
+        isActive?: T;
+        label?: T;
+        description?: T;
+        amount?: T;
+        quantityUnit?: T;
+        quantity?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
