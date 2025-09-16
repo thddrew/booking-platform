@@ -1,9 +1,14 @@
 import type { CollectionConfig } from "payload";
+import { superAdminFieldAccess } from "@/access/superAdminFieldAccess";
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
+import { convertAmountToDataType } from "./hooks/convertAmountToDataType";
+import { convertAmountToDisplayType } from "./hooks/convertAmountToDisplayType";
 import { generateRrulestring } from "./hooks/generateRrulestring";
+import { upsertStripeProduct } from "./hooks/upsertStripeProduct";
 
 export const Events: CollectionConfig<"events"> = {
   slug: "events",
+  trash: true,
   access: {
     create: superAdminOrTenantAdminAccess,
     delete: superAdminOrTenantAdminAccess,
@@ -16,8 +21,27 @@ export const Events: CollectionConfig<"events"> = {
   },
   hooks: {
     beforeChange: [generateRrulestring],
+    afterChange: [upsertStripeProduct],
   },
   fields: [
+    {
+      type: "checkbox",
+      name: "isActive",
+      label: "Active",
+      defaultValue: true,
+      admin: {
+        position: "sidebar",
+        description: "Turning this off will hide the event from the public",
+      },
+    },
+    {
+      type: "text",
+      name: "stripeProductId",
+      admin: {
+        readOnly: true,
+        position: "sidebar",
+      },
+    },
     {
       type: "tabs",
       tabs: [
@@ -254,32 +278,16 @@ export const Events: CollectionConfig<"events"> = {
                 {
                   name: "rrulestring",
                   type: "text",
+                  access: {
+                    read: superAdminFieldAccess,
+                  },
                   admin: {
+                    readOnly: true,
                     description:
                       "Automatically generated rrule string. HIDE THIS FIELD LATER.",
                   },
                 },
               ],
-            },
-          ],
-        },
-        {
-          label: "Settings",
-          fields: [
-            {
-              name: "maxQuantity",
-              type: "number",
-              label: "Max Quantity",
-              required: true,
-              min: 1,
-              defaultValue: 4,
-            },
-            {
-              name: "minQuantity",
-              type: "number",
-              label: "Min Quantity",
-              required: false,
-              min: 1,
             },
           ],
         },
@@ -321,9 +329,14 @@ export const Events: CollectionConfig<"events"> = {
                   type: "number",
                   name: "amount",
                   min: 0,
+                  defaultValue: 0,
                   required: true,
+                  hooks: {
+                    beforeChange: [convertAmountToDataType],
+                    afterRead: [convertAmountToDisplayType],
+                  },
                   admin: {
-                    description: "Amount in dollars",
+                    description: "Amount in dollars. Set to 0 to make it free.",
                   },
                 },
                 {
@@ -344,6 +357,26 @@ export const Events: CollectionConfig<"events"> = {
                   },
                 },
               ],
+            },
+          ],
+        },
+        {
+          label: "Settings",
+          fields: [
+            {
+              name: "maxQuantity",
+              type: "number",
+              label: "Max Quantity",
+              required: true,
+              min: 1,
+              defaultValue: 4,
+            },
+            {
+              name: "minQuantity",
+              type: "number",
+              label: "Min Quantity",
+              required: false,
+              min: 1,
             },
           ],
         },

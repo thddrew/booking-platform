@@ -1,13 +1,12 @@
 "use server";
 
-import { getPayload } from "payload";
 import config from "@payload-config";
 import { getTenantFromCookie } from "@payloadcms/plugin-multi-tenant/utilities";
 import { headers } from "next/headers";
-import { isSuperAdmin } from "@/access/isSuperAdmin";
+import { getPayload } from "payload";
 import { isSuperAdminOrTenantAdmin } from "@/access/isSuperAdminOrTenantAdmin";
 
-export const getDefaultConnectedAccounts = async () => {
+export const getDefaultConnectedAccount = async () => {
   const requestHeaders = await headers();
   const payload = await getPayload({ config });
   const { user } = await payload.auth({ headers: requestHeaders });
@@ -35,5 +34,5 @@ export const getDefaultConnectedAccounts = async () => {
     },
   });
 
-  return data.docs;
+  return data.docs[0];
 };

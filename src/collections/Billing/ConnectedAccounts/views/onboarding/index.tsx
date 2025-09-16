@@ -1,11 +1,11 @@
 "use server";
 
 import { Gutter } from "@payloadcms/ui";
-import { DocumentViewServerProps } from "payload";
-import { OnboardingView } from "./client";
-import { ConnectedAccount } from "@/payload-types";
 import { redirect } from "next/navigation";
-import { extractTenantIdFromAccount } from "@/utilities/extractTenantIdFromAccount";
+import type { DocumentViewServerProps } from "payload";
+import type { ConnectedAccount } from "@/payload-types";
+import { extractID } from "@/utilities/extractID";
+import { OnboardingView } from "./client";
 
 export const OnboardingLoader = async (args: DocumentViewServerProps) => {
   const doc = args.doc as ConnectedAccount;
@@ -14,7 +14,7 @@ export const OnboardingLoader = async (args: DocumentViewServerProps) => {
     redirect("/login");
   }
 
-  const tenant = extractTenantIdFromAccount(doc);
+  const tenant = extractID(doc);
 
   if (!doc.id || !doc.stripeAccountId || !tenant) {
     return <Gutter>No connected account found</Gutter>;

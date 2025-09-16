@@ -34,8 +34,15 @@ export const RruleNaturalLang: UIFieldClientComponent = (props) => {
 
   return (
     <>
-      <FieldLabel label="Rrule Natural Lang" />
-      <div className="mb-4">{rrule ? toText(rrule) : "No rrule"}</div>
+      <FieldLabel label="Schedule repeats.." />
+
+      <div className="mb-4">
+        {rrule ? (
+          toText(rrule)
+        ) : (
+          <span className="text-stone-400">Missing start time</span>
+        )}
+      </div>
     </>
   );
 };

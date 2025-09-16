@@ -3,19 +3,18 @@
 import { Gutter } from "@payloadcms/ui";
 import { redirect } from "next/navigation";
 import type { ListViewServerProps } from "payload";
-import { extractTenantIdFromAccount } from "@/utilities/extractTenantIdFromAccount";
-import { getDefaultConnectedAccounts } from "@/utilities/getDefaultConnectedAccount";
+import { extractID } from "@/utilities/extractID";
+import { getDefaultConnectedAccount } from "@/utilities/getDefaultConnectedAccount";
 import PaymentsList from "./payments-list";
 
 export const ListView = async (args: ListViewServerProps) => {
-  const data = await getDefaultConnectedAccounts();
+  const account = await getDefaultConnectedAccount();
 
-  if (!data) {
+  if (!account) {
     return <Gutter>No connected accounts</Gutter>;
   }
 
-  const account = data[0];
-  const tenantId = extractTenantIdFromAccount(account);
+  const tenantId = extractID(account);
 
   if (!args.user) {
     redirect("/login");

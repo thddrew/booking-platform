@@ -1,6 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type { CollectionBeforeChangeHook } from "payload";
-import { RRuleOptions, RRuleTemporal } from "rrule-temporal";
+import { type RRuleOptions, RRuleTemporal } from "rrule-temporal";
 import type { Event } from "@/payload-types";
 import { convertStringToArray } from "../utils/convertStringToArray";
 
@@ -88,8 +88,9 @@ export const generateRrulestring: CollectionBeforeChangeHook<Event> = async ({
   if (data.schedules?.schedule) {
     const schedules = data.schedules?.schedule;
     // TODO: consider performance for bulk schedules (low priority)
-
     const updatedSchedules = schedules?.map((schedule) => {
+      if (!schedule.isRecurring) return schedule;
+
       const rrule = generateRruleFromSchedule(schedule);
       schedule.rrulestring = rrule ? rrule.toString() : null;
 

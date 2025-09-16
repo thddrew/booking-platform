@@ -3,18 +3,17 @@
  */
 "use server";
 
-import { ServerProps } from "payload";
-import { getDefaultConnectedAccounts } from "@/utilities/getDefaultConnectedAccount";
+import type { ServerProps } from "payload";
+import { extractID } from "@/utilities/extractID";
+import { getDefaultConnectedAccount } from "@/utilities/getDefaultConnectedAccount";
 import { StripeNotificationBannerClient } from "./banner.client";
-import { extractTenantIdFromAccount } from "@/utilities/extractTenantIdFromAccount";
 
 const StripeNotificationBannerServer = async (args: ServerProps) => {
-  const data = await getDefaultConnectedAccounts();
+  const account = await getDefaultConnectedAccount();
 
-  if (!data || !args.user) return null;
+  if (!account || !args.user) return null;
 
-  const account = data[0];
-  const tenantId = extractTenantIdFromAccount(account);
+  const tenantId = extractID(account);
 
   if (account?.stripeAccountId && tenantId) {
     return (

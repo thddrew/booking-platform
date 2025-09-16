@@ -260,6 +260,11 @@ export interface Log {
 export interface Event {
   id: number;
   tenant?: (number | null) | Tenant;
+  /**
+   * Turning this off will hide the event from the public
+   */
+  isActive?: boolean | null;
+  stripeProductId?: string | null;
   title: string;
   description?: {
     root: {
@@ -314,8 +319,6 @@ export interface Event {
         }[]
       | null;
   };
-  maxQuantity: number;
-  minQuantity?: number | null;
   prices?:
     | {
         stripePriceId?: string | null;
@@ -326,7 +329,7 @@ export interface Event {
          */
         description?: string | null;
         /**
-         * Amount in dollars
+         * Amount in dollars. Set to 0 to make it free.
          */
         amount: number;
         /**
@@ -337,8 +340,11 @@ export interface Event {
         id?: string | null;
       }[]
     | null;
+  maxQuantity: number;
+  minQuantity?: number | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -536,6 +542,8 @@ export interface LogsSelect<T extends boolean = true> {
  */
 export interface EventsSelect<T extends boolean = true> {
   tenant?: T;
+  isActive?: T;
+  stripeProductId?: T;
   title?: T;
   description?: T;
   schedules?:
@@ -566,8 +574,6 @@ export interface EventsSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  maxQuantity?: T;
-  minQuantity?: T;
   prices?:
     | T
     | {
@@ -580,8 +586,11 @@ export interface EventsSelect<T extends boolean = true> {
         quantity?: T;
         id?: T;
       };
+  maxQuantity?: T;
+  minQuantity?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
