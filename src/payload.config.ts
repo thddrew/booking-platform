@@ -13,6 +13,7 @@ import { superAdminFieldAccess } from "./access/superAdminFieldAccess";
 import { ConnectedAccounts } from "./collections/Billing/ConnectedAccounts";
 import { Payments } from "./collections/Billing/Payments";
 import { PaymentsSettings } from "./collections/Billing/payments-settings";
+import { Bookings } from "./collections/Booking";
 import { Customers } from "./collections/Customers";
 import { Events } from "./collections/Events";
 import { Logs } from "./collections/Logs";
@@ -51,6 +52,7 @@ export default buildConfig({
     PaymentsSettings,
     Logs,
     Events,
+    Bookings,
   ],
   db: postgresAdapter({
     pool: {
@@ -78,6 +80,7 @@ export default buildConfig({
         connectedAccounts: {},
         payments: {},
         events: {},
+        bookings: {},
       },
       tenantField: {
         access: {

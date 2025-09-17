@@ -121,18 +121,14 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
       doc.prices?.flatMap((price) => {
         if (price.stripePriceId) {
           // Check if the price has changed
-          const previousPriceAmount = previousPricesMap.get(price.id)?.amount;
+          const previousPrice = previousPricesMap.get(price.id);
 
           const promises: Promise<Stripe.Response<Stripe.Price>>[] = [];
-          debugLog(
-            "Comparing price amounts",
-            previousPriceAmount,
-            price.amount
-          );
-          if (previousPriceAmount !== price.amount) {
+          debugLog("Comparing price amounts", previousPrice, price.amount);
+          if (previousPrice && previousPrice?.amount !== price.amount) {
             debugLog(
               "Price amounts are different",
-              previousPriceAmount,
+              previousPrice?.amount,
               price.amount
             );
             // deactive the previous price and create a new one
@@ -169,12 +165,11 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
                 }
               )
             );
-          } else {
-            debugLog(
-              "Price amounts are the same",
-              previousPriceAmount,
-              price.amount
-            );
+          } else if (
+            price.isActive !== previousPrice?.isActive ||
+            price.label !== previousPrice?.label
+          ) {
+            debugLog("Price amounts are the same", previousPrice, price.amount);
             // update price data excluding the unit_amount
             debugLog("Updating price metadata", price.stripePriceId);
             promises.push(
@@ -189,6 +184,8 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
                 }
               )
             );
+          } else {
+            debugLog("No changes to price", price.id);
           }
 
           return promises;

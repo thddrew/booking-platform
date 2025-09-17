@@ -76,6 +76,7 @@ export interface Config {
     paymentsSettings: PaymentsSetting;
     logs: Log;
     events: Event;
+    bookings: Booking;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -92,6 +93,7 @@ export interface Config {
     paymentsSettings: PaymentsSettingsSelect<false> | PaymentsSettingsSelect<true>;
     logs: LogsSelect<false> | LogsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
+    bookings: BookingsSelect<false> | BookingsSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -359,6 +361,52 @@ export interface Event {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings".
+ */
+export interface Booking {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  stripeCheckoutSessionId?: string | null;
+  eventId: string;
+  eventRelation?: (number | null) | Event;
+  customerId: string;
+  customerRelation?: (number | null) | Customer;
+  dtstart: string;
+  dtend: string;
+  rrulestring?: string | null;
+  paymentMethod?: ('stripe' | 'inPerson') | null;
+  eventSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  customerSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  pricingSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
@@ -491,6 +539,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'events';
         value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'bookings';
+        value: number | Booking;
       } | null)
     | ({
         relationTo: 'payload-jobs';
@@ -701,6 +753,27 @@ export interface EventsSelect<T extends boolean = true> {
   createdAt?: T;
   deletedAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings_select".
+ */
+export interface BookingsSelect<T extends boolean = true> {
+  tenant?: T;
+  stripeCheckoutSessionId?: T;
+  eventId?: T;
+  eventRelation?: T;
+  customerId?: T;
+  customerRelation?: T;
+  dtstart?: T;
+  dtend?: T;
+  rrulestring?: T;
+  paymentMethod?: T;
+  eventSnapshot?: T;
+  customerSnapshot?: T;
+  pricingSnapshot?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
