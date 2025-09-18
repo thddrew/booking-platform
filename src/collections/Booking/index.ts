@@ -11,6 +11,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
   },
   admin: {},
   fields: [
+    // Metadata for sidebar
     {
       name: "stripeCheckoutSessionId",
       type: "text",
@@ -18,7 +19,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
       required: false,
       admin: {
         readOnly: true,
-        hidden: true,
+        position: "sidebar",
       },
     },
     {
@@ -27,41 +28,100 @@ export const Bookings: CollectionConfig<"bookings"> = {
       required: true,
       admin: {
         readOnly: true,
+        position: "sidebar",
       },
-    },
-    {
-      name: "eventRelation",
-      label: "Event",
-      type: "relationship",
-      relationTo: "events",
     },
     {
       name: "customerId",
       type: "text",
-      required: true,
       admin: {
         readOnly: true,
+        position: "sidebar",
       },
     },
     {
-      name: "customerRelation",
+      name: "eventSnapshot",
+      type: "json",
+      admin: {
+        readOnly: true,
+        position: "sidebar",
+      },
+    },
+    {
+      name: "customerSnapshot",
+      type: "json",
+      admin: {
+        readOnly: true,
+        position: "sidebar",
+      },
+    },
+    {
+      name: "pricingSnapshot",
+      type: "json",
+      admin: {
+        readOnly: true,
+        position: "sidebar",
+      },
+    },
+    {
+      type: "group",
+      label: "Event",
+      fields: [
+        {
+          name: "eventRelation",
+          type: "relationship",
+          relationTo: "events",
+          admin: {
+            components: {
+              Label: "/src/components/blank",
+            },
+          },
+        },
+        {
+          name: "dtstart",
+          type: "date",
+          required: true,
+          admin: {
+            hidden: true,
+          },
+        },
+        {
+          name: "dtend",
+          type: "date",
+          required: true,
+          admin: {
+            hidden: true,
+          },
+        },
+        {
+          type: "ui",
+          name: "eventCalendars",
+          admin: {
+            components: {
+              Field: "/src/collections/Booking/components/eventCalendars",
+            },
+          },
+        },
+      ],
+    },
+    {
+      type: "group",
       label: "Customer",
-      type: "relationship",
-      relationTo: "customers",
-    },
-    {
-      name: "dtstart",
-      type: "date",
-      required: true,
-    },
-    {
-      name: "dtend",
-      type: "date",
-      required: true,
+      fields: [
+        {
+          name: "customerRelation",
+          label: "Customer",
+          type: "relationship",
+          relationTo: "customers",
+        },
+      ],
     },
     {
       name: "rrulestring",
       type: "text",
+      admin: {
+        position: "sidebar",
+      },
     },
     {
       name: "paymentMethod",
@@ -76,30 +136,6 @@ export const Bookings: CollectionConfig<"bookings"> = {
           value: "inPerson",
         },
       ],
-    },
-    {
-      name: "eventSnapshot",
-      type: "json",
-      admin: {
-        readOnly: true,
-        hidden: true,
-      },
-    },
-    {
-      name: "customerSnapshot",
-      type: "json",
-      admin: {
-        readOnly: true,
-        hidden: true,
-      },
-    },
-    {
-      name: "pricingSnapshot",
-      type: "json",
-      admin: {
-        readOnly: true,
-        hidden: true,
-      },
     },
   ],
 };

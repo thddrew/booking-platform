@@ -368,13 +368,7 @@ export interface Booking {
   tenant?: (number | null) | Tenant;
   stripeCheckoutSessionId?: string | null;
   eventId: string;
-  eventRelation?: (number | null) | Event;
-  customerId: string;
-  customerRelation?: (number | null) | Customer;
-  dtstart: string;
-  dtend: string;
-  rrulestring?: string | null;
-  paymentMethod?: ('stripe' | 'inPerson') | null;
+  customerId?: string | null;
   eventSnapshot?:
     | {
         [k: string]: unknown;
@@ -402,6 +396,12 @@ export interface Booking {
     | number
     | boolean
     | null;
+  eventRelation?: (number | null) | Event;
+  dtstart: string;
+  dtend: string;
+  customerRelation?: (number | null) | Customer;
+  rrulestring?: string | null;
+  paymentMethod?: ('stripe' | 'inPerson') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -762,16 +762,16 @@ export interface BookingsSelect<T extends boolean = true> {
   tenant?: T;
   stripeCheckoutSessionId?: T;
   eventId?: T;
-  eventRelation?: T;
   customerId?: T;
-  customerRelation?: T;
-  dtstart?: T;
-  dtend?: T;
-  rrulestring?: T;
-  paymentMethod?: T;
   eventSnapshot?: T;
   customerSnapshot?: T;
   pricingSnapshot?: T;
+  eventRelation?: T;
+  dtstart?: T;
+  dtend?: T;
+  customerRelation?: T;
+  rrulestring?: T;
+  paymentMethod?: T;
   updatedAt?: T;
   createdAt?: T;
 }
