@@ -20,15 +20,10 @@ export function EventCard({
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
-      hour12: true,
     });
   };
 
   const getEventColor = () => {
-    if (event.color) {
-      return event.color;
-    }
-
     // Default colors with proper contrast
     const colors = [
       "#0891b2", // cyan-600
@@ -39,12 +34,12 @@ export function EventCard({
       "#0f766e", // teal-600
     ];
 
-    const hash = event.title.split("").reduce((a, b) => {
+    const hash = event.title?.split("").reduce((a, b) => {
       a = (a << 5) - a + b.charCodeAt(0);
       return a & a;
     }, 0);
 
-    return colors[Math.abs(hash) % colors.length];
+    return colors[Math.abs(hash ?? 0) % colors.length];
   };
 
   const eventColor = getEventColor();
@@ -52,7 +47,7 @@ export function EventCard({
   return (
     <div
       className={cn(
-        "rounded-md text-sm cursor-pointer transition-all hover:shadow-sm border-l-4 text-white",
+        "rounded-md text-sm cursor-pointer transition-all hover:shadow-sm text-white",
         compact ? "p-1 text-xs" : "p-2",
         className
       )}
@@ -75,19 +70,19 @@ export function EventCard({
       }}
       aria-label={`Event: ${event.title}`}
     >
-      <div className="font-medium text-balance leading-tight md:line-clamp-2">
-        {event.title}
-      </div>
-      {!event.allDay && !compact && (
-        <div className="text-xs opacity-90 mt-1">
-          {formatTime(event.start)} - {formatTime(event.end)}
+      <div className="sticky top-2">
+        <div className="font-medium text-balance leading-tight md:line-clamp-2">
+          {event.title}
         </div>
-      )}
-      {event.description && !compact && (
+        <div className="text-xs opacity-90 mt-1">
+          {formatTime(event.dtstart)} - {formatTime(event.dtend)}
+        </div>
+      </div>
+      {/* {event.description && !compact && (
         <div className="text-xs opacity-80 mt-1 line-clamp-2">
           {event.description}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

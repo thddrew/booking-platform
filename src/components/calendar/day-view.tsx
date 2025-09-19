@@ -4,11 +4,11 @@ import { Plus } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { CalendarEvent } from "@/components/calendar/types";
 import { cn } from "@/lib/utils";
+import { useCalendar } from "./calendar-provider";
 import { EventCard } from "./event-card";
 
 interface DayViewProps {
   date: Date;
-  events: CalendarEvent[];
   onEventClick?: (event: CalendarEvent) => void;
   onTimeSlotClick?: (date: Date, hour: number) => void;
   onCreateBooking?: (date: Date, hour: number) => void;
@@ -16,7 +16,6 @@ interface DayViewProps {
 
 export function DayView({
   date,
-  events,
   onEventClick,
   onTimeSlotClick,
   onCreateBooking,
@@ -27,6 +26,8 @@ export function DayView({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const currentHour = today.getHours();
 
+  const { events } = useCalendar();
+
   useEffect(() => {
     if (scrollContainerRef.current) {
       const hourHeight = 80;
@@ -36,24 +37,24 @@ export function DayView({
     }
   }, [currentHour]);
 
-  const getEventsForHour = (hour: number) => {
-    return events.filter((event) => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
-      const eventDate = new Date(eventStart);
-      eventDate.setHours(0, 0, 0, 0);
+  // const getEventsForHour = (hour: number) => {
+  //   return events.filter((event) => {
+  //     const eventStart = new Date(event.start);
+  //     const eventEnd = new Date(event.end);
+  //     const eventDate = new Date(eventStart);
+  //     eventDate.setHours(0, 0, 0, 0);
 
-      const targetDate = new Date(date);
-      targetDate.setHours(0, 0, 0, 0);
+  //     const targetDate = new Date(date);
+  //     targetDate.setHours(0, 0, 0, 0);
 
-      if (eventDate.getTime() !== targetDate.getTime()) return false;
+  //     if (eventDate.getTime() !== targetDate.getTime()) return false;
 
-      const startHour = eventStart.getHours();
-      const endHour = eventEnd.getHours();
+  //     const startHour = eventStart.getHours();
+  //     const endHour = eventEnd.getHours();
 
-      return hour >= startHour && hour <= endHour;
-    });
-  };
+  //     return hour >= startHour && hour <= endHour;
+  //   });
+  // };
 
   const formatHour = (hour: number) => {
     const date = new Date();
@@ -79,8 +80,8 @@ export function DayView({
     }> = [];
 
     events.forEach((event) => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
+      const eventStart = new Date(event.dtstart);
+      const eventEnd = new Date(event.dtend);
       const eventDate = new Date(eventStart);
       eventDate.setHours(0, 0, 0, 0);
 
@@ -112,8 +113,8 @@ export function DayView({
 
   const hasEventsInHour = (hour: number) => {
     return events.some((event) => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
+      const eventStart = new Date(event.dtstart);
+      const eventEnd = new Date(event.dtend);
       const eventDate = new Date(eventStart);
       eventDate.setHours(0, 0, 0, 0);
 
@@ -122,8 +123,8 @@ export function DayView({
 
       if (eventDate.getTime() !== targetDate.getTime()) return false;
 
-      const startHour = eventStart.getHours();
-      const endHour = eventEnd.getHours();
+      const startHour = new Date(eventStart).getHours();
+      const endHour = new Date(eventEnd).getHours();
 
       return hour >= startHour && hour < endHour;
     });
@@ -135,12 +136,12 @@ export function DayView({
 
       {/* Time slots */}
       <div
-        className="flex-1 overflow-auto"
+        className="flex-1 overflow-auto overscroll-contain max-h-[400px]"
         ref={scrollContainerRef}
       >
-        <div className="grid grid-cols-12 gap-0">
+        <div className="grid grid-cols-[100px_repeat(11,1fr)] gap-0">
           {/* Time column */}
-          <div className="col-span-2 border-r">
+          <div className="col-span-1 border-r">
             {hours.map((hour) => (
               <div
                 key={hour}
@@ -152,10 +153,10 @@ export function DayView({
           </div>
 
           {/* Events column */}
-          <div className="col-span-10 relative">
+          <div className="col-span-11 relative">
             {getPositionedEvents().map(({ event, top, height }) => (
               <div
-                key={event.id}
+                key={`${event.type}-${event.dtstart.toISOString()}-${event.dtend.toISOString()}`}
                 className="absolute left-2 right-2 z-10"
                 style={{ top: `${top}px`, height: `${height}px` }}
               >
@@ -178,7 +179,7 @@ export function DayView({
                     "h-20 border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative group",
                     isToday && "bg-primary/5",
                     isPast &&
-                      "bg-gray-100 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.05)_4px,rgba(0,0,0,0.05)_8px)] cursor-not-allowed opacity-60"
+                      "bg-gray-100 hover:bg-gray-100 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.05)_4px,rgba(0,0,0,0.05)_8px)] cursor-not-allowed opacity-60"
                   )}
                   onClick={() =>
                     !isPast && !hasEvents && onTimeSlotClick?.(date, hour)

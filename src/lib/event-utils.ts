@@ -1,6 +1,6 @@
 import { RRuleTemporal } from "rrule-temporal";
 import { Temporal } from "temporal-polyfill";
-import type { CalendarEvent } from "@/components/calendar/calendar";
+import type { CalendarEvent } from "@/components/calendar/types";
 
 /**
  * Expands recurring events into individual occurrences for a given date range.

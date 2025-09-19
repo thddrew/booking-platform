@@ -3,32 +3,44 @@
 import { CheckCircle2, Plus } from "lucide-react";
 import type { CalendarEvent } from "@/components/calendar/types";
 import { cn } from "@/lib/utils";
+import { useCalendar } from "./calendar-provider";
 import { EventCard } from "./event-card";
+
+export type MonthViewConfig = {
+  /** @default true */
+  showBookingButton?: boolean;
+};
 
 interface MonthViewProps {
   dates: Date[];
   currentDate: Date;
-  events: CalendarEvent[];
   onEventClick?: (event: CalendarEvent) => void;
   onDateClick?: (date: Date) => void;
   onCreateBooking?: (date: Date) => void;
+  config?: MonthViewConfig;
 }
 
 export function MonthView({
   dates,
   currentDate,
-  events,
   onEventClick,
   onDateClick,
   onCreateBooking,
+  config = {},
 }: MonthViewProps) {
+  const { showBookingButton = true }: MonthViewConfig = {
+    showBookingButton: true,
+    ...config,
+  };
   const today = new Date();
   const currentMonth = currentDate.getMonth();
 
+  const { events } = useCalendar();
+
   const getEventsForDate = (date: Date) => {
     return events.filter((event) => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
+      const eventStart = new Date(event.dtstart);
+      const eventEnd = new Date(event.dtend);
       const targetDate = new Date(date);
 
       const eventStartDate = new Date(eventStart);
@@ -49,8 +61,8 @@ export function MonthView({
     const completedBookings: CalendarEvent[] = [];
 
     dayEvents.forEach((event) => {
-      const eventEnd = new Date(event.end);
-      const isCompleted = eventEnd < now && event.payment?.status === "paid";
+      const eventEnd = new Date(event.dtend);
+      const isCompleted = false; // TODO: Add completed bookings
 
       if (isCompleted) {
         completedBookings.push(event);
@@ -88,15 +100,15 @@ export function MonthView({
           const isCurrentMonth = date.getMonth() === currentMonth;
 
           return (
-            <div
+            <button
+              type="button"
               key={date.toISOString()}
               className={cn(
-                "min-h-20 border-r border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative group",
+                "flex flex-col min-h-20 border-r border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative group",
                 !isCurrentMonth && "text-muted-foreground bg-muted/20",
                 isToday && "bg-primary/5"
               )}
               onClick={() => onDateClick?.(date)}
-              role="button"
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -143,7 +155,7 @@ export function MonthView({
                 <div className="hidden sm:block space-y-1">
                   {activeBookings.slice(0, 2).map((event) => (
                     <EventCard
-                      key={event.id}
+                      key={`${event.type}-${event.dtstart.toISOString()}-${event.dtend.toISOString()}`}
                       event={event}
                       onClick={onEventClick}
                       compact
@@ -157,18 +169,20 @@ export function MonthView({
                 </div>
               </div>
 
-              <button
-                className="absolute bottom-2 right-2 w-7 h-7 bg-primary text-primary-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-primary/90 z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCreateBooking?.(date);
-                }}
-                aria-label="Create new booking"
-                type="button"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
+              {showBookingButton && (
+                <button
+                  className="absolute bottom-2 right-2 w-7 h-7 bg-primary/70 text-primary-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-primary/100 hover:ring-2 hover:ring-primary/20 z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCreateBooking?.(date);
+                  }}
+                  aria-label="Create new booking"
+                  type="button"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              )}
+            </button>
           );
         })}
       </div>

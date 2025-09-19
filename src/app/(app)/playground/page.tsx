@@ -428,7 +428,7 @@ export default function HomePage() {
   return (
     <div className="p-4">
       <Calendar
-        events={bookings}
+        initialEvents={bookings}
         onEventCreate={handleBookingCreate}
         onEventUpdate={handleBookingUpdate}
         onEventDelete={handleBookingCancel}

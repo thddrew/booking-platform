@@ -35,6 +35,15 @@ export function CalendarHeader({
 
         return `${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${weekEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
       }
+      case "three-day": {
+        const day1 = new Date(currentDate);
+        const day2 = new Date(currentDate);
+        day2.setDate(currentDate.getDate() + 1);
+        const day3 = new Date(currentDate);
+        day3.setDate(currentDate.getDate() + 2);
+
+        return `${day1.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${day3.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+      }
       case "day":
         options.weekday = "long";
         options.month = "long";
@@ -84,18 +93,24 @@ export function CalendarHeader({
       </div>
 
       <div className="flex items-center gap-1">
-        {(["month", "week", "day"] as CalendarView[]).map((viewType) => (
-          <Button
-            key={viewType}
-            variant={view === viewType ? "default" : "ghost"}
-            size="sm"
-            onClick={() => onViewChange(viewType)}
-            className="capitalize"
-          >
-            <span className="hidden sm:inline">{viewType}</span>
-            <span className="sm:hidden">{viewType.charAt(0)}</span>
-          </Button>
-        ))}
+        {(["month", "week", "three-day", "day"] as CalendarView[]).map(
+          (viewType) => (
+            <Button
+              key={viewType}
+              variant={view === viewType ? "default" : "ghost"}
+              size="sm"
+              onClick={() => onViewChange(viewType)}
+              className="capitalize"
+            >
+              <span className="hidden sm:inline">
+                {viewType === "three-day" ? "3-day" : viewType}
+              </span>
+              <span className="sm:hidden">
+                {viewType === "three-day" ? "3" : viewType.charAt(0)}
+              </span>
+            </Button>
+          )
+        )}
       </div>
     </div>
   );
