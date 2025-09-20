@@ -1,15 +1,18 @@
 "use client";
 
 import { CheckCircle2, Plus } from "lucide-react";
-import type { CalendarEvent } from "@/components/calendar/types";
+import {
+  type BookingInstance,
+  type CalendarEvent,
+  CalendarEventTypes,
+  defaultViewConfig,
+  type ScheduleInstance,
+  type ViewConfig,
+} from "@/components/calendar/types";
 import { cn } from "@/lib/utils";
 import { useCalendar } from "./calendar-provider";
-import { EventCard } from "./event-card";
-
-export type MonthViewConfig = {
-  /** @default true */
-  showBookingButton?: boolean;
-};
+import { EventCard } from "./event/event-card";
+import { shallowEqual } from "./utils/shallow-equal";
 
 interface MonthViewProps {
   dates: Date[];
@@ -17,7 +20,7 @@ interface MonthViewProps {
   onEventClick?: (event: CalendarEvent) => void;
   onDateClick?: (date: Date) => void;
   onCreateBooking?: (date: Date) => void;
-  config?: MonthViewConfig;
+  config?: ViewConfig;
 }
 
 export function MonthView({
@@ -28,14 +31,14 @@ export function MonthView({
   onCreateBooking,
   config = {},
 }: MonthViewProps) {
-  const { showBookingButton = true }: MonthViewConfig = {
-    showBookingButton: true,
+  const { showCreateBtn }: ViewConfig = {
+    ...defaultViewConfig,
     ...config,
   };
   const today = new Date();
   const currentMonth = currentDate.getMonth();
 
-  const { events } = useCalendar();
+  const { events, selectedEvent } = useCalendar();
 
   const getEventsForDate = (date: Date) => {
     return events.filter((event) => {
@@ -55,23 +58,31 @@ export function MonthView({
     });
   };
 
-  const separateBookings = (dayEvents: CalendarEvent[]) => {
+  const separateEvents = (dayEvents: CalendarEvent[]) => {
     const now = new Date();
-    const activeBookings: CalendarEvent[] = [];
-    const completedBookings: CalendarEvent[] = [];
+    const activeBookings: BookingInstance[] = [];
+    const completedBookings: BookingInstance[] = [];
+    const scheduleInstances: ScheduleInstance[] = [];
 
     dayEvents.forEach((event) => {
-      const eventEnd = new Date(event.dtend);
-      const isCompleted = false; // TODO: Add completed bookings
+      if (event.type === CalendarEventTypes.scheduleInstance) {
+        scheduleInstances.push(event);
+        return;
+      }
 
-      if (isCompleted) {
-        completedBookings.push(event);
-      } else {
-        activeBookings.push(event);
+      if (event.type === CalendarEventTypes.booking) {
+        // const eventEnd = new Date(event.dtend);
+        const isCompleted = false; // TODO: Add completed bookings
+
+        if (isCompleted) {
+          completedBookings.push(event);
+        } else {
+          activeBookings.push(event);
+        }
       }
     });
 
-    return { activeBookings, completedBookings };
+    return { activeBookings, completedBookings, scheduleInstances };
   };
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -79,7 +90,7 @@ export function MonthView({
   return (
     <div className="flex flex-col h-full">
       {/* Week day headers */}
-      <div className="grid grid-cols-7 border-b bg-muted/50">
+      <div className="grid grid-cols-7 border-b bg-card sticky top-0 z-20">
         {weekDays.map((day) => (
           <div
             key={day}
@@ -91,11 +102,11 @@ export function MonthView({
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 flex-1 max-h-[300px] sm:max-h-none overflow-y-auto">
+      <div className="grid grid-cols-7 flex-1">
         {dates.map((date) => {
           const dayEvents = getEventsForDate(date);
           const { activeBookings, completedBookings } =
-            separateBookings(dayEvents);
+            separateEvents(dayEvents);
           const isToday = date.toDateString() === today.toDateString();
           const isCurrentMonth = date.getMonth() === currentMonth;
 
@@ -104,7 +115,7 @@ export function MonthView({
               type="button"
               key={date.toISOString()}
               className={cn(
-                "flex flex-col min-h-20 border-r border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative group",
+                "flex flex-col min-h-28 border-r border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative group",
                 !isCurrentMonth && "text-muted-foreground bg-muted/20",
                 isToday && "bg-primary/5"
               )}
@@ -153,7 +164,16 @@ export function MonthView({
 
                 {/* Desktop view: event cards */}
                 <div className="hidden sm:block space-y-1">
-                  {activeBookings.slice(0, 2).map((event) => (
+                  {dayEvents.map((event) => (
+                    <EventCard
+                      key={`${event.type}-${event.dtstart.toISOString()}-${event.dtend.toISOString()}`}
+                      event={event}
+                      onClick={onEventClick}
+                      compact
+                      isSelected={shallowEqual(event, selectedEvent)}
+                    />
+                  ))}
+                  {/* {activeBookings.slice(0, 2).map((event) => (
                     <EventCard
                       key={`${event.type}-${event.dtstart.toISOString()}-${event.dtend.toISOString()}`}
                       event={event}
@@ -165,11 +185,11 @@ export function MonthView({
                     <div className="text-xs text-foreground/70 px-1 font-medium">
                       +{activeBookings.length - 2}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
 
-              {showBookingButton && (
+              {showCreateBtn && (
                 <button
                   className="absolute bottom-2 right-2 w-7 h-7 bg-primary/70 text-primary-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-primary/100 hover:ring-2 hover:ring-primary/20 z-10"
                   onClick={(e) => {

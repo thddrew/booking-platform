@@ -1,6 +1,10 @@
 "use client";
 
-import type { CalendarEvent, CalendarProps } from "@/components/calendar/types";
+import type {
+  CalendarEvent,
+  CalendarView,
+  ViewConfig,
+} from "@/components/calendar/types";
 import { cn } from "@/lib/utils";
 import { CalendarHeader } from "./calendar-header";
 import { useCalendar } from "./calendar-provider";
@@ -14,7 +18,22 @@ import { WeekView } from "./week-view";
  * - show loading toast on bottom right of calendar
  * - allow custom events rendering on calendar?
  * - preload events for viewDates +- 1
+ * - make components composable
+ * - make headless states and hooks
  */
+
+export interface CalendarProps {
+  onViewChange?: (view: CalendarView) => void;
+  onDateChange?: (date: Date) => void;
+  onEventClick?: (event: CalendarEvent) => void;
+  onCreateBooking?: (date: Date) => void;
+  onTimeSlotClick?: (date: Date, hour: number) => void;
+  className?: string;
+  eventRenderer?: (event: CalendarEvent) => React.ReactNode;
+  config?: {
+    [key in CalendarView]?: ViewConfig;
+  };
+}
 
 export function Calendar({
   onViewChange,
@@ -76,6 +95,7 @@ export function Calendar({
             onEventClick={handleEventClick}
             onTimeSlotClick={onTimeSlotClick}
             onCreateBooking={onCreateBooking}
+            config={config?.week}
           />
         );
       case "three-day":
@@ -85,6 +105,7 @@ export function Calendar({
             onEventClick={handleEventClick}
             onTimeSlotClick={onTimeSlotClick}
             onCreateBooking={onCreateBooking}
+            config={config?.["three-day"]}
           />
         );
       case "day":
@@ -94,6 +115,7 @@ export function Calendar({
             onEventClick={handleEventClick}
             onTimeSlotClick={onTimeSlotClick}
             onCreateBooking={onCreateBooking}
+            config={config?.day}
           />
         );
       default:
@@ -104,7 +126,7 @@ export function Calendar({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-background border rounded",
+        "flex flex-col h-full bg-background border rounded max-h-[500px]",
         className
       )}
     >
@@ -116,7 +138,9 @@ export function Calendar({
         onToday={goToToday}
       />
 
-      <div className="flex-1 overflow-y-auto">{renderView()}</div>
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        {renderView()}
+      </div>
     </div>
   );
 }

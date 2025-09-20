@@ -20,6 +20,9 @@ importers:
       '@nouance/payload-better-fields-plugin':
         specifier: 2.0.2
         version: 2.0.2(colord@2.9.3)(date-fns-tz@2.0.1(date-fns@4.1.0))(payload@3.54.0(graphql@16.9.0)(typescript@5.9.2))(react-colorful@5.6.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-number-format@5.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-phone-number-input@3.4.12(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(slug@10.0.0)
+      '@paralleldrive/cuid2':
+        specifier: 2.2.2
+        version: 2.2.2
       '@payloadcms/db-postgres':
         specifier: 3.54.0
         version: 3.54.0(payload@3.54.0(graphql@16.9.0)(typescript@5.9.2))
@@ -1250,6 +1253,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@noble/hashes@1.8.0':
+    resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
+    engines: {node: ^14.21.3 || >=16}
+
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -1277,6 +1284,9 @@ packages:
       react-number-format: ^5.3.1
       react-phone-number-input: ^3.3.7
       slug: ^10.0.0
+
+  '@paralleldrive/cuid2@2.2.2':
+    resolution: {integrity: sha512-ZOBkgDwEdoYVlSeRbYYXs0S9MejQofiVYoTbKzy/6GQa39/q5tQU2IX46+shYnUkpEl3wc+J6wRlar7r2EK2xA==}
 
   '@payloadcms/db-postgres@3.54.0':
     resolution: {integrity: sha512-C1tADNHHRTfXyJ6UXTPrHhDVji8kQFKPmT3R/LxOfXwMX5SQanfGx4dGotug647EuZCLgP9YH/ASmGgSFG2RjQ==}
@@ -5904,6 +5914,8 @@ snapshots:
   '@next/swc-win32-x64-msvc@15.5.3':
     optional: true
 
+  '@noble/hashes@1.8.0': {}
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -5927,6 +5939,10 @@ snapshots:
       react-number-format: 5.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-phone-number-input: 3.4.12(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       slug: 10.0.0
+
+  '@paralleldrive/cuid2@2.2.2':
+    dependencies:
+      '@noble/hashes': 1.8.0
 
   '@payloadcms/db-postgres@3.54.0(payload@3.54.0(graphql@16.9.0)(typescript@5.9.2))':
     dependencies:

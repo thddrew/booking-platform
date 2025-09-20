@@ -397,6 +397,15 @@ export interface Booking {
     | boolean
     | null;
   eventRelation?: (number | null) | Event;
+  selectedScheduleInstanceData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   dtstart: string;
   dtend: string;
   customerRelation?: (number | null) | Customer;
@@ -767,6 +776,7 @@ export interface BookingsSelect<T extends boolean = true> {
   customerSnapshot?: T;
   pricingSnapshot?: T;
   eventRelation?: T;
+  selectedScheduleInstanceData?: T;
   dtstart?: T;
   dtend?: T;
   customerRelation?: T;

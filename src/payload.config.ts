@@ -13,7 +13,7 @@ import { superAdminFieldAccess } from "./access/superAdminFieldAccess";
 import { ConnectedAccounts } from "./collections/Billing/ConnectedAccounts";
 import { Payments } from "./collections/Billing/Payments";
 import { PaymentsSettings } from "./collections/Billing/payments-settings";
-import { Bookings } from "./collections/Booking";
+import { Bookings } from "./collections/Bookings";
 import { Customers } from "./collections/Customers";
 import { Events } from "./collections/Events";
 import { Logs } from "./collections/Logs";

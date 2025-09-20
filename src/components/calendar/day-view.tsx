@@ -2,16 +2,22 @@
 
 import { Plus } from "lucide-react";
 import { useEffect, useRef } from "react";
-import type { CalendarEvent } from "@/components/calendar/types";
+import {
+  type CalendarEvent,
+  defaultViewConfig,
+  type ViewConfig,
+} from "@/components/calendar/types";
 import { cn } from "@/lib/utils";
 import { useCalendar } from "./calendar-provider";
-import { EventCard } from "./event-card";
+import { EventCard } from "./event/event-card";
+import { shallowEqual } from "./utils/shallow-equal";
 
 interface DayViewProps {
   date: Date;
   onEventClick?: (event: CalendarEvent) => void;
   onTimeSlotClick?: (date: Date, hour: number) => void;
   onCreateBooking?: (date: Date, hour: number) => void;
+  config?: ViewConfig;
 }
 
 export function DayView({
@@ -19,14 +25,19 @@ export function DayView({
   onEventClick,
   onTimeSlotClick,
   onCreateBooking,
+  config = {},
 }: DayViewProps) {
+  const { showCreateBtn }: ViewConfig = {
+    ...defaultViewConfig,
+    ...config,
+  };
   const today = new Date();
   const isToday = date.toDateString() === today.toDateString();
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const currentHour = today.getHours();
 
-  const { events } = useCalendar();
+  const { events, selectedEvent } = useCalendar();
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -36,25 +47,6 @@ export function DayView({
       scrollContainerRef.current.scrollTop = scrollPosition;
     }
   }, [currentHour]);
-
-  // const getEventsForHour = (hour: number) => {
-  //   return events.filter((event) => {
-  //     const eventStart = new Date(event.start);
-  //     const eventEnd = new Date(event.end);
-  //     const eventDate = new Date(eventStart);
-  //     eventDate.setHours(0, 0, 0, 0);
-
-  //     const targetDate = new Date(date);
-  //     targetDate.setHours(0, 0, 0, 0);
-
-  //     if (eventDate.getTime() !== targetDate.getTime()) return false;
-
-  //     const startHour = eventStart.getHours();
-  //     const endHour = eventEnd.getHours();
-
-  //     return hour >= startHour && hour <= endHour;
-  //   });
-  // };
 
   const formatHour = (hour: number) => {
     const date = new Date();
@@ -68,7 +60,11 @@ export function DayView({
   const isPastTimeSlot = (hour: number) => {
     const slotDate = new Date(date);
     slotDate.setHours(hour, 0, 0, 0);
-    return slotDate < today;
+
+    const todayDate = new Date(today);
+    todayDate.setMinutes(0, 0, 0);
+
+    return slotDate < todayDate;
   };
 
   const getPositionedEvents = () => {
@@ -95,7 +91,7 @@ export function DayView({
       const endHour = eventEnd.getHours();
       const endMinute = eventEnd.getMinutes();
 
-      const hourHeight = 80; // 5rem = 80px
+      const hourHeight = 60; // 4rem = 60px // TODO: Make this dynamic
       const top = startHour * hourHeight + (startMinute / 60) * hourHeight;
       const duration = endHour - startHour + (endMinute - startMinute) / 60;
       const height = duration * hourHeight;
@@ -109,6 +105,20 @@ export function DayView({
     });
 
     return positionedEvents;
+  };
+
+  const getCurrentTimePosition = () => {
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+
+    if (!isToday) return null;
+
+    const hourHeight = 60; // Same as in getPositionedEvents
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const top = currentHour * hourHeight + (currentMinute / 60) * hourHeight;
+
+    return top;
   };
 
   const hasEventsInHour = (hour: number) => {
@@ -136,10 +146,10 @@ export function DayView({
 
       {/* Time slots */}
       <div
-        className="flex-1 overflow-auto overscroll-contain max-h-[400px]"
+        className="flex-1 overflow-auto overscroll-contain"
         ref={scrollContainerRef}
       >
-        <div className="grid grid-cols-[100px_repeat(11,1fr)] gap-0">
+        <div className="grid grid-cols-[75px_repeat(11,1fr)] gap-0">
           {/* Time column */}
           <div className="col-span-1 border-r">
             {hours.map((hour) => (
@@ -164,19 +174,34 @@ export function DayView({
                   event={event}
                   onClick={onEventClick}
                   className="h-full"
+                  isSelected={shallowEqual(event, selectedEvent)}
                 />
               </div>
             ))}
+
+            {/* Current time line */}
+            {getCurrentTimePosition() !== null && (
+              <div
+                className="absolute left-0 right-0 z-10 pointer-events-none"
+                style={{ top: `${getCurrentTimePosition()}px` }}
+              >
+                <div className="relative">
+                  <div className="h-0.5 bg-red-500 w-full"></div>
+                  <div className="absolute -left-2 -top-1 w-3 h-3 bg-red-500 rounded-full"></div>
+                </div>
+              </div>
+            )}
 
             {hours.map((hour) => {
               const isPast = isPastTimeSlot(hour);
               const hasEvents = hasEventsInHour(hour);
 
               return (
-                <div
+                <button
                   key={hour}
+                  type="button"
                   className={cn(
-                    "h-20 border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative group",
+                    "h-20 border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative group w-full text-left",
                     isToday && "bg-primary/5",
                     isPast &&
                       "bg-gray-100 hover:bg-gray-100 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.05)_4px,rgba(0,0,0,0.05)_8px)] cursor-not-allowed opacity-60"
@@ -184,8 +209,7 @@ export function DayView({
                   onClick={() =>
                     !isPast && !hasEvents && onTimeSlotClick?.(date, hour)
                   }
-                  role="button"
-                  tabIndex={isPast ? -1 : 0}
+                  disabled={isPast}
                   onKeyDown={(e) => {
                     if (
                       !isPast &&
@@ -198,10 +222,10 @@ export function DayView({
                   }}
                   aria-label={`${date.toLocaleDateString()} at ${formatHour(hour)}`}
                 >
-                  {!isPast && !hasEvents && (
+                  {showCreateBtn && (
                     <button
                       type="button"
-                      className="absolute bottom-2 right-2 w-7 h-7 bg-primary text-primary-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-primary/90 z-20"
+                      className="absolute bottom-2 right-2 w-7 h-7 bg-primary/70 text-primary-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-primary/100 hover:ring-2 hover:ring-primary/20 z-10"
                       onClick={(e) => {
                         e.stopPropagation();
                         onCreateBooking?.(date, hour);
@@ -211,7 +235,7 @@ export function DayView({
                       <Plus className="w-4 h-4" />
                     </button>
                   )}
-                </div>
+                </button>
               );
             })}
           </div>

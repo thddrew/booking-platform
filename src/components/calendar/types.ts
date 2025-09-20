@@ -1,48 +1,15 @@
 import type React from "react";
-import { Schedule } from "@/collections/Events/hooks/generateRrulestring";
-import { Booking } from "@/payload-types";
-import type { MonthViewConfig } from "./month-view";
+// This is either a booked event or an open time slot
+import { z } from "zod";
 
-export interface AttendeeType {
-  type: "adult" | "student" | "senior" | "child";
-  count: number;
-  price: number;
-}
+export type ViewConfig = {
+  /** @default true */
+  showCreateBtn?: boolean;
+};
 
-export interface CustomerDetails {
-  name: string;
-  email: string;
-  phone: string;
-}
-
-export interface PaymentDetails {
-  method: "card" | "cash" | "bank_transfer" | "paypal";
-  status: "paid" | "pending" | "failed" | "refunded";
-  amount: number;
-  transactionId?: string;
-}
-
-export interface SurfingBooking {
-  id: string;
-  title: string;
-  description?: string;
-  start: Date;
-  end: Date;
-  allDay?: boolean;
-  color?: string;
-  category?: string;
-  customer: CustomerDetails;
-  lessonType: "beginner" | "intermediate" | "advanced" | "private" | "group";
-  attendees: AttendeeType[];
-  payment: PaymentDetails;
-  instructor?: string;
-  equipment?: string[];
-  notes?: string;
-  // For recurring events
-  rrulestring?: string;
-  dtstart?: Date;
-  dtend?: Date;
-}
+export const defaultViewConfig: ViewConfig = {
+  showCreateBtn: true,
+};
 
 export const CalendarEventTypes = {
   booking: "booking",
@@ -50,41 +17,49 @@ export const CalendarEventTypes = {
   openTimeSlot: "openTimeSlot",
 } as const;
 
-type CalendarEventBase = {
-  dtstart: Date;
-  dtend: Date;
-  title?: string;
+const CalendarEventBaseSchema = z.object({
+  /** @ignore not reliable, to be removed */
+  id: z.string(),
+  dtstart: z.date(),
+  dtend: z.date(),
+  title: z.string().optional(),
+});
+
+export type CalendarEventBase = z.infer<typeof CalendarEventBaseSchema>;
+
+export type ScheduleInstance = CalendarEventBase & {
+  type: typeof CalendarEventTypes.scheduleInstance;
+  scheduleId: string;
+  maxQuantity: number;
 };
 
-// This is either a booked event or an open time slot
-export type CalendarEvent = CalendarEventBase &
-  (
-    | {
-        type: typeof CalendarEventTypes.booking;
-        bookingId: string;
-      }
-    | {
-        type: typeof CalendarEventTypes.scheduleInstance;
-        scheduleId: string;
-      }
-    | {
-        type: typeof CalendarEventTypes.openTimeSlot;
-      }
-  );
+export type BookingInstance = CalendarEventBase & {
+  type: typeof CalendarEventTypes.booking;
+  bookingId: string;
+};
 
-export type _CalendarEvent = SurfingBooking;
+export type OpenTimeSlot = CalendarEventBase & {
+  type: typeof CalendarEventTypes.openTimeSlot;
+};
+
+export const CalendarEventSchema = z.discriminatedUnion("type", [
+  z.object({
+    ...CalendarEventBaseSchema.shape,
+    type: z.literal("booking"),
+    bookingId: z.string(),
+  }),
+  z.object({
+    ...CalendarEventBaseSchema.shape,
+    type: z.literal("scheduleInstance"),
+    scheduleId: z.string(),
+    maxQuantity: z.number(),
+  }),
+  z.object({
+    ...CalendarEventBaseSchema.shape,
+    type: z.literal("openTimeSlot"),
+  }),
+]);
+
+export type CalendarEvent = z.infer<typeof CalendarEventSchema>;
 
 export type CalendarView = "month" | "week" | "three-day" | "day";
-
-export interface CalendarProps {
-  onViewChange?: (view: CalendarView) => void;
-  onDateChange?: (date: Date) => void;
-  onEventClick?: (event: CalendarEvent) => void;
-  onCreateBooking?: (date: Date) => void;
-  onTimeSlotClick?: (date: Date, hour: number) => void;
-  className?: string;
-  eventRenderer?: (event: CalendarEvent) => React.ReactNode;
-  config?: {
-    month?: MonthViewConfig;
-  };
-}

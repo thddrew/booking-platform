@@ -2,19 +2,25 @@
 
 import type { CalendarEvent } from "@/components/calendar/types";
 import { cn } from "@/lib/utils";
+import type { EventCardPropsBase } from "./types";
 
-interface EventCardProps {
-  event: CalendarEvent;
-  onClick?: (event: CalendarEvent) => void;
-  className?: string;
-  compact?: boolean;
-}
+type EventCardProps = EventCardPropsBase & {
+  event: Extract<CalendarEvent, { type: "booking" }>;
+};
 
-export function EventCard({
+const mapAvailabilityToColor = (eventRatio: number) => {
+  if (eventRatio === 1) return "#dc2626"; // No space left, red-600
+  if (eventRatio >= 0.8) return "#ea580c"; // 80% full, orange-600
+  if (eventRatio >= 0.5) return "#0f766e"; // 50% full, teal-600
+  return "#059669"; // At least 50% space left, emerald-600
+};
+
+export function BookingInstanceCard({
   event,
   onClick,
   className,
   compact = false,
+  stickyTitle = true,
 }: EventCardProps) {
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", {
@@ -45,7 +51,8 @@ export function EventCard({
   const eventColor = getEventColor();
 
   return (
-    <div
+    <button
+      type="button"
       className={cn(
         "rounded-md text-sm cursor-pointer transition-all hover:shadow-sm text-white",
         compact ? "p-1 text-xs" : "p-2",
@@ -59,8 +66,6 @@ export function EventCard({
         e.stopPropagation();
         onClick?.(event);
       }}
-      role="button"
-      tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -70,7 +75,7 @@ export function EventCard({
       }}
       aria-label={`Event: ${event.title}`}
     >
-      <div className="sticky top-2">
+      <div className={cn(stickyTitle && "sticky top-20")}>
         <div className="font-medium text-balance leading-tight md:line-clamp-2">
           {event.title}
         </div>
@@ -83,6 +88,6 @@ export function EventCard({
           {event.description}
         </div>
       )} */}
-    </div>
+    </button>
   );
 }

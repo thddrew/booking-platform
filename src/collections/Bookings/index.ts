@@ -1,5 +1,10 @@
 import type { CollectionConfig } from "payload";
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
+import {
+  type CalendarEvent,
+  CalendarEventSchema,
+} from "@/components/calendar/types";
+import { EventPricesArraySchema } from "../Events/utils/zod";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
@@ -43,7 +48,6 @@ export const Bookings: CollectionConfig<"bookings"> = {
       name: "eventSnapshot",
       type: "json",
       admin: {
-        readOnly: true,
         position: "sidebar",
       },
     },
@@ -51,7 +55,6 @@ export const Bookings: CollectionConfig<"bookings"> = {
       name: "customerSnapshot",
       type: "json",
       admin: {
-        readOnly: true,
         position: "sidebar",
       },
     },
@@ -59,8 +62,14 @@ export const Bookings: CollectionConfig<"bookings"> = {
       name: "pricingSnapshot",
       type: "json",
       admin: {
-        readOnly: true,
         position: "sidebar",
+      },
+      validate: (value) => {
+        if (!value) return true;
+
+        return EventPricesArraySchema.safeParse(value).success
+          ? true
+          : "Invalid pricing snapshot";
       },
     },
     {
@@ -78,27 +87,50 @@ export const Bookings: CollectionConfig<"bookings"> = {
           },
         },
         {
-          name: "dtstart",
-          type: "date",
-          required: true,
-          admin: {
-            hidden: true,
-          },
-        },
-        {
-          name: "dtend",
-          type: "date",
-          required: true,
-          admin: {
-            hidden: true,
-          },
+          type: "row",
+          fields: [
+            {
+              type: "json",
+              name: "selectedScheduleInstanceData",
+              virtual: true,
+              admin: {
+                components: {
+                  Field:
+                    "/src/collections/Bookings/components/selectedScheduleInstance",
+                },
+              },
+              validate: (value?: CalendarEvent | null | string) => {
+                if (!value) return true;
+
+                return CalendarEventSchema.safeParse(value).success
+                  ? true
+                  : "Invalid schedule instance";
+              },
+            },
+            {
+              name: "dtstart",
+              type: "date",
+              required: true,
+              admin: {
+                hidden: true,
+              },
+            },
+            {
+              name: "dtend",
+              type: "date",
+              required: true,
+              admin: {
+                hidden: true,
+              },
+            },
+          ],
         },
         {
           type: "ui",
           name: "eventCalendars",
           admin: {
             components: {
-              Field: "/src/collections/Booking/components/eventCalendars",
+              Field: "/src/collections/Bookings/components/eventCalendars",
             },
           },
         },

@@ -33,7 +33,8 @@ import { default as default_8da585c8bc957fa9be6ee59109a55783 } from '../../../..
 import { default as default_9dd4e532f42a0b80e9493b570b383b4e } from '../../../../src/collections/Events/components/MonthPicker'
 import { default as default_98a84fcd4ba642e099ae089822aa2f2e } from '../../../../src/collections/Events/components/RruleNaturalLang'
 import { default as default_fcf6e3153448192d324e0b995b64e290 } from '../../../../src/collections/Events/components/RowLabel'
-import { default as default_061736f48235cdb9cfc0afb88f198c66 } from '../../../../src/collections/Booking/components/eventCalendars'
+import { default as default_c6815935ff72f5e5fff51e618ffce242 } from '../../../../src/collections/Bookings/components/selectedScheduleInstance'
+import { default as default_a1fd43e7023c5e364e087a46d3faea89 } from '../../../../src/collections/Bookings/components/eventCalendars'
 import { default as default_6a45e4f5620d40cdf60c9fd3da134521 } from '../../../../src/components/stripe-notification/banner.server'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
@@ -74,7 +75,8 @@ export const importMap = {
   "/src/collections/Events/components/MonthPicker#default": default_9dd4e532f42a0b80e9493b570b383b4e,
   "/src/collections/Events/components/RruleNaturalLang#default": default_98a84fcd4ba642e099ae089822aa2f2e,
   "/src/collections/Events/components/RowLabel#default": default_fcf6e3153448192d324e0b995b64e290,
-  "/src/collections/Booking/components/eventCalendars#default": default_061736f48235cdb9cfc0afb88f198c66,
+  "/src/collections/Bookings/components/selectedScheduleInstance#default": default_c6815935ff72f5e5fff51e618ffce242,
+  "/src/collections/Bookings/components/eventCalendars#default": default_a1fd43e7023c5e364e087a46d3faea89,
   "/src/components/stripe-notification/banner.server#default": default_6a45e4f5620d40cdf60c9fd3da134521,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62

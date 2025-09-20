@@ -19,6 +19,7 @@ interface CalendarContextValue {
   goToToday: () => void;
   viewDates: Date[];
   events: CalendarEvent[];
+  selectedEvent?: CalendarEvent;
   setEvents: (events: CalendarEvent[]) => void;
   loading: boolean;
 }
@@ -32,6 +33,7 @@ interface CalendarProviderProps {
   initialDate?: Date;
   initialView?: CalendarView;
   initialEvents?: CalendarEvent[];
+  selectedEvent?: CalendarEvent;
   /**
    * A function to load events for a given date range.
    */
@@ -44,9 +46,10 @@ interface CalendarProviderProps {
 
 export function CalendarProvider({
   children,
+  selectedEvent,
   initialEvents,
   initialDate = new Date(),
-  initialView = "month",
+  initialView = "three-day",
   loadEvents,
 }: CalendarProviderProps) {
   const [currentDate, setCurrentDate] = useState(initialDate);
@@ -166,15 +169,16 @@ export function CalendarProvider({
     <CalendarContext.Provider
       value={{
         currentDate,
-        view,
-        setView,
-        setCurrentDate,
-        navigateDate,
-        goToToday,
-        viewDates,
         events,
-        setEvents,
+        goToToday,
         loading,
+        navigateDate,
+        selectedEvent,
+        setCurrentDate,
+        setEvents,
+        setView,
+        view,
+        viewDates,
       }}
     >
       {children}

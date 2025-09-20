@@ -21,6 +21,7 @@
     "@hookform/resolvers": "5.2.1",
     "@js-temporal/polyfill": "0.5.1",
     "@nouance/payload-better-fields-plugin": "2.0.2",
+    "@paralleldrive/cuid2": "2.2.2",
     "@payloadcms/db-postgres": "3.54.0",
     "@payloadcms/next": "3.54.0",
     "@payloadcms/plugin-multi-tenant": "3.54.0",
