@@ -1,4 +1,3 @@
-import type React from "react";
 // This is either a booked event or an open time slot
 import { z } from "zod";
 

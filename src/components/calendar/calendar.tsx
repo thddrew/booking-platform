@@ -4,7 +4,7 @@ import type {
   CalendarEvent,
   CalendarView,
   ViewConfig,
-} from "@/components/calendar/types";
+} from "@/components/calendar/schemas";
 import { cn } from "@/lib/utils";
 import { CalendarHeader } from "./calendar-header";
 import { useCalendar } from "./calendar-provider";

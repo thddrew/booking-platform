@@ -34,6 +34,8 @@ export const Events: CollectionConfig<"events"> = {
   },
   fields: [
     {
+      // TODO: use a Switch component instead of a checkbox
+      // this likely needs to be a custom component
       type: "checkbox",
       name: "isActive",
       label: "Active",

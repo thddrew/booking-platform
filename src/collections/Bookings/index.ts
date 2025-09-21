@@ -3,8 +3,8 @@ import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superA
 import {
   type CalendarEvent,
   CalendarEventSchema,
-} from "@/components/calendar/types";
-import { EventPricesArraySchema } from "../Events/utils/zod";
+} from "@/components/calendar/schemas";
+import { EventPricesArraySchema } from "../Events/utils/schemas";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
@@ -74,7 +74,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
     },
     {
       type: "group",
-      label: "Event",
+      label: "Event & Schedule",
       fields: [
         {
           name: "eventRelation",
@@ -96,7 +96,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
               admin: {
                 components: {
                   Field:
-                    "/src/collections/Bookings/components/selectedScheduleInstance",
+                    "/src/collections/Bookings/components/selected-schedule-instance",
                 },
               },
               validate: (value?: CalendarEvent | null | string) => {
@@ -130,7 +130,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
           name: "eventCalendars",
           admin: {
             components: {
-              Field: "/src/collections/Bookings/components/eventCalendars",
+              Field: "/src/collections/Bookings/components/events-calendar",
             },
           },
         },
@@ -138,7 +138,22 @@ export const Bookings: CollectionConfig<"bookings"> = {
     },
     {
       type: "group",
-      label: "Customer",
+      label: "Attendees & Pricing",
+      fields: [
+        {
+          type: "ui",
+          name: "attendees",
+          admin: {
+            components: {
+              Field: "/src/collections/Bookings/components/configure-attendees",
+            },
+          },
+        },
+      ],
+    },
+    {
+      type: "group",
+      label: "Customer Information",
       fields: [
         {
           name: "customerRelation",

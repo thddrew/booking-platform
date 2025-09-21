@@ -2,8 +2,8 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
-import type { CalendarEvent } from "@/components/calendar/types";
+import { useEffect, useState } from "react";
+import type { CalendarEvent } from "@/components/calendar/schemas";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

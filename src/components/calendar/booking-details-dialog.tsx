@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, CreditCard, FileText, MapPin, User, Users } from "lucide-react";
-import type { CalendarEvent } from "@/components/calendar/types";
+import type { CalendarEvent } from "@/components/calendar/schemas";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {

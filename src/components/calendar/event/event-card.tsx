@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarEventTypes } from "@/components/calendar/types";
+import { CalendarEventTypes } from "@/components/calendar/schemas";
 import { BookingInstanceCard } from "./booking-instance-card";
 import { ScheduleInstanceCard } from "./schedule-instance-card";
 import type { EventCardPropsBase } from "./types";

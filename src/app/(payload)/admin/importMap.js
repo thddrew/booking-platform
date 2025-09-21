@@ -33,8 +33,9 @@ import { default as default_8da585c8bc957fa9be6ee59109a55783 } from '../../../..
 import { default as default_9dd4e532f42a0b80e9493b570b383b4e } from '../../../../src/collections/Events/components/MonthPicker'
 import { default as default_98a84fcd4ba642e099ae089822aa2f2e } from '../../../../src/collections/Events/components/RruleNaturalLang'
 import { default as default_fcf6e3153448192d324e0b995b64e290 } from '../../../../src/collections/Events/components/RowLabel'
-import { default as default_c6815935ff72f5e5fff51e618ffce242 } from '../../../../src/collections/Bookings/components/selectedScheduleInstance'
-import { default as default_a1fd43e7023c5e364e087a46d3faea89 } from '../../../../src/collections/Bookings/components/eventCalendars'
+import { default as default_fc2c0b3d1a9911200cf4df449dd9ea32 } from '../../../../src/collections/Bookings/components/selected-schedule-instance'
+import { default as default_e44983ab9f708fe7a766ec40786db42e } from '../../../../src/collections/Bookings/components/events-calendar'
+import { default as default_3c2876d67fad29dffe659acc4c2d0d6b } from '../../../../src/collections/Bookings/components/configure-attendees'
 import { default as default_6a45e4f5620d40cdf60c9fd3da134521 } from '../../../../src/components/stripe-notification/banner.server'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
@@ -75,8 +76,9 @@ export const importMap = {
   "/src/collections/Events/components/MonthPicker#default": default_9dd4e532f42a0b80e9493b570b383b4e,
   "/src/collections/Events/components/RruleNaturalLang#default": default_98a84fcd4ba642e099ae089822aa2f2e,
   "/src/collections/Events/components/RowLabel#default": default_fcf6e3153448192d324e0b995b64e290,
-  "/src/collections/Bookings/components/selectedScheduleInstance#default": default_c6815935ff72f5e5fff51e618ffce242,
-  "/src/collections/Bookings/components/eventCalendars#default": default_a1fd43e7023c5e364e087a46d3faea89,
+  "/src/collections/Bookings/components/selected-schedule-instance#default": default_fc2c0b3d1a9911200cf4df449dd9ea32,
+  "/src/collections/Bookings/components/events-calendar#default": default_e44983ab9f708fe7a766ec40786db42e,
+  "/src/collections/Bookings/components/configure-attendees#default": default_3c2876d67fad29dffe659acc4c2d0d6b,
   "/src/components/stripe-notification/banner.server#default": default_6a45e4f5620d40cdf60c9fd3da134521,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62

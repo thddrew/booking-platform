@@ -8,7 +8,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { CalendarEvent, CalendarView } from "@/components/calendar/types";
+import type {
+  CalendarEvent,
+  CalendarView,
+} from "@/components/calendar/schemas";
 
 interface CalendarContextValue {
   currentDate: Date;

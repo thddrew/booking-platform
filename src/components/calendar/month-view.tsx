@@ -8,7 +8,7 @@ import {
   defaultViewConfig,
   type ScheduleInstance,
   type ViewConfig,
-} from "@/components/calendar/types";
+} from "@/components/calendar/schemas";
 import { cn } from "@/lib/utils";
 import { useCalendar } from "./calendar-provider";
 import { EventCard } from "./event/event-card";

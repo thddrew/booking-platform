@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import type { CalendarView } from "@/components/calendar/types";
+import type { CalendarView } from "@/components/calendar/schemas";
 import { Button } from "@/components/ui/button";
 
 interface CalendarHeaderProps {

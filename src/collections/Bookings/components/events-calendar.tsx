@@ -8,7 +8,7 @@ import { CalendarProvider } from "@/components/calendar/calendar-provider";
 import {
   type CalendarEvent,
   CalendarEventTypes,
-} from "@/components/calendar/types";
+} from "@/components/calendar/schemas";
 import usePayloadAPI from "@/hooks/use-payload-api";
 import { expandSchedule } from "@/lib/expand-schedule";
 import { getEventDuration } from "@/lib/get-event-duration";
@@ -18,7 +18,7 @@ type FieldStateWithValue<T> = FieldState & {
   value: T;
 };
 
-const EventCalendars: UIFieldClientComponent = (props) => {
+const EventsCalendars: UIFieldClientComponent = (props) => {
   const selectedEvent = useFormFields(
     ([fields]) =>
       fields.eventRelation as FieldStateWithValue<Booking["eventRelation"]>
@@ -29,7 +29,6 @@ const EventCalendars: UIFieldClientComponent = (props) => {
     path: "selectedScheduleInstanceData",
   });
 
-  console.log({ fieldDtstart, fieldDtend, fieldInstanceData });
   const [{ data }] = usePayloadAPI<Event>(`/api/events/${selectedEvent.value}`);
 
   const loadEvents = async (viewStart: Date, viewEnd: Date) => {
@@ -80,7 +79,6 @@ const EventCalendars: UIFieldClientComponent = (props) => {
       >
         <Calendar
           onEventClick={(calEvent) => {
-            console.log(calEvent);
             fieldInstanceData.setValue(calEvent);
             fieldDtstart.setValue(calEvent.dtstart);
             fieldDtend.setValue(calEvent.dtend);
@@ -105,10 +103,10 @@ const EventCalendars: UIFieldClientComponent = (props) => {
   );
 };
 
-const EventCalendarsWrapper: UIFieldClientComponent = (props) => {
+const EventsCalendarsWrapper: UIFieldClientComponent = (props) => {
   const selectedEvent = useFormFields(([fields]) => fields.eventRelation);
 
-  return selectedEvent.value ? <EventCalendars {...props} /> : null;
+  return selectedEvent.value ? <EventsCalendars {...props} /> : null;
 };
 
-export default EventCalendarsWrapper;
+export default EventsCalendarsWrapper;

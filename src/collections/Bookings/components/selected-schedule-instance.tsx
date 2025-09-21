@@ -6,12 +6,23 @@ import type { UIFieldClientComponent } from "payload";
 import {
   type CalendarEvent,
   CalendarEventSchema,
-} from "@/components/calendar/types";
+} from "@/components/calendar/schemas";
 import { formatDateRange } from "@/components/calendar/utils/format-date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SelectedScheduleInstance: UIFieldClientComponent = (props) => {
   const field = useField<CalendarEvent>();
+  const selectedEvent = useFormFields(([fields]) => fields.eventRelation);
+
+  if (!selectedEvent.value) {
+    return (
+      <Card className="w-full">
+        <CardContent>
+          <p>Select an event from the dropdown to view the available slots.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!field.value) {
     return (
@@ -37,20 +48,4 @@ const SelectedScheduleInstance: UIFieldClientComponent = (props) => {
   );
 };
 
-const SelectedScheduleInstanceWrapper: UIFieldClientComponent = (props) => {
-  const selectedEvent = useFormFields(([fields]) => fields.eventRelation);
-
-  if (!selectedEvent.value) {
-    return (
-      <Card className="w-full">
-        <CardContent>
-          <p>Select an event from the dropdown to view the available slots.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return <SelectedScheduleInstance {...props} />;
-};
-
-export default SelectedScheduleInstanceWrapper;
+export default SelectedScheduleInstance;

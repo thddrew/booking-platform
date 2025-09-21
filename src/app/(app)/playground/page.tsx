@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BookingDetailsDialog } from "@/components/calendar/booking-details-dialog";
 import { Calendar } from "@/components/calendar/calendar";
-import type { CalendarEvent } from "@/components/calendar/types";
+import type { CalendarEvent } from "@/components/calendar/schemas";
 
 const sampleBookings: CalendarEvent[] = [
   {

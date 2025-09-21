@@ -1,7 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { RRuleTemporal } from "rrule-temporal";
 import { Temporal } from "temporal-polyfill";
-import type { CalendarEvent } from "@/components/calendar/types";
+import type { CalendarEvent } from "@/components/calendar/schemas";
 import type { getEventDuration } from "@/lib/get-event-duration";
 
 type ScheduleInstance = Extract<CalendarEvent, { type: "scheduleInstance" }>;
