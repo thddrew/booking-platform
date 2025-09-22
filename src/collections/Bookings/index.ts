@@ -4,10 +4,7 @@ import {
   type CalendarEvent,
   CalendarEventSchema,
 } from "@/components/calendar/schemas";
-import {
-  EventPricesArraySchema,
-  EventPricesRecordSchema,
-} from "../Events/utils/schemas";
+import { EventPricesRecordSchema } from "../Events/utils/schemas";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
@@ -144,6 +141,17 @@ export const Bookings: CollectionConfig<"bookings"> = {
       type: "group",
       label: "Attendees & Pricing",
       fields: [
+        {
+          type: "checkbox",
+          name: "overrideMaxQuantity",
+          label: "Override maximum event attendance",
+          admin: {
+            disabled: true,
+            condition: (_, siblingData) =>
+              siblingData.eventRelation &&
+              siblingData.selectedScheduleInstanceData,
+          },
+        },
         {
           type: "ui",
           name: "attendees",
