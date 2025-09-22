@@ -36,6 +36,7 @@ import { default as default_912114fecb586d0cf423ddd338ac51fe } from '../../../..
 import { default as default_fc2c0b3d1a9911200cf4df449dd9ea32 } from '../../../../src/collections/Bookings/components/selected-schedule-instance'
 import { default as default_e44983ab9f708fe7a766ec40786db42e } from '../../../../src/collections/Bookings/components/events-calendar'
 import { default as default_3c2876d67fad29dffe659acc4c2d0d6b } from '../../../../src/collections/Bookings/components/configure-attendees'
+import { default as default_5a4992335ad0e66758f54d9656c672b9 } from '../../../../src/collections/Bookings/components/pricing-summary'
 import { default as default_6a45e4f5620d40cdf60c9fd3da134521 } from '../../../../src/components/stripe-notification/banner.server'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { default as default_df4731919bbe5e00b1791b88adcc7eb9 } from '../../../../src/components/providers/react-query'
@@ -80,6 +81,7 @@ export const importMap = {
   "/src/collections/Bookings/components/selected-schedule-instance#default": default_fc2c0b3d1a9911200cf4df449dd9ea32,
   "/src/collections/Bookings/components/events-calendar#default": default_e44983ab9f708fe7a766ec40786db42e,
   "/src/collections/Bookings/components/configure-attendees#default": default_3c2876d67fad29dffe659acc4c2d0d6b,
+  "/src/collections/Bookings/components/pricing-summary#default": default_5a4992335ad0e66758f54d9656c672b9,
   "/src/components/stripe-notification/banner.server#default": default_6a45e4f5620d40cdf60c9fd3da134521,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "/src/components/providers/react-query#default": default_df4731919bbe5e00b1791b88adcc7eb9,

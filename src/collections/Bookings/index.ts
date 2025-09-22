@@ -14,7 +14,9 @@ export const Bookings: CollectionConfig<"bookings"> = {
     read: () => true,
     update: superAdminOrTenantAdminAccess,
   },
-  admin: {},
+  hooks: {
+    // TODO: update eventSnapshot and customerSnapshot on beforeChange
+  },
   fields: [
     // Metadata for sidebar
     {
@@ -133,6 +135,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
             components: {
               Field: "/src/collections/Bookings/components/events-calendar",
             },
+            condition: (_, siblingData) => siblingData.eventRelation,
           },
         },
       ],
@@ -159,6 +162,18 @@ export const Bookings: CollectionConfig<"bookings"> = {
             components: {
               Field: "/src/collections/Bookings/components/configure-attendees",
             },
+          },
+        },
+        {
+          type: "ui",
+          name: "pricingSummary",
+          admin: {
+            components: {
+              Field: "/src/collections/Bookings/components/pricing-summary",
+            },
+            condition: (_, siblingData) =>
+              siblingData.eventRelation &&
+              siblingData.selectedScheduleInstanceData,
           },
         },
       ],
