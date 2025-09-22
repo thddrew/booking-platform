@@ -10,6 +10,7 @@ export const Customers: CollectionConfig<"customers"> = {
     read: () => true,
     update: superAdminOrTenantAdminAccess,
   },
+  trash: true,
   admin: {
     useAsTitle: "name",
   },
@@ -27,6 +28,12 @@ export const Customers: CollectionConfig<"customers"> = {
     {
       name: "phone",
       type: "text",
+    },
+    {
+      name: "bookings",
+      type: "join",
+      collection: "bookings",
+      on: "customerRelation",
     },
     {
       name: "stripeCustomerId",
