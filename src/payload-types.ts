@@ -408,6 +408,7 @@ export interface Booking {
     | null;
   dtstart: string;
   dtend: string;
+  overrideMaxQuantity?: boolean | null;
   customerRelation?: (number | null) | Customer;
   rrulestring?: string | null;
   paymentMethod?: ('stripe' | 'inPerson') | null;
@@ -779,6 +780,7 @@ export interface BookingsSelect<T extends boolean = true> {
   selectedScheduleInstanceData?: T;
   dtstart?: T;
   dtend?: T;
+  overrideMaxQuantity?: T;
   customerRelation?: T;
   rrulestring?: T;
   paymentMethod?: T;

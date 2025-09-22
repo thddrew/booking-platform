@@ -126,7 +126,7 @@ export function Calendar({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-background border rounded max-h-[500px]",
+        "flex flex-col h-full bg-background border rounded max-h-[500px] contain-content",
         className
       )}
     >
