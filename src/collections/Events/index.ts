@@ -84,7 +84,7 @@ export const Events: CollectionConfig<"events"> = {
               name: "schedule",
               admin: {
                 components: {
-                  RowLabel: "/src/collections/Events/components/RowLabel",
+                  RowLabel: "/src/collections/Events/field-components/RowLabel",
                 },
               },
               fields: [
@@ -232,7 +232,7 @@ export const Events: CollectionConfig<"events"> = {
                       siblingData.frequency === "MONTHLY",
                     components: {
                       Field:
-                        "/src/collections/Events/components/MonthDayPicker",
+                        "/src/collections/Events/field-components/MonthDayPicker",
                     },
                   },
                   defaultValue: "",
@@ -245,7 +245,8 @@ export const Events: CollectionConfig<"events"> = {
                     condition: (_, siblingData) =>
                       siblingData.frequency === "YEARLY",
                     components: {
-                      Field: "/src/collections/Events/components/MonthPicker",
+                      Field:
+                        "/src/collections/Events/field-components/MonthPicker",
                     },
                   },
                   defaultValue: "",
@@ -282,7 +283,7 @@ export const Events: CollectionConfig<"events"> = {
                   admin: {
                     components: {
                       Field:
-                        "/src/collections/Events/components/RruleNaturalLang",
+                        "/src/collections/Events/field-components/RruleNaturalLang",
                     },
                   },
                 },

@@ -29,15 +29,16 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { default as default_5e8dedc45bbf6f647ad73a64b85f0696 } from '../../../../src/components/blank'
-import { default as default_8da585c8bc957fa9be6ee59109a55783 } from '../../../../src/collections/Events/components/MonthDayPicker'
-import { default as default_9dd4e532f42a0b80e9493b570b383b4e } from '../../../../src/collections/Events/components/MonthPicker'
-import { default as default_98a84fcd4ba642e099ae089822aa2f2e } from '../../../../src/collections/Events/components/RruleNaturalLang'
-import { default as default_fcf6e3153448192d324e0b995b64e290 } from '../../../../src/collections/Events/components/RowLabel'
+import { default as default_d052121d767f0d73b21dc1d0a3257c52 } from '../../../../src/collections/Events/field-components/MonthDayPicker'
+import { default as default_6d52e52ed8396c043edd6163b83e5ebc } from '../../../../src/collections/Events/field-components/MonthPicker'
+import { default as default_4a7821b9acfdcc3f9037c886aa8b7e11 } from '../../../../src/collections/Events/field-components/RruleNaturalLang'
+import { default as default_912114fecb586d0cf423ddd338ac51fe } from '../../../../src/collections/Events/field-components/RowLabel'
 import { default as default_fc2c0b3d1a9911200cf4df449dd9ea32 } from '../../../../src/collections/Bookings/components/selected-schedule-instance'
 import { default as default_e44983ab9f708fe7a766ec40786db42e } from '../../../../src/collections/Bookings/components/events-calendar'
 import { default as default_3c2876d67fad29dffe659acc4c2d0d6b } from '../../../../src/collections/Bookings/components/configure-attendees'
 import { default as default_6a45e4f5620d40cdf60c9fd3da134521 } from '../../../../src/components/stripe-notification/banner.server'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
+import { default as default_df4731919bbe5e00b1791b88adcc7eb9 } from '../../../../src/components/providers/react-query'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 
 export const importMap = {
@@ -72,14 +73,15 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/src/components/blank#default": default_5e8dedc45bbf6f647ad73a64b85f0696,
-  "/src/collections/Events/components/MonthDayPicker#default": default_8da585c8bc957fa9be6ee59109a55783,
-  "/src/collections/Events/components/MonthPicker#default": default_9dd4e532f42a0b80e9493b570b383b4e,
-  "/src/collections/Events/components/RruleNaturalLang#default": default_98a84fcd4ba642e099ae089822aa2f2e,
-  "/src/collections/Events/components/RowLabel#default": default_fcf6e3153448192d324e0b995b64e290,
+  "/src/collections/Events/field-components/MonthDayPicker#default": default_d052121d767f0d73b21dc1d0a3257c52,
+  "/src/collections/Events/field-components/MonthPicker#default": default_6d52e52ed8396c043edd6163b83e5ebc,
+  "/src/collections/Events/field-components/RruleNaturalLang#default": default_4a7821b9acfdcc3f9037c886aa8b7e11,
+  "/src/collections/Events/field-components/RowLabel#default": default_912114fecb586d0cf423ddd338ac51fe,
   "/src/collections/Bookings/components/selected-schedule-instance#default": default_fc2c0b3d1a9911200cf4df449dd9ea32,
   "/src/collections/Bookings/components/events-calendar#default": default_e44983ab9f708fe7a766ec40786db42e,
   "/src/collections/Bookings/components/configure-attendees#default": default_3c2876d67fad29dffe659acc4c2d0d6b,
   "/src/components/stripe-notification/banner.server#default": default_6a45e4f5620d40cdf60c9fd3da134521,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
+  "/src/components/providers/react-query#default": default_df4731919bbe5e00b1791b88adcc7eb9,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62
 }

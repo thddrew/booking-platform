@@ -1,12 +1,13 @@
 import { z } from "zod";
 import type { Event } from "@/payload-types";
 
-type EventPrice = NonNullable<Event["prices"]>[number];
+export type EventPriceType = NonNullable<Event["prices"]>[number];
 
 /**
+ * TODO: ensure that the schema is derived from the generated payload types
  * We do this to ensure that the schema is up to date with the generated payload types
  */
-export const EventPriceSchema: Record<keyof EventPrice, z.ZodType> = {
+export const EventPriceSchema = z.object({
   stripePriceId: z.string(),
   isActive: z.boolean().default(true),
   label: z.string(),
@@ -15,6 +16,8 @@ export const EventPriceSchema: Record<keyof EventPrice, z.ZodType> = {
   quantityUnit: z.number().default(1),
   quantity: z.number().default(0),
   id: z.string(),
-};
+});
 
-export const EventPricesArraySchema = z.array(z.object(EventPriceSchema));
+export const EventPricesArraySchema = z.array(EventPriceSchema);
+
+export const EventPricesRecordSchema = z.record(z.string(), EventPriceSchema);

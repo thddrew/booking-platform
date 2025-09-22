@@ -40,6 +40,7 @@ export default buildConfig({
           path: "/src/components/stripe-notification/banner.server",
         },
       ],
+      providers: ["/src/components/providers/react-query"],
     },
   },
   collections: [

@@ -2,7 +2,7 @@
 
 import type { Where } from "payload";
 import type { CalendarEvent } from "@/components/calendar/schemas";
-import usePayloadAPI from "@/hooks/use-payload-api";
+import { usePayloadAPI } from "@/hooks/use-payload-api";
 import { cn } from "@/lib/utils";
 import type { EventCardPropsBase } from "./types";
 
