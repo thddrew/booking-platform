@@ -13,6 +13,7 @@ export const Customers: CollectionConfig<"customers"> = {
   trash: true,
   admin: {
     useAsTitle: "name",
+    defaultColumns: ["name", "email", "phone"],
   },
   fields: [
     {
