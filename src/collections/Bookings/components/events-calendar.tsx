@@ -10,6 +10,7 @@ import {
   CalendarEventTypes,
   ScheduleInstance,
 } from "@/components/calendar/schemas";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { usePayloadFetch } from "@/hooks/use-payload-fetch";
 import { expandSchedule } from "@/lib/expand-schedule";
@@ -99,42 +100,51 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
   };
 
   return (
-    <div className="twp grid grid-cols-[min-content_auto] md:grid-cols-[minmax(150px,min-content)_auto] gap-2">
-      <div className="flex flex-col gap-2 pr-10">
-        <p>Schedules:</p>
-        {schedules?.map((schedule) => {
-          if (!schedule.id) return null;
+    <div className="twp grid grid-cols-[min-content_auto] md:grid-cols-[minmax(180px,min-content)_auto] gap-2">
+      <Card className="flex flex-col gap-2">
+        <CardHeader>
+          <CardTitle>Schedules</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {schedules?.map((schedule) => {
+            if (!schedule.id) return null;
 
-          return (
-            <div
-              key={schedule.id}
-              className="flex items-center gap-3"
-            >
-              <Checkbox
-                checked={selectedSchedules[schedule.id]}
-                disabled={!schedule.isActive}
-                onCheckedChange={(checked) => {
-                  setSelectedSchedules({
-                    ...selectedSchedules,
-                    [schedule.id as string]: !!checked,
-                  });
-
-                  if (scheduleInstanceData.value?.scheduleId === schedule.id) {
-                    // Improve UX by clearing the selected schedule instance and pricing snapshot if its schedule is unchecked
-                    fieldPricingSnapshot.setValue({});
-                    scheduleInstanceData.setValue(null);
-                  }
-                }}
-              />{" "}
-              <span
-                className={cn(schedule.isActive ? "" : "text-muted-foreground")}
+            return (
+              <div
+                key={schedule.id}
+                className="flex items-center gap-3"
               >
-                {schedule.scheduleName} {schedule.isActive ? "" : "(Inactive)"}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+                <Checkbox
+                  checked={selectedSchedules[schedule.id]}
+                  disabled={!schedule.isActive}
+                  onCheckedChange={(checked) => {
+                    setSelectedSchedules({
+                      ...selectedSchedules,
+                      [schedule.id as string]: !!checked,
+                    });
+
+                    if (
+                      scheduleInstanceData.value?.scheduleId === schedule.id
+                    ) {
+                      // Improve UX by clearing the selected schedule instance and pricing snapshot if its schedule is unchecked
+                      fieldPricingSnapshot.setValue({});
+                      scheduleInstanceData.setValue(null);
+                    }
+                  }}
+                />{" "}
+                <span
+                  className={cn(
+                    schedule.isActive ? "" : "text-muted-foreground"
+                  )}
+                >
+                  {schedule.scheduleName}{" "}
+                  {schedule.isActive ? "" : "(Inactive)"}
+                </span>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
       <CalendarProvider
         selectedEvent={scheduleInstanceData.value}
         loadEvents={loadEvents}
@@ -166,10 +176,4 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
   );
 };
 
-const EventsCalendarsWrapper: UIFieldClientComponent = (props) => {
-  const selectedEvent = useFormFields(([fields]) => fields.eventRelation);
-
-  return selectedEvent.value ? <EventsCalendars {...props} /> : null;
-};
-
-export default EventsCalendarsWrapper;
+export default EventsCalendars;
