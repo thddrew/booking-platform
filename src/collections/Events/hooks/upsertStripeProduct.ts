@@ -7,6 +7,7 @@ import type { CollectionAfterChangeHook } from "payload";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe/client";
 import type { Event } from "@/payload-types";
+import { StripeMetadata } from "@/types/stripe-metadata";
 import { debugLog } from "@/utilities/debugLog";
 import { extractID } from "@/utilities/extractID";
 import { getDefaultConnectedAccount } from "@/utilities/getDefaultConnectedAccount";
@@ -72,9 +73,9 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
           name: doc.title ?? defaultConnectedAccount?.name ?? "N/A",
           active: doc.isActive ?? false,
           metadata: {
-            event: doc.id,
-            tenant: docTenantId,
-          },
+            eventId: doc.id,
+            tenantId: docTenantId,
+          } satisfies StripeMetadata,
         },
         {
           stripeAccount: stripeAccountId,
@@ -158,7 +159,7 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
                     eventId: doc.id,
                     priceId: price.id ?? "",
                     tenantId: docTenantId,
-                  },
+                  } satisfies StripeMetadata,
                 },
                 {
                   stripeAccount: stripeAccountId,
@@ -202,9 +203,9 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
                 nickname: price.label,
                 metadata: {
                   eventId: doc.id,
-                  priceId: price.id ?? "",
+                  priceId: price.id ?? null,
                   tenantId: docTenantId,
-                },
+                } satisfies StripeMetadata,
               },
               {
                 stripeAccount: stripeAccountId,
