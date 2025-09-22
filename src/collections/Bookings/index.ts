@@ -4,7 +4,10 @@ import {
   type CalendarEvent,
   CalendarEventSchema,
 } from "@/components/calendar/schemas";
-import { EventPricesArraySchema } from "../Events/utils/schemas";
+import {
+  EventPricesArraySchema,
+  EventPricesRecordSchema,
+} from "../Events/utils/schemas";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
@@ -48,6 +51,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
       name: "eventSnapshot",
       type: "json",
       admin: {
+        readOnly: true,
         position: "sidebar",
       },
     },
@@ -55,19 +59,19 @@ export const Bookings: CollectionConfig<"bookings"> = {
       name: "customerSnapshot",
       type: "json",
       admin: {
+        readOnly: true,
         position: "sidebar",
       },
     },
     {
       name: "pricingSnapshot",
       type: "json",
-      admin: {
-        position: "sidebar",
-      },
+      defaultValue: {},
+      admin: { readOnly: true, position: "sidebar" },
       validate: (value) => {
         if (!value) return true;
 
-        return EventPricesArraySchema.safeParse(value).success
+        return EventPricesRecordSchema.safeParse(value).success
           ? true
           : "Invalid pricing snapshot";
       },

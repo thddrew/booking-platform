@@ -1,6 +1,5 @@
 "use client";
 
-import { createId } from "@paralleldrive/cuid2";
 import { useField, useFormFields } from "@payloadcms/ui";
 import type { FieldState, UIFieldClientComponent } from "payload";
 import { Calendar } from "@/components/calendar/calendar";
@@ -9,7 +8,7 @@ import {
   type CalendarEvent,
   CalendarEventTypes,
 } from "@/components/calendar/schemas";
-import usePayloadAPI from "@/hooks/use-payload-api";
+import { usePayloadFetch } from "@/hooks/use-payload-fetch";
 import { expandSchedule } from "@/lib/expand-schedule";
 import { getEventDuration } from "@/lib/get-event-duration";
 import type { Booking, Event } from "@/payload-types";
@@ -29,7 +28,9 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
     path: "selectedScheduleInstanceData",
   });
 
-  const [{ data }] = usePayloadAPI<Event>(`/api/events/${selectedEvent.value}`);
+  const { data } = usePayloadFetch<Event>({
+    api: `/api/events/${selectedEvent.value}`,
+  });
 
   const loadEvents = async (viewStart: Date, viewEnd: Date) => {
     const schedules = data?.schedules?.schedule;
@@ -47,14 +48,14 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
               scheduleId: schedule.id,
               dtstart: new Date(schedule.dtstart),
               dtend: new Date(schedule.dtend),
-              maxQuantity: data.maxQuantity,
+              maxQuantity: data?.maxQuantity || 0,
             },
           ];
         }
 
         const expandedSchedule = expandSchedule({
           rruleString: schedule.rrulestring,
-          eventMaxQuantity: data.maxQuantity,
+          eventMaxQuantity: data?.maxQuantity || 0,
           eventDuration: getEventDuration(schedule.dtstart, schedule.dtend),
           scheduleId: schedule.id,
           eventName: data?.title,
