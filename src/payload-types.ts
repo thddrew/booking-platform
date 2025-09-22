@@ -82,7 +82,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    customers: {
+      bookings: 'bookings';
+    };
+  };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -214,52 +218,69 @@ export interface Customer {
   name: string;
   email: string;
   phone?: string | null;
+  bookings?: {
+    docs?: (number | Booking)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   stripeCustomerId?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "connectedAccounts".
+ * via the `definition` "bookings".
  */
-export interface ConnectedAccount {
+export interface Booking {
   id: number;
   tenant?: (number | null) | Tenant;
-  /**
-   * When enabled, this will be the default connected account for the tenant
-   */
-  default?: boolean | null;
-  name?: string | null;
-  stripeAccountId?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payments".
- */
-export interface Payment {
-  id: number;
-  tenant?: (number | null) | Tenant;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "paymentsSettings".
- */
-export interface PaymentsSetting {
-  id: number;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "logs".
- */
-export interface Log {
-  id: number;
-  user: number | User;
+  stripeCheckoutSessionId?: string | null;
+  eventId: string;
+  customerId?: string | null;
+  eventSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  customerSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  pricingSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  eventRelation?: (number | null) | Event;
+  selectedScheduleInstanceData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  dtstart: string;
+  dtend: string;
+  overrideMaxQuantity?: boolean | null;
+  customerRelation?: (number | null) | Customer;
+  rrulestring?: string | null;
+  paymentMethod?: ('stripe' | 'inPerson') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -361,57 +382,46 @@ export interface Event {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "bookings".
+ * via the `definition` "connectedAccounts".
  */
-export interface Booking {
+export interface ConnectedAccount {
   id: number;
   tenant?: (number | null) | Tenant;
-  stripeCheckoutSessionId?: string | null;
-  eventId: string;
-  customerId?: string | null;
-  eventSnapshot?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  customerSnapshot?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  pricingSnapshot?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  eventRelation?: (number | null) | Event;
-  selectedScheduleInstanceData?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  dtstart: string;
-  dtend: string;
-  overrideMaxQuantity?: boolean | null;
-  customerRelation?: (number | null) | Customer;
-  rrulestring?: string | null;
-  paymentMethod?: ('stripe' | 'inPerson') | null;
+  /**
+   * When enabled, this will be the default connected account for the tenant
+   */
+  default?: boolean | null;
+  name?: string | null;
+  stripeAccountId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payments".
+ */
+export interface Payment {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "paymentsSettings".
+ */
+export interface PaymentsSetting {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "logs".
+ */
+export interface Log {
+  id: number;
+  user: number | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -663,9 +673,11 @@ export interface CustomersSelect<T extends boolean = true> {
   name?: T;
   email?: T;
   phone?: T;
+  bookings?: T;
   stripeCustomerId?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
