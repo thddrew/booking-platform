@@ -1,5 +1,6 @@
 import type { CollectionBeforeValidateHook } from "payload";
 import type { Booking } from "@/payload-types";
+import { extractID } from "@/utilities/extractID";
 
 export const saveSnapshots: CollectionBeforeValidateHook<Booking> = async ({
   data,
@@ -7,19 +8,36 @@ export const saveSnapshots: CollectionBeforeValidateHook<Booking> = async ({
 }) => {
   if (!data) return data;
 
-  console.log("data", data);
+  await Promise.all([
+    data.eventRelation
+      ? req.payload
+          .findByID({
+            req,
+            collection: "events",
+            id: extractID(data.eventRelation),
+            select: {
+              bookings: false,
+            },
+          })
+          .then((event) => {
+            data.eventSnapshot = JSON.stringify(event);
+          })
+      : Promise.resolve(null),
+    data.customerRelation
+      ? req.payload
+          .findByID({
+            req,
+            collection: "customers",
+            id: extractID(data.customerRelation),
+            select: {
+              bookings: false,
+            },
+          })
+          .then((customer) => {
+            data.customerSnapshot = JSON.stringify(customer);
+          })
+      : Promise.resolve(null),
+  ]);
 
-  const event = await req.payload.find({
-    collection: "events",
-    where: {
-      id: { equals: data.eventRelation },
-    },
-    depth: 1,
-  });
-
-  console.log("event", event);
-
-  data.eventSnapshot = JSON.stringify(event);
-  data.customerSnapshot = JSON.stringify(data.customerRelation);
   return data;
 };
