@@ -19,8 +19,8 @@ export const CalendarEventTypes = {
 const CalendarEventBaseSchema = z.object({
   /** @ignore not reliable, to be removed */
   id: z.string(),
-  dtstart: z.date(),
-  dtend: z.date(),
+  dtstart: z.union([z.string(), z.date()]),
+  dtend: z.union([z.string(), z.date()]),
   title: z.string().optional(),
 });
 

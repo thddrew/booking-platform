@@ -11,7 +11,7 @@ export const EventPriceSchema = z.object({
   stripePriceId: z.string(),
   isActive: z.boolean().default(true),
   label: z.string(),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   amount: z.number().min(0),
   quantityUnit: z.number().default(1),
   quantity: z.number().default(0),
