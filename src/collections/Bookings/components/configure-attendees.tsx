@@ -40,11 +40,9 @@ const ConfigureAttendees: UIFieldClientComponent = () => {
 
   if (!selectedEventField.value) {
     return (
-      <Card className="w-full">
-        <CardContent>
-          Select an event and time slot to view the available pricing tiers.
-        </CardContent>
-      </Card>
+      <p className="text-muted-foreground">
+        Select an event and time slot above to view the available pricing tiers.
+      </p>
     );
   }
 

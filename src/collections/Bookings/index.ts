@@ -30,15 +30,6 @@ export const Bookings: CollectionConfig<"bookings"> = {
       },
     },
     {
-      name: "eventId",
-      type: "text",
-      required: true,
-      admin: {
-        readOnly: true,
-        position: "sidebar",
-      },
-    },
-    {
       name: "customerId",
       type: "text",
       admin: {
@@ -83,10 +74,21 @@ export const Bookings: CollectionConfig<"bookings"> = {
           name: "eventRelation",
           type: "relationship",
           relationTo: "events",
+          filterOptions: {
+            _status: {
+              equals: "published",
+            },
+            isActive: {
+              equals: true,
+            },
+          },
           admin: {
+            placeholder:
+              "Select an event to view the available time slots. Only published events are available.",
             components: {
               Label: "/src/components/blank",
             },
+            allowCreate: false,
           },
         },
         {
@@ -101,6 +103,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
                   Field:
                     "/src/collections/Bookings/components/selected-schedule-instance",
                 },
+                condition: (_, siblingData) => !!siblingData.eventRelation,
               },
               validate: (value?: CalendarEvent | null | string) => {
                 if (!value) return true;
@@ -184,9 +187,15 @@ export const Bookings: CollectionConfig<"bookings"> = {
       fields: [
         {
           name: "customerRelation",
-          label: "Customer",
           type: "relationship",
           relationTo: "customers",
+          admin: {
+            placeholder:
+              "Select an existing customer or press + to create a new customer",
+            components: {
+              Label: "/src/components/blank",
+            },
+          },
         },
       ],
     },

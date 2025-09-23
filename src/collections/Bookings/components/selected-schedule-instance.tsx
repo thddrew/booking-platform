@@ -1,6 +1,6 @@
 "use client";
 
-import { useField, useFormFields } from "@payloadcms/ui";
+import { useField } from "@payloadcms/ui";
 import { BookPlusIcon } from "lucide-react";
 import type { UIFieldClientComponent } from "payload";
 import {
@@ -12,17 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SelectedScheduleInstance: UIFieldClientComponent = (props) => {
   const field = useField<CalendarEvent>();
-  const selectedEvent = useFormFields(([fields]) => fields.eventRelation);
-
-  if (!selectedEvent.value) {
-    return (
-      <Card className="w-full">
-        <CardContent>
-          <p>Select an event from the dropdown to view the available slots.</p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   if (!field.value) {
     return (
