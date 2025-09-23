@@ -86,6 +86,9 @@ export interface Config {
     customers: {
       bookings: 'bookings';
     };
+    events: {
+      bookings: 'bookings';
+    };
   };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -215,8 +218,14 @@ export interface User {
 export interface Customer {
   id: number;
   tenant?: (number | null) | Tenant;
-  name: string;
-  email: string;
+  name?: string | null;
+  /**
+   * One of email or phone is required
+   */
+  email?: string | null;
+  /**
+   * One of email or phone is required
+   */
   phone?: string | null;
   bookings?: {
     docs?: (number | Booking)[];
@@ -236,7 +245,6 @@ export interface Booking {
   id: number;
   tenant?: (number | null) | Tenant;
   stripeCheckoutSessionId?: string | null;
-  eventId: string;
   customerId?: string | null;
   eventSnapshot?:
     | {
@@ -375,6 +383,11 @@ export interface Event {
   customMax?: boolean | null;
   minQuantity?: number | null;
   customMin?: boolean | null;
+  bookings?: {
+    docs?: (number | Booking)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -771,6 +784,7 @@ export interface EventsSelect<T extends boolean = true> {
   customMax?: T;
   minQuantity?: T;
   customMin?: T;
+  bookings?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -783,7 +797,6 @@ export interface EventsSelect<T extends boolean = true> {
 export interface BookingsSelect<T extends boolean = true> {
   tenant?: T;
   stripeCheckoutSessionId?: T;
-  eventId?: T;
   customerId?: T;
   eventSnapshot?: T;
   customerSnapshot?: T;
