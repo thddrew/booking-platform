@@ -14,7 +14,7 @@
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "seed": "npm run payload migrate:fresh",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
-    "lint": "biome check .",
+    "lint": "next lint",
     "tsc": "tsgo --project tsconfig.json"
   },
   "dependencies": {

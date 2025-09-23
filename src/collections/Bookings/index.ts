@@ -1,11 +1,10 @@
 import type { CollectionConfig } from "payload";
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
 import {
-  type CalendarEvent,
   CalendarEventSchema,
-  ScheduleInstance,
+  type ScheduleInstance,
 } from "@/components/calendar/schemas";
-import { getDateString, isDate } from "../../components/calendar/utils/is-date";
+import { getDateString } from "../../components/calendar/utils/is-date";
 import { EventPricesRecordSchema } from "../Events/utils/schemas";
 import { saveSnapshots } from "./hooks/save-snapshots";
 import { setDatetimes } from "./hooks/set-datetimes";
