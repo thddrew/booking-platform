@@ -229,33 +229,36 @@ export function WeekView({
                   const hasEvents = hasEventsInHour(date, hour);
 
                   return (
-                    <button
+                    <div
                       key={hour}
-                      type="button"
-                      className={cn(
-                        "h-16 p-1 cursor-pointer transition-colors relative group w-full text-left",
-                        isToday && "bg-primary/5",
-                        !isPast && "hover:bg-muted/50",
-                        isPast &&
-                          "bg-gray-100 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.05)_4px,rgba(0,0,0,0.05)_8px)] cursor-not-allowed opacity-60"
-                      )}
-                      onClick={() =>
-                        !isPast && !hasEvents && onTimeSlotClick?.(date, hour)
-                      }
-                      disabled={isPast}
-                      onKeyDown={(e) => {
-                        if (
-                          !isPast &&
-                          !hasEvents &&
-                          (e.key === "Enter" || e.key === " ")
-                        ) {
-                          e.preventDefault();
-                          onTimeSlotClick?.(date, hour);
-                        }
-                      }}
-                      aria-label={`${date.toLocaleDateString()} at ${formatHour(hour)}`}
+                      className="relative group h-16"
                     >
-                      {showCreateBtn && (
+                      <button
+                        type="button"
+                        className={cn(
+                          "h-full p-1 cursor-pointer transition-colors w-full text-left",
+                          isToday && "bg-primary/5",
+                          !isPast && "hover:bg-muted/50",
+                          isPast &&
+                            "bg-gray-100 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.05)_4px,rgba(0,0,0,0.05)_8px)] cursor-not-allowed opacity-60"
+                        )}
+                        onClick={() =>
+                          !isPast && !hasEvents && onTimeSlotClick?.(date, hour)
+                        }
+                        disabled={isPast}
+                        onKeyDown={(e) => {
+                          if (
+                            !isPast &&
+                            !hasEvents &&
+                            (e.key === "Enter" || e.key === " ")
+                          ) {
+                            e.preventDefault();
+                            onTimeSlotClick?.(date, hour);
+                          }
+                        }}
+                        aria-label={`${date.toLocaleDateString()} at ${formatHour(hour)}`}
+                      />
+                      {true && (
                         <button
                           type="button"
                           className="absolute bottom-1 right-1 w-6 h-6 bg-primary/70 text-primary-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-primary/100 hover:ring-2 hover:ring-primary/20 z-10"
@@ -268,7 +271,7 @@ export function WeekView({
                           <Plus className="w-3 h-3" />
                         </button>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>

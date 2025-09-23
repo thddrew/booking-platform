@@ -231,31 +231,34 @@ export function ThreeDayView({
                   const hasEvents = hasEventsInHour(date, hour);
 
                   return (
-                    <button
+                    <div
                       key={hour}
-                      type="button"
-                      className={cn(
-                        "h-20 border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative group w-full text-left",
-                        isToday && "bg-primary/5",
-                        isPast &&
-                          "bg-gray-100 hover:bg-gray-100 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.05)_4px,rgba(0,0,0,0.05)_8px)] cursor-not-allowed opacity-60"
-                      )}
-                      onClick={() =>
-                        !isPast && !hasEvents && onTimeSlotClick?.(date, hour)
-                      }
-                      disabled={isPast}
-                      onKeyDown={(e) => {
-                        if (
-                          !isPast &&
-                          !hasEvents &&
-                          (e.key === "Enter" || e.key === " ")
-                        ) {
-                          e.preventDefault();
-                          onTimeSlotClick?.(date, hour);
-                        }
-                      }}
-                      aria-label={`${date.toLocaleDateString()} at ${formatHour(hour)}`}
+                      className="relative group"
                     >
+                      <button
+                        type="button"
+                        className={cn(
+                          "h-20 border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors w-full text-left",
+                          isToday && "bg-primary/5",
+                          isPast &&
+                            "bg-gray-100 hover:bg-gray-100 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.05)_4px,rgba(0,0,0,0.05)_8px)] cursor-not-allowed opacity-60"
+                        )}
+                        onClick={() =>
+                          !isPast && !hasEvents && onTimeSlotClick?.(date, hour)
+                        }
+                        disabled={isPast}
+                        onKeyDown={(e) => {
+                          if (
+                            !isPast &&
+                            !hasEvents &&
+                            (e.key === "Enter" || e.key === " ")
+                          ) {
+                            e.preventDefault();
+                            onTimeSlotClick?.(date, hour);
+                          }
+                        }}
+                        aria-label={`${date.toLocaleDateString()} at ${formatHour(hour)}`}
+                      />
                       {showCreateBtn && (
                         <button
                           type="button"
@@ -276,7 +279,7 @@ export function ThreeDayView({
                           <Plus className="w-4 h-4" />
                         </button>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>
