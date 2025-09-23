@@ -4,14 +4,14 @@ import { useField } from "@payloadcms/ui";
 import { BookPlusIcon } from "lucide-react";
 import type { UIFieldClientComponent } from "payload";
 import {
-  type CalendarEvent,
   CalendarEventSchema,
+  type ScheduleInstance,
 } from "@/components/calendar/schemas";
 import { formatDateRange } from "@/components/calendar/utils/format-date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SelectedScheduleInstance: UIFieldClientComponent = (props) => {
-  const field = useField<CalendarEvent>();
+  const field = useField<ScheduleInstance>();
 
   if (!field.value) {
     return (
@@ -30,7 +30,10 @@ const SelectedScheduleInstance: UIFieldClientComponent = (props) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BookPlusIcon className="size-6 stroke-[1.5px]" /> Booking for{" "}
-          {formatDateRange(instance.dtstart, instance.dtend)}
+          {formatDateRange(
+            new Date(instance.dtstart),
+            new Date(instance.dtend)
+          )}
         </CardTitle>
       </CardHeader>
     </Card>

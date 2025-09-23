@@ -73,8 +73,8 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
               // Single instance schedule
               type: CalendarEventTypes.scheduleInstance,
               scheduleId: schedule.id,
-              dtstart: new Date(schedule.dtstart),
-              dtend: new Date(schedule.dtend),
+              dtstart: schedule.dtstart,
+              dtend: schedule.dtend,
               maxQuantity: data?.maxQuantity || 0,
             },
           ];

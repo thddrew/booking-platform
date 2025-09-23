@@ -3,8 +3,12 @@ import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superA
 import {
   type CalendarEvent,
   CalendarEventSchema,
+  ScheduleInstance,
 } from "@/components/calendar/schemas";
+import { isDate } from "../../components/calendar/utils/is-date";
 import { EventPricesRecordSchema } from "../Events/utils/schemas";
+import { saveSnapshots } from "./hooks/save-snapshots";
+import { setDatetimes } from "./hooks/set-datetimes";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
@@ -15,7 +19,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
     update: superAdminOrTenantAdminAccess,
   },
   hooks: {
-    // TODO: update eventSnapshot and customerSnapshot on beforeChange
+    beforeValidate: [saveSnapshots, setDatetimes],
   },
   fields: [
     // Metadata for sidebar
@@ -40,6 +44,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
     {
       name: "eventSnapshot",
       type: "json",
+      defaultValue: {},
       admin: {
         readOnly: true,
         position: "sidebar",
@@ -48,12 +53,14 @@ export const Bookings: CollectionConfig<"bookings"> = {
     {
       name: "customerSnapshot",
       type: "json",
+      defaultValue: {},
       admin: {
         readOnly: true,
         position: "sidebar",
       },
     },
     {
+      // We don't update this in the hooks because we use this to display the pricing summary in the UI
       name: "pricingSnapshot",
       type: "json",
       defaultValue: {},
@@ -61,9 +68,11 @@ export const Bookings: CollectionConfig<"bookings"> = {
       validate: (value) => {
         if (!value) return true;
 
-        return EventPricesRecordSchema.safeParse(value).success
-          ? true
-          : "Invalid pricing snapshot";
+        const parsed = EventPricesRecordSchema.safeParse(value);
+
+        console.log(parsed.error);
+
+        return parsed.success ? true : parsed.error.message;
       },
     },
     {
@@ -105,12 +114,24 @@ export const Bookings: CollectionConfig<"bookings"> = {
                 },
                 condition: (_, siblingData) => !!siblingData.eventRelation,
               },
-              validate: (value?: CalendarEvent | null | string) => {
-                if (!value) return true;
+              validate: (value?: ScheduleInstance | null | string) => {
+                if (!value || typeof value === "string") return true;
 
-                return CalendarEventSchema.safeParse(value).success
-                  ? true
-                  : "Invalid schedule instance";
+                console.log("118", value);
+
+                const parsed = CalendarEventSchema.safeParse({
+                  ...value,
+                  dtstart: isDate(value.dtstart)
+                    ? value.dtstart.toISOString()
+                    : value.dtstart,
+                  dtend: isDate(value.dtend)
+                    ? value.dtend.toISOString()
+                    : value.dtend,
+                });
+
+                console.log(parsed.error);
+
+                return parsed.success ? true : parsed.error.message;
               },
             },
             {
