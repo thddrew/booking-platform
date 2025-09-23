@@ -375,11 +375,14 @@ export const Events: CollectionConfig<"events"> = {
         },
         {
           label: "Settings",
+          admin: {
+            description: "Modify the attendees limits for this event",
+          },
           fields: [
             {
               name: "maxQuantity",
               type: "number",
-              label: "Max Quantity",
+              label: "Max Attendees",
               required: true,
               min: 1,
               defaultValue: 4,
@@ -393,7 +396,7 @@ export const Events: CollectionConfig<"events"> = {
             {
               name: "minQuantity",
               type: "number",
-              label: "Min Quantity",
+              label: "Min Attendees",
               min: 1,
               defaultValue: 1,
             },
@@ -402,6 +405,20 @@ export const Events: CollectionConfig<"events"> = {
               name: "customMin",
               label: "Custom",
               type: "checkbox",
+            },
+          ],
+        },
+        {
+          label: "Bookings",
+          admin: {
+            description: "View all past and upcomings bookings for this event",
+          },
+          fields: [
+            {
+              name: "bookings",
+              type: "join",
+              collection: "bookings",
+              on: "eventRelation",
             },
           ],
         },
