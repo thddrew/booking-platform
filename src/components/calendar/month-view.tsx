@@ -171,7 +171,7 @@ export function MonthView({
                   <div className="hidden sm:block space-y-1">
                     {dayEvents.map((event) => (
                       <EventCard
-                        key={`${event.type}-${event.dtstart.toISOString()}-${event.dtend.toISOString()}`}
+                        key={`${event.type}-${event.dtstart}-${event.dtend}`}
                         event={event}
                         onClick={onEventClick}
                         compact

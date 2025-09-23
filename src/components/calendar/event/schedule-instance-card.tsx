@@ -1,21 +1,12 @@
 "use client";
 
-import type { Where } from "payload";
 import type { CalendarEvent } from "@/components/calendar/schemas";
-import { usePayloadAPI } from "@/hooks/use-payload-api";
 import { cn } from "@/lib/utils";
 import { useCalendar } from "../calendar-provider";
 import type { EventCardPropsBase } from "./types";
 
 type EventCardProps = EventCardPropsBase & {
   event: Extract<CalendarEvent, { type: "scheduleInstance" }>;
-};
-
-const mapAvailabilityToColor = (eventRatio: number) => {
-  if (eventRatio === 1) return "#dc2626"; // No space left, red-600
-  if (eventRatio >= 0.8) return "#ea580c"; // 80% full, orange-600
-  if (eventRatio >= 0.5) return "#0f766e"; // 50% full, teal-600
-  return "#059669"; // At least 50% space left, emerald-600
 };
 
 export function ScheduleInstanceCard({
