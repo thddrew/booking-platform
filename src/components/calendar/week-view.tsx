@@ -177,7 +177,7 @@ export function WeekView({
             {hours.map((hour) => (
               <div
                 key={hour}
-                className="h-[49px] border-b p-2 text-xs text-muted-foreground text-right"
+                className="h-[48px] border-b p-2 text-xs text-muted-foreground text-right"
               >
                 {formatHour(hour)}
               </div>
@@ -197,7 +197,7 @@ export function WeekView({
               >
                 {positionedEvents.map(({ event, top, height }) => (
                   <div
-                    key={`${event.type}-${event.dtstart.toISOString()}-${event.dtend.toISOString()}`}
+                    key={`${event.type}-${event.dtstart}-${event.dtend}`}
                     className="absolute left-1 right-1 z-10"
                     style={{ top: `${top}px`, height: `${height}px` }}
                   >
@@ -258,7 +258,7 @@ export function WeekView({
                         }}
                         aria-label={`${date.toLocaleDateString()} at ${formatHour(hour)}`}
                       />
-                      {true && (
+                      {showCreateBtn && (
                         <button
                           type="button"
                           className="absolute bottom-1 right-1 w-6 h-6 bg-primary/70 text-primary-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-primary/100 hover:ring-2 hover:ring-primary/20 z-10"

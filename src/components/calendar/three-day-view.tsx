@@ -200,7 +200,7 @@ export function ThreeDayView({
               >
                 {positionedEvents.map(({ event, top, height }) => (
                   <div
-                    key={`${event.type}-${event.dtstart.toISOString()}-${event.dtend.toISOString()}`}
+                    key={`${event.type}-${event.dtstart}-${event.dtend}`}
                     className="absolute left-2 right-2 z-10"
                     style={{ top: `${top}px`, height: `${height}px` }}
                   >

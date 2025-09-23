@@ -80,7 +80,8 @@ export function BookingInstanceCard({
           {event.title}
         </div>
         <div className="text-xs opacity-90 mt-1">
-          {formatTime(event.dtstart)} - {formatTime(event.dtend)}
+          {formatTime(new Date(event.dtstart))} -{" "}
+          {formatTime(new Date(event.dtend))}
         </div>
       </div>
       {/* {event.description && !compact && (

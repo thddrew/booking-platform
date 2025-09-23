@@ -4,6 +4,7 @@ import type { Where } from "payload";
 import type { CalendarEvent } from "@/components/calendar/schemas";
 import { usePayloadAPI } from "@/hooks/use-payload-api";
 import { cn } from "@/lib/utils";
+import { useCalendar } from "../calendar-provider";
 import type { EventCardPropsBase } from "./types";
 
 type EventCardProps = EventCardPropsBase & {
@@ -24,6 +25,7 @@ export function ScheduleInstanceCard({
   isSelected,
   compact = false,
 }: EventCardProps) {
+  const { view } = useCalendar();
   const formatTimeRange = (start: Date, end: Date) => {
     const formatter = new Intl.DateTimeFormat("en-US", {
       hour: compact ? "2-digit" : "numeric",
@@ -59,7 +61,7 @@ export function ScheduleInstanceCard({
       }}
       aria-label={`Event: ${event.title}`}
     >
-      <div className="sticky top-20 w-full">
+      <div className={cn("sticky top-20 w-full", view === "day" && "top-4")}>
         <div
           className={cn(
             "font-medium leading-tight md:line-clamp-2",
@@ -69,7 +71,7 @@ export function ScheduleInstanceCard({
           {event.title}
         </div>
         <div className={cn("text-muted-foreground mt-1", compact && "text-xs")}>
-          {formatTimeRange(event.dtstart, event.dtend)}
+          {formatTimeRange(new Date(event.dtstart), new Date(event.dtend))}
         </div>
         <div className={cn("text-muted-foreground mt-1", compact && "text-xs")}>
           0 / {event.maxQuantity}

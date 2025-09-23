@@ -116,11 +116,11 @@ export function MonthView({
               className="w-full relative group"
               key={date.toISOString()}
             >
-              <button
-                type="button"
+              {/** biome-ignore lint/a11y/useSemanticElements: both the date container and the event card are interactive; we'll keep the event card a button */}
+              <div
+                role="button"
                 className={cn(
-                  "w-full flex flex-col min-h-28 border-r border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative",
-                  `[anchor-name:--${date.toISOString()}]`,
+                  "size-full flex flex-col min-h-28 border-r border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative",
                   !isCurrentMonth && "text-muted-foreground bg-muted/20",
                   isToday && "bg-primary/5"
                 )}
@@ -193,7 +193,7 @@ export function MonthView({
                   )} */}
                   </div>
                 </div>
-              </button>
+              </div>
               {showCreateBtn && (
                 <button
                   className={cn(
