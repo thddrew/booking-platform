@@ -5,7 +5,7 @@ import {
   CalendarEventSchema,
   ScheduleInstance,
 } from "@/components/calendar/schemas";
-import { isDate } from "../../components/calendar/utils/is-date";
+import { getDateString, isDate } from "../../components/calendar/utils/is-date";
 import { EventPricesRecordSchema } from "../Events/utils/schemas";
 import { saveSnapshots } from "./hooks/save-snapshots";
 import { setDatetimes } from "./hooks/set-datetimes";
@@ -106,7 +106,6 @@ export const Bookings: CollectionConfig<"bookings"> = {
             {
               type: "json",
               name: "selectedScheduleInstanceData",
-              virtual: true,
               admin: {
                 components: {
                   Field:
@@ -117,19 +116,11 @@ export const Bookings: CollectionConfig<"bookings"> = {
               validate: (value?: ScheduleInstance | null | string) => {
                 if (!value || typeof value === "string") return true;
 
-                console.log("118", value);
-
                 const parsed = CalendarEventSchema.safeParse({
                   ...value,
-                  dtstart: isDate(value.dtstart)
-                    ? value.dtstart.toISOString()
-                    : value.dtstart,
-                  dtend: isDate(value.dtend)
-                    ? value.dtend.toISOString()
-                    : value.dtend,
+                  dtstart: getDateString(value.dtstart),
+                  dtend: getDateString(value.dtend),
                 });
-
-                console.log(parsed.error);
 
                 return parsed.success ? true : parsed.error.message;
               },
