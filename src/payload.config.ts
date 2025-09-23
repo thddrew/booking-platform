@@ -20,8 +20,8 @@ import { Logs } from "./collections/Logs";
 import { Pages } from "./collections/Pages";
 import { Tenants } from "./collections/Tenants";
 import Users from "./collections/Users";
-import { customerCreatedWebhook } from "./lib/stripe/webhookHandlers/customer.created";
-import { customerDeletedWebhook } from "./lib/stripe/webhookHandlers/customer.deleted";
+// import { customerCreatedWebhook } from "./lib/stripe/webhookHandlers/customer.created";
+// import { customerDeletedWebhook } from "./lib/stripe/webhookHandlers/customer.deleted";
 import type { Config } from "./payload-types";
 import { seed } from "./seed";
 
@@ -103,8 +103,8 @@ export default buildConfig({
       // TODO: handle appropriate webhooks
       // https://docs.stripe.com/cli/trigger#trigger-event
       webhooks: {
-        "customer.created": customerCreatedWebhook,
-        "customer.deleted": customerDeletedWebhook,
+        // "customer.created": customerCreatedWebhook,
+        // "customer.deleted": customerDeletedWebhook,
       },
     }),
   ],
