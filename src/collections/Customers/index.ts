@@ -1,6 +1,37 @@
-import type { CollectionConfig } from "payload";
+import type {
+  CollectionConfig,
+  EmailField,
+  TextField,
+  Validate,
+} from "payload";
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
+import { Customer } from "@/payload-types";
 import { superAdminOrTenantAdminFieldAccess } from "../Billing/fieldAccess/superAdminOrTenantAdmin";
+
+const phoneValidate: Validate<string, unknown, Customer, TextField> = (
+  value,
+  ctx
+) => {
+  if (!value && !ctx.siblingData.email) {
+    return "Email or phone is required";
+  }
+
+  return true;
+};
+
+const emailValidate: Validate<
+  string,
+  unknown,
+  // For some reason, the EmailField requires the username field to be present in the siblingData
+  Customer & { username?: string },
+  EmailField
+> = (value, ctx) => {
+  if (!value && !ctx.siblingData.phone) {
+    return "Email or phone is required";
+  }
+
+  return true;
+};
 
 export const Customers: CollectionConfig<"customers"> = {
   slug: "customers",
@@ -19,28 +50,38 @@ export const Customers: CollectionConfig<"customers"> = {
     {
       name: "name",
       type: "text",
-      required: true,
     },
     {
       name: "email",
       type: "email",
-      required: true,
+      validate: emailValidate,
+      admin: {
+        description: "One of email or phone is required",
+      },
     },
     {
       name: "phone",
       type: "text",
+      validate: phoneValidate,
+      admin: {
+        description: "One of email or phone is required",
+      },
     },
     {
       name: "bookings",
       type: "join",
       collection: "bookings",
       on: "customerRelation",
+      admin: {
+        condition: (_, __, ctx) => ctx.operation !== "create",
+      },
     },
     {
       name: "stripeCustomerId",
       type: "text",
       admin: {
         readOnly: true,
+        hidden: true,
         position: "sidebar",
       },
       access: {
