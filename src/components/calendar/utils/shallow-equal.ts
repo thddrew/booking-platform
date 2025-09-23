@@ -17,12 +17,15 @@ export function shallowEqual(obj1: any, obj2: any): boolean {
   if (keys1.length !== keys2.length) return false;
 
   return keys1.every((key) => {
-    const val1 = obj1[key];
-    const val2 = obj2[key];
+    let val1 = obj1[key];
+    let val2 = obj2[key];
 
-    // Handle Date objects properly
-    if (val1 instanceof Date && val2 instanceof Date) {
-      return val1.getTime() === val2.getTime();
+    if (val1 instanceof Date) {
+      val1 = val1.toISOString();
+    }
+
+    if (val2 instanceof Date) {
+      val2 = val2.toISOString();
     }
 
     return val1 === val2;
