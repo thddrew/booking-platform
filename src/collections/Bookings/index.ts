@@ -24,17 +24,6 @@ export const Bookings: CollectionConfig<"bookings"> = {
     beforeValidate: [saveSnapshots, setDatetimes],
   },
   fields: [
-    // Metadata for sidebar
-    {
-      name: "stripeCheckoutSessionId",
-      type: "text",
-      // TODO: does this need to be required?
-      required: false,
-      admin: {
-        readOnly: true,
-        position: "sidebar",
-      },
-    },
     {
       type: "group",
       label: "Event & Schedule",
@@ -214,6 +203,13 @@ export const Bookings: CollectionConfig<"bookings"> = {
         position: "sidebar",
       },
       fields: [
+        {
+          name: "stripeCheckoutSessionId",
+          type: "text",
+          admin: {
+            readOnly: true,
+          },
+        },
         {
           name: "paymentMethod",
           type: "select",

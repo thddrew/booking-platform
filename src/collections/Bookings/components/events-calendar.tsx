@@ -100,78 +100,78 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
   };
 
   return (
-    <div className="twp grid grid-cols-[min-content_auto] md:grid-cols-[minmax(180px,min-content)_auto] gap-2">
-      <Card className="flex flex-col gap-2">
-        <CardHeader>
-          <CardTitle>Schedules</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {schedules?.map((schedule) => {
-            if (!schedule.id) return null;
-
-            return (
-              <div
-                key={schedule.id}
-                className="flex items-center gap-3"
-              >
-                <Checkbox
-                  checked={selectedSchedules[schedule.id]}
-                  disabled={!schedule.isActive}
-                  onCheckedChange={(checked) => {
-                    setSelectedSchedules({
-                      ...selectedSchedules,
-                      [schedule.id as string]: !!checked,
-                    });
-
-                    if (
-                      scheduleInstanceData.value?.scheduleId === schedule.id
-                    ) {
-                      // Improve UX by clearing the selected schedule instance and pricing snapshot if its schedule is unchecked
-                      fieldPricingSnapshot.setValue({});
-                      scheduleInstanceData.setValue(null);
-                    }
-                  }}
-                />{" "}
-                <span
-                  className={cn(
-                    schedule.isActive ? "" : "text-muted-foreground"
-                  )}
+    <div className="twp @container">
+      <div className="grid grid-cols-1 @4xl:grid-cols-[minmax(180px,min-content)_auto] gap-2">
+        <Card className="flex flex-col gap-2">
+          <CardHeader>
+            <CardTitle>Schedules</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {schedules?.map((schedule) => {
+              if (!schedule.id) return null;
+              return (
+                <div
+                  key={schedule.id}
+                  className="flex items-center gap-3"
                 >
-                  {schedule.scheduleName}{" "}
-                  {schedule.isActive ? "" : "(Inactive)"}
-                </span>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
-      <CalendarProvider
-        selectedEvent={scheduleInstanceData.value}
-        loadEvents={loadEvents}
-        initialView="month"
-      >
-        <Calendar
-          onEventClick={(calEvent) => {
-            scheduleInstanceData.setValue(calEvent);
-            fieldDtstart.setValue(calEvent.dtstart);
-            fieldDtend.setValue(calEvent.dtend);
-          }}
-          config={{
-            month: {
-              showCreateBtn: false,
-            },
-            week: {
-              showCreateBtn: false,
-            },
-            "three-day": {
-              showCreateBtn: false,
-            },
-            day: {
-              showCreateBtn: false,
-            },
-          }}
-        />
-      </CalendarProvider>
+                  <Checkbox
+                    checked={selectedSchedules[schedule.id]}
+                    disabled={!schedule.isActive}
+                    onCheckedChange={(checked) => {
+                      setSelectedSchedules({
+                        ...selectedSchedules,
+                        [schedule.id as string]: !!checked,
+                      });
+                      if (
+                        scheduleInstanceData.value?.scheduleId === schedule.id
+                      ) {
+                        // Improve UX by clearing the selected schedule instance and pricing snapshot if its schedule is unchecked
+                        fieldPricingSnapshot.setValue({});
+                        scheduleInstanceData.setValue(null);
+                      }
+                    }}
+                  />{" "}
+                  <span
+                    className={cn(
+                      schedule.isActive ? "" : "text-muted-foreground"
+                    )}
+                  >
+                    {schedule.scheduleName}{" "}
+                    {schedule.isActive ? "" : "(Inactive)"}
+                  </span>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+        <CalendarProvider
+          selectedEvent={scheduleInstanceData.value}
+          loadEvents={loadEvents}
+          initialView="month"
+        >
+          <Calendar
+            onEventClick={(calEvent) => {
+              scheduleInstanceData.setValue(calEvent);
+              fieldDtstart.setValue(calEvent.dtstart);
+              fieldDtend.setValue(calEvent.dtend);
+            }}
+            config={{
+              month: {
+                showCreateBtn: false,
+              },
+              week: {
+                showCreateBtn: false,
+              },
+              "three-day": {
+                showCreateBtn: false,
+              },
+              day: {
+                showCreateBtn: false,
+              },
+            }}
+          />
+        </CalendarProvider>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,3 @@
-"use client";
-
 import type { CalendarEvent } from "@/components/calendar/schemas";
 import { cn } from "@/lib/utils";
 import type { EventCardPropsBase } from "./types";

@@ -52,7 +52,14 @@ export function ScheduleInstanceCard({
       }}
       aria-label={`Event: ${event.title}`}
     >
-      <div className={cn("sticky top-20 w-full", view === "day" && "top-4")}>
+      <div
+        className={cn(
+          "sticky top-16 w-full",
+          view === "day" && "top-2",
+          view === "week" && "top-2",
+          view === "three-day" && "top-2"
+        )}
+      >
         <div
           className={cn(
             "font-medium leading-tight md:line-clamp-2",

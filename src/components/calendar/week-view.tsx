@@ -107,7 +107,7 @@ export function WeekView({
 
     if (!isToday) return null;
 
-    const hourHeight = 49; // Same as in getPositionedEventsForDate
+    const hourHeight = 48; // Same as in getPositionedEventsForDate
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const top = currentHour * hourHeight + (currentMinute / 60) * hourHeight;
@@ -193,7 +193,7 @@ export function WeekView({
             return (
               <div
                 key={date.toISOString()}
-                className="relative flex flex-col gap-[1px] border-r"
+                className="relative flex flex-col border-r"
               >
                 {positionedEvents.map(({ event, top, height }) => (
                   <div
@@ -231,7 +231,7 @@ export function WeekView({
                   return (
                     <div
                       key={hour}
-                      className="relative group h-16"
+                      className="relative group h-[48px]"
                     >
                       <button
                         type="button"

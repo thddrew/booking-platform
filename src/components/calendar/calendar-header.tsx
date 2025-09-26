@@ -56,7 +56,7 @@ export function CalendarHeader({
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b bg-card">
+    <div className="flex items-center justify-between p-3 border-b bg-card gap-3">
       <div className="flex items-center gap-2 sm:gap-4">
         <Button
           variant="outline"
@@ -87,9 +87,7 @@ export function CalendarHeader({
           </Button>
         </div>
 
-        <h2 className="text-lg sm:text-xl font-semibold text-balance">
-          {formatTitle()}
-        </h2>
+        <h2 className="text-base text-balance">{formatTitle()}</h2>
       </div>
 
       <div className="flex items-center gap-1">
