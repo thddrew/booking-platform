@@ -19,5 +19,7 @@ export const EventPriceSchema = z.object({
 });
 
 export const EventPricesArraySchema = z.array(EventPriceSchema);
+export type EventPricesArrayType = z.infer<typeof EventPricesArraySchema>;
 
 export const EventPricesRecordSchema = z.record(z.string(), EventPriceSchema);
+export type EventPricesRecordType = z.infer<typeof EventPricesRecordSchema>;

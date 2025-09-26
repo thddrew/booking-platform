@@ -1,12 +1,14 @@
 import type { StripeWebhookHandler } from "@payloadcms/plugin-stripe/types";
 import type Stripe from "stripe";
-import type { StripeMetadata } from "@/types/stripe-metadata";
+import { stripeCustomerMetadata } from "@/types/stripe-metadata";
 
 export const customerCreatedWebhook: StripeWebhookHandler<
   Stripe.CustomerCreatedEvent
 > = async ({ event, payload, req }) => {
   try {
     const { id, name, email, phone, metadata } = event.data.object;
+
+    const customerMetadata = stripeCustomerMetadata.safeParse(metadata);
 
     await payload.create({
       req,
@@ -16,7 +18,7 @@ export const customerCreatedWebhook: StripeWebhookHandler<
         name: name ?? `name-${id}`,
         email: email ?? `${id}@stripe.com`,
         phone,
-        tenant: Number((metadata satisfies StripeMetadata).tenantId),
+        tenant: customerMetadata.data?.tenantId,
       },
       context: {
         triggerAfterChange: false,

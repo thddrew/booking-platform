@@ -1,0 +1,22 @@
+import Stripe from "stripe";
+import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultConnectedAccount";
+
+/**
+ * Get the Stripe client for the current connected account
+ */
+export const getAccountStripe = async () => {
+  const account = await getTenantDefaultConnectedAccount();
+
+  if (!account) {
+    throw new Error("No connected account found");
+  }
+
+  if (!account.stripeAccountId) {
+    throw new Error("No stripe account ID connected to the default account");
+  }
+
+  return new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: "2025-08-27.basil",
+    stripeAccount: account.stripeAccountId,
+  });
+};

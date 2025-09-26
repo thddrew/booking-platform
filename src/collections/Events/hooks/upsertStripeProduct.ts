@@ -7,10 +7,13 @@ import type { CollectionAfterChangeHook } from "payload";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe/client";
 import type { Event } from "@/payload-types";
-import { StripeMetadata } from "@/types/stripe-metadata";
+import type {
+  StripePriceMetadata,
+  StripeProductMetadata,
+} from "@/types/stripe-metadata";
 import { debugLog } from "@/utilities/debugLog";
 import { extractID } from "@/utilities/extractID";
-import { getDefaultConnectedAccount } from "@/utilities/getDefaultConnectedAccount";
+import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultConnectedAccount";
 import { convertDollarsToCents } from "../utils/convertDollarsToCents";
 
 // TODO: consider sending this to a Job
@@ -33,7 +36,7 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
       return;
     }
 
-    const defaultConnectedAccount = await getDefaultConnectedAccount();
+    const defaultConnectedAccount = await getTenantDefaultConnectedAccount();
     const stripeAccountId =
       defaultConnectedAccount?.stripeAccountId ?? undefined;
     const docTenantId = doc.tenant ? extractID(doc.tenant) : null;
@@ -75,7 +78,7 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
           metadata: {
             eventId: doc.id,
             tenantId: docTenantId,
-          } satisfies StripeMetadata,
+          } satisfies StripeProductMetadata,
         },
         {
           stripeAccount: stripeAccountId,
@@ -159,7 +162,7 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
                     eventId: doc.id,
                     priceId: price.id ?? "",
                     tenantId: docTenantId,
-                  } satisfies StripeMetadata,
+                  } satisfies StripePriceMetadata,
                 },
                 {
                   stripeAccount: stripeAccountId,
@@ -205,7 +208,7 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
                   eventId: doc.id,
                   priceId: price.id ?? null,
                   tenantId: docTenantId,
-                } satisfies StripeMetadata,
+                } satisfies StripePriceMetadata,
               },
               {
                 stripeAccount: stripeAccountId,

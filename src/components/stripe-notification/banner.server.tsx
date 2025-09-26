@@ -5,11 +5,11 @@
 
 import type { ServerProps } from "payload";
 import { extractID } from "@/utilities/extractID";
-import { getDefaultConnectedAccount } from "@/utilities/getDefaultConnectedAccount";
+import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultConnectedAccount";
 import { StripeNotificationBannerClient } from "./banner.client";
 
 const StripeNotificationBannerServer = async (args: ServerProps) => {
-  const account = await getDefaultConnectedAccount();
+  const account = await getTenantDefaultConnectedAccount();
 
   if (!account || !args.user) return null;
 

@@ -1,4 +1,5 @@
-import { User } from "@/payload-types";
+import type { ClientUser } from "payload";
+import type { User } from "@/payload-types";
 import { getUserTenantIDs } from "@/utilities/getUserTenantIDs";
 import { isSuperAdmin } from "./isSuperAdmin";
 
@@ -6,7 +7,7 @@ import { isSuperAdmin } from "./isSuperAdmin";
  * Tenant admins and super admins can will be allowed access
  */
 export const isSuperAdminOrTenantAdmin = (
-  user: User | null,
+  user: ClientUser | User | null,
   requestedTenant: number | null
 ) => {
   if (!user) {

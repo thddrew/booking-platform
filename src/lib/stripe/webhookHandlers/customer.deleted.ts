@@ -1,12 +1,15 @@
 import type { StripeWebhookHandler } from "@payloadcms/plugin-stripe/types";
 import type Stripe from "stripe";
-import type { StripeMetadata } from "@/types/stripe-metadata";
+import { stripeCustomerMetadata } from "@/types/stripe-metadata";
 
 export const customerDeletedWebhook: StripeWebhookHandler<
   Stripe.CustomerDeletedEvent
 > = async ({ event, payload, req }) => {
   try {
     const { id, metadata } = event.data.object;
+
+    const customerMetadata = stripeCustomerMetadata.safeParse(metadata);
+
     const customer = await payload.find({
       req,
       collection: "customers",
@@ -15,7 +18,7 @@ export const customerDeletedWebhook: StripeWebhookHandler<
           equals: id,
         },
         tenant: {
-          equals: (metadata as StripeMetadata).tenantId,
+          equals: customerMetadata.data?.tenantId,
         },
       },
     });

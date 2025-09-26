@@ -245,7 +245,20 @@ export interface Booking {
   id: number;
   tenant?: (number | null) | Tenant;
   stripeCheckoutSessionId?: string | null;
-  customerId?: string | null;
+  eventRelation?: (number | null) | Event;
+  selectedScheduleInstanceData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  dtstart: string;
+  dtend: string;
+  overrideMaxQuantity?: boolean | null;
+  customerRelation?: (number | null) | Customer;
   eventSnapshot?:
     | {
         [k: string]: unknown;
@@ -273,22 +286,8 @@ export interface Booking {
     | number
     | boolean
     | null;
-  eventRelation?: (number | null) | Event;
-  selectedScheduleInstanceData?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  dtstart: string;
-  dtend: string;
-  overrideMaxQuantity?: boolean | null;
-  customerRelation?: (number | null) | Customer;
   rrulestring?: string | null;
-  paymentMethod?: ('stripe' | 'inPerson') | null;
+  paymentMethod?: ('payNow' | 'payLater') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -797,16 +796,15 @@ export interface EventsSelect<T extends boolean = true> {
 export interface BookingsSelect<T extends boolean = true> {
   tenant?: T;
   stripeCheckoutSessionId?: T;
-  customerId?: T;
-  eventSnapshot?: T;
-  customerSnapshot?: T;
-  pricingSnapshot?: T;
   eventRelation?: T;
   selectedScheduleInstanceData?: T;
   dtstart?: T;
   dtend?: T;
   overrideMaxQuantity?: T;
   customerRelation?: T;
+  eventSnapshot?: T;
+  customerSnapshot?: T;
+  pricingSnapshot?: T;
   rrulestring?: T;
   paymentMethod?: T;
   updatedAt?: T;

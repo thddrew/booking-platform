@@ -1,12 +1,13 @@
 "use server";
 
+import type { ClientUser } from "payload";
 import type Stripe from "stripe";
 import { isSuperAdminOrTenantAdmin } from "@/access/isSuperAdminOrTenantAdmin";
 import { stripe } from "@/lib/stripe/client";
 import type { User } from "@/payload-types";
 
 export type CreateStripeAccountSession = (
-  user: User | null | undefined,
+  user: ClientUser | User | null | undefined,
   {
     account,
     tenant,

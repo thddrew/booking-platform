@@ -81,7 +81,6 @@ export const Customers: CollectionConfig<"customers"> = {
       type: "text",
       admin: {
         readOnly: true,
-        hidden: true,
         position: "sidebar",
       },
       access: {
