@@ -1,5 +1,5 @@
 import { Temporal } from "temporal-polyfill";
-import type { UTCDateString } from "@/types/alias";
+import type { UTCDateString } from "@/types/custom";
 
 export const getEventDuration = (
   dtstart: UTCDateString,

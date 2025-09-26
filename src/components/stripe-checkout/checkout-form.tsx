@@ -5,22 +5,29 @@
  */
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PaymentElement, useCheckout } from "@stripe/react-stripe-js/checkout";
+import {
+  PaymentElement,
+  BillingAddressElement,
+  useCheckout,
+} from "@stripe/react-stripe-js/checkout";
 import { Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Skeleton } from "../ui/skeleton";
+import { Label } from "../ui/label";
+import { Separator } from "../ui/separator";
 
 const formSchema = z.object({
   email: z.email(),
 });
 
-export const CheckoutForm = () => {
+export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {
   const checkoutState = useCheckout();
+  const [confirming, setConfirming] = useState<boolean>(false);
   const [rootError, setRootError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       email: "",
@@ -57,10 +64,29 @@ export const CheckoutForm = () => {
 
         return;
       }
+
+      if (checkout.canConfirm) {
+        setConfirming(true);
+        const confirmResult = await checkout.confirm();
+
+        if (confirmResult.type === "error") {
+          setRootError(confirmResult.error?.message);
+
+          return;
+        }
+
+        setSuccess(true);
+        return;
+      }
+
+      throw new Error("Checkout cannot be confirmed");
     } catch (err) {
       setRootError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
+      setSuccess(false);
+    } finally {
+      setConfirming(false);
     }
   };
 
@@ -75,24 +101,79 @@ export const CheckoutForm = () => {
     );
   }
 
+  if (checkoutState.type === "error") {
+    return (
+      <div className="twp">
+        <p className="text-destructive">{checkoutState.error?.message}</p>
+      </div>
+    );
+  }
+
+  const { checkout } = checkoutState;
+
   // can't use a form here because the root edit view is a form
   return (
     <div className="twp space-y-6">
-      <Input
-        placeholder="Email"
-        {...form.register("email")}
-      />
-      <h4>Payment</h4>
-      <PaymentElement
-        options={{
-          layout: "auto",
-        }}
-      />
+      {header}
+      <div>
+        <p className="font-bold mb-2">Summary:</p>
+        <ul className="space-y-1">
+          {checkout.lineItems.map((lineItem) => (
+            <li
+              key={lineItem.id}
+              className="flex justify-between items-center"
+            >
+              <p>
+                {lineItem.name} x {lineItem.quantity}
+              </p>
+              <p>{lineItem.subtotal.amount}</p>
+            </li>
+          ))}
+        </ul>
+        <Separator className="my-4" />
+        <div className="grid grid-cols-2 gap-y-1">
+          <p className="text-muted-foreground">Subtotal:</p>
+          <p className="text-muted-foreground text-right">
+            {checkout.total.subtotal.amount}
+          </p>
+          <p className="text-muted-foreground">Tax:</p>
+          <p className="text-muted-foreground text-right">
+            {checkout.total.taxExclusive.amount}
+          </p>
+          <p className="font-bold text-lg">Total:</p>
+          <p className="font-bold text-lg font-mono text-right">
+            {checkout.total.total.amount}
+          </p>
+        </div>
+      </div>
+      <p className="font-bold mb-2">Customer information:</p>
+      <div>
+        <Label
+          htmlFor="email"
+          className="mb-1"
+        >
+          Email
+        </Label>
+        <Input
+          id="email"
+          {...form.register("email")}
+        />
+      </div>
+      <BillingAddressElement />
+      <div>
+        <p className="mb-1">Payment</p>
+        <PaymentElement
+          options={{
+            layout: "auto",
+          }}
+        />
+      </div>
+      {rootError && <p className="text-destructive">{rootError}</p>}
       <Button
         type="submit"
         onClick={form.handleSubmit(onSubmit)}
       >
-        Submit
+        Pay
       </Button>
     </div>
   );

@@ -13,6 +13,8 @@ const lightModeAppearance: Appearance = {
     colorDanger: "#dc2626",
     borderRadius: "0.25rem",
     fontFamily: "system-ui, sans-serif",
+    fontSizeBase: "14px",
+    gridRowSpacing: "1.5rem",
   },
 };
 
@@ -25,10 +27,14 @@ const darkModeAppearance: Appearance = {
     colorDanger: "#ef4444",
     borderRadius: "0.25rem",
     fontFamily: "system-ui, sans-serif",
+    fontSizeBase: "14px",
+    gridRowSpacing: "1.5rem",
   },
   rules: {
     ".Input": {
       boxShadow: "none",
+      backgroundColor: "rgba(30, 30, 30, 1)",
+      borderColor: "rgba(255, 255, 255, 0.15)",
     },
   },
 };

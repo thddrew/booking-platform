@@ -26,6 +26,8 @@ export const createCheckoutSessionSecret = async ({
       line_items: lineItems,
       discounts: [{ promotion_code: promotionCode }],
       customer: customerId,
+      // 1 hour from now
+      expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
     });
 
     return session.client_secret;

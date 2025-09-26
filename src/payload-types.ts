@@ -244,7 +244,6 @@ export interface Customer {
 export interface Booking {
   id: number;
   tenant?: (number | null) | Tenant;
-  stripeCheckoutSessionId?: string | null;
   eventRelation?: (number | null) | Event;
   selectedScheduleInstanceData?:
     | {
@@ -287,6 +286,7 @@ export interface Booking {
     | boolean
     | null;
   rrulestring?: string | null;
+  stripeCheckoutSessionId?: string | null;
   paymentMethod?: ('payNow' | 'payLater') | null;
   updatedAt: string;
   createdAt: string;
@@ -795,7 +795,6 @@ export interface EventsSelect<T extends boolean = true> {
  */
 export interface BookingsSelect<T extends boolean = true> {
   tenant?: T;
-  stripeCheckoutSessionId?: T;
   eventRelation?: T;
   selectedScheduleInstanceData?: T;
   dtstart?: T;
@@ -806,6 +805,7 @@ export interface BookingsSelect<T extends boolean = true> {
   customerSnapshot?: T;
   pricingSnapshot?: T;
   rrulestring?: T;
+  stripeCheckoutSessionId?: T;
   paymentMethod?: T;
   updatedAt?: T;
   createdAt?: T;

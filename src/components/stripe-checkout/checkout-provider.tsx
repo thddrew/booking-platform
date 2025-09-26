@@ -13,7 +13,7 @@ export const CheckoutProviderServer = ({
   children,
 }: {
   lineItems: { stripePriceId: string; quantity: number }[];
-  customerId?: string;
+  customerId?: string | null;
   stripeAccount?: string;
   children: React.ReactNode;
 }) => {
@@ -35,7 +35,7 @@ export const CheckoutProviderServer = ({
           price: price.stripePriceId,
           quantity: price.quantity,
         })),
-        customerId,
+        customerId: customerId ?? undefined,
       });
 
       if (!secret) {
