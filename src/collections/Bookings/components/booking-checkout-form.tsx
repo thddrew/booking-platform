@@ -23,13 +23,20 @@ const BookingCheckoutForm: TypedFieldComponent<
   const stripeAccount = await getTenantDefaultConnectedAccount();
   const customer = CustomerSchema.safeParse(args.data.customerSnapshot);
 
+  const stripeCustomerId = customer.success
+    ? customer.data.stripeCustomerId
+    : undefined;
+
   return (
     <CheckoutProviderServer
       lineItems={lineItems}
-      customerId={customer.success ? customer.data.stripeCustomerId : undefined}
+      customerId={stripeCustomerId}
       stripeAccount={stripeAccount?.stripeAccountId ?? undefined}
     >
-      <CheckoutForm />
+      <CheckoutForm
+        email={customer.success ? customer.data.email : undefined}
+        isStripeCustomer={!!stripeCustomerId}
+      />
     </CheckoutProviderServer>
   );
 };

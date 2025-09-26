@@ -18,27 +18,39 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const formSchema = z.object({
   email: z.email(),
 });
 
-export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {
+export const CheckoutForm = ({
+  header,
+  email,
+  name,
+  isStripeCustomer,
+}: {
+  header?: React.ReactNode;
+  email?: string | null;
+  /** If customer is passed in, email cannot be changed */
+  isStripeCustomer?: boolean;
+  name?: string | null;
+}) => {
   const checkoutState = useCheckout();
   const [confirming, setConfirming] = useState<boolean>(false);
   const [rootError, setRootError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      email: "",
+      email: email ?? "",
     },
     resolver: zodResolver(formSchema),
   });
 
-  const validateStripeEmail = async (email: string) => {
+  const validateStripeEmail = async (_email: string) => {
     if (checkoutState.type === "success") {
       const { checkout } = checkoutState;
-      const result = await checkout.updateEmail(email);
+      const result = await checkout.updateEmail(_email);
       const isValid = result.type === "success";
 
       return {
@@ -53,21 +65,30 @@ export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {
     };
   };
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+  const onSubmit = async () => {
+    const valid = await form.trigger();
+
+    if (!valid) return;
+
+    const data = form.getValues();
+    console.log("data", data);
 
     try {
-      const { isValid, message } = await validateStripeEmail(data.email);
+      if (!isStripeCustomer) {
+        const { isValid, message } = await validateStripeEmail(data.email);
 
-      if (!isValid) {
-        form.setError("email", { message });
+        if (!isValid) {
+          form.setError("email", { message });
 
-        return;
+          return;
+        }
       }
 
       if (checkout.canConfirm) {
         setConfirming(true);
-        const confirmResult = await checkout.confirm();
+        const confirmResult = await checkout.confirm({
+          returnUrl: window.location.href,
+        });
 
         if (confirmResult.type === "error") {
           setRootError(confirmResult.error?.message);
@@ -78,6 +99,8 @@ export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {
         setSuccess(true);
         return;
       }
+
+      console.log(checkout);
 
       throw new Error("Checkout cannot be confirmed");
     } catch (err) {
@@ -147,18 +170,37 @@ export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {
         </div>
       </div>
       <p className="font-bold mb-2">Customer information:</p>
-      <div>
-        <Label
-          htmlFor="email"
-          className="mb-1"
+      <Tooltip>
+        <TooltipTrigger
+          disabled={!isStripeCustomer}
+          asChild
         >
-          Email
-        </Label>
-        <Input
-          id="email"
-          {...form.register("email")}
-        />
-      </div>
+          <div>
+            <Label
+              htmlFor="email"
+              className="mb-1"
+            >
+              Email
+            </Label>
+            <Input
+              id="email"
+              {...form.register("email", {
+                disabled: isStripeCustomer,
+              })}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          side="left"
+          className="max-w-3xs"
+        >
+          Currently, email cannot be changed when using an active Stripe
+          customer.
+          <br />
+          <br />
+          Update the customer's email in the customer's profile.
+        </TooltipContent>
+      </Tooltip>
       <BillingAddressElement />
       <div>
         <p className="mb-1">Payment</p>
@@ -170,8 +212,8 @@ export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {
       </div>
       {rootError && <p className="text-destructive">{rootError}</p>}
       <Button
-        type="submit"
-        onClick={form.handleSubmit(onSubmit)}
+        className="w-full"
+        onClick={onSubmit}
       >
         Pay
       </Button>

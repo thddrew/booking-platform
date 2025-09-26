@@ -7,10 +7,12 @@ export const createCheckoutSessionSecret = async ({
   lineItems,
   promotionCode,
   customerId,
+  customerEmail,
 }: {
   lineItems: Stripe.Checkout.SessionCreateParams.LineItem[];
   promotionCode?: string;
   customerId?: string;
+  customerEmail?: string;
 }) => {
   const stripe = await getAccountStripe();
 
@@ -26,6 +28,7 @@ export const createCheckoutSessionSecret = async ({
       line_items: lineItems,
       discounts: [{ promotion_code: promotionCode }],
       customer: customerId,
+      customer_email: customerEmail,
       // 1 hour from now
       expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
     });

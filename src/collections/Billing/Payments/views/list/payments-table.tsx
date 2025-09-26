@@ -50,6 +50,7 @@ import type { ConnectedAccount } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";
 import { isNonNull } from "@/utilities/isNonNull";
 import PaymentDetails from "./payment-details";
+import { isTypedObject } from "@/utilities/isTypedObject";
 
 const columnHelper = createColumnHelper<Stripe.Checkout.Session>();
 
@@ -95,6 +96,32 @@ export const columns = [
           </TooltipTrigger>
           <TooltipContent>
             {formatDate(new Date(created * 1000))}
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
+  }),
+  columnHelper.accessor("payment_intent", {
+    meta: {
+      size: 0,
+    },
+    header: "Paid on",
+    cell: ({ row, getValue }) => {
+      const intent = getValue();
+
+      const fullIntent = isTypedObject(intent) ? intent : null;
+
+      if (!fullIntent) return <div>-</div>;
+
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <p className="first-letter:capitalize w-fit">
+              {formatRelative(new Date(fullIntent.created * 1000), new Date())}
+            </p>
+          </TooltipTrigger>
+          <TooltipContent>
+            {formatDate(new Date(fullIntent.created * 1000))}
           </TooltipContent>
         </Tooltip>
       );

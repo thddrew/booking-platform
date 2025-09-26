@@ -28,7 +28,7 @@ export const ListView = async (
   const checkouts = await accountStripe.checkout.sessions.list({
     limit,
     starting_after: after ?? undefined,
-    expand: ["data.customer", "data.line_items"],
+    expand: ["data.customer", "data.line_items", "data.payment_intent"],
   });
 
   return (

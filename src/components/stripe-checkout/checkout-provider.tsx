@@ -10,11 +10,16 @@ export const CheckoutProviderServer = ({
   lineItems,
   customerId,
   stripeAccount,
+  customerEmail,
   children,
 }: {
   lineItems: { stripePriceId: string; quantity: number }[];
-  customerId?: string | null;
   stripeAccount?: string;
+  /**
+   * Only one of customerId or customerEmail is required
+   */
+  customerId?: string | null;
+  customerEmail?: string | null;
   children: React.ReactNode;
 }) => {
   const appearance = useStripeAppearance();
@@ -36,6 +41,7 @@ export const CheckoutProviderServer = ({
           quantity: price.quantity,
         })),
         customerId: customerId ?? undefined,
+        customerEmail: customerEmail ?? undefined,
       });
 
       if (!secret) {
