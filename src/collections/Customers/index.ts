@@ -7,6 +7,8 @@ import type {
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
 import { Customer } from "@/payload-types";
 import { superAdminOrTenantAdminFieldAccess } from "../Billing/fieldAccess/superAdminOrTenantAdmin";
+import { createStripeCustomer } from "./hooks/create-stripe-customer";
+import { updateStripeCustomer } from "./hooks/update-stripe-customer";
 
 const phoneValidate: Validate<string, unknown, Customer, TextField> = (
   value,
@@ -42,6 +44,9 @@ export const Customers: CollectionConfig<"customers"> = {
     update: superAdminOrTenantAdminAccess,
   },
   trash: true,
+  hooks: {
+    beforeChange: [createStripeCustomer, updateStripeCustomer],
+  },
   admin: {
     useAsTitle: "name",
     defaultColumns: ["name", "email", "phone"],

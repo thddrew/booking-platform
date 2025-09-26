@@ -6,8 +6,7 @@ import { convertPricingSnapshotToLineItems } from "@/components/stripe-checkout/
 import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultConnectedAccount";
 import { TypedFieldComponent } from "@/types/custom";
 import { Booking } from "@/payload-types";
-import { extractID } from "@/utilities/extractID";
-import { isCollectionObject } from "@/utilities/isCollectionObject";
+import { CustomerSchema } from "@/collections/Customers/utils/schemas";
 
 const BookingCheckoutForm: TypedFieldComponent<
   UIFieldServerComponent,
@@ -22,16 +21,12 @@ const BookingCheckoutForm: TypedFieldComponent<
 
   const lineItems = convertPricingSnapshotToLineItems(pricingSnapshot.data);
   const stripeAccount = await getTenantDefaultConnectedAccount();
-  const customer = args.data.customerRelation;
-
-  console.log("customer", customer);
+  const customer = CustomerSchema.safeParse(args.data.customerSnapshot);
 
   return (
     <CheckoutProviderServer
       lineItems={lineItems}
-      customerId={
-        isCollectionObject(customer) ? customer.stripeCustomerId : undefined
-      }
+      customerId={customer.success ? customer.data.stripeCustomerId : undefined}
       stripeAccount={stripeAccount?.stripeAccountId ?? undefined}
     >
       <CheckoutForm />

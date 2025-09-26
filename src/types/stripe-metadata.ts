@@ -1,18 +1,18 @@
 import z from "zod";
 
 export const stripeProductMetadata = z.object({
-  eventId: z.number().nullable().optional(),
-  tenantId: z.number().nullable().optional(),
+  eventId: z.number().nullish(),
+  tenantId: z.number().nullish(),
 });
 
 export const stripePriceMetadata = z.object({
-  eventId: z.number().nullable().optional(),
-  tenantId: z.number().nullable().optional(),
-  priceId: z.string().nullable().optional(),
+  eventId: z.number().nullish(),
+  tenantId: z.number().nullish(),
+  priceId: z.string().nullish(),
 });
 
 export const stripeCustomerMetadata = z.object({
-  tenantId: z.number().nullable().optional(),
+  tenantId: z.number().nullish(),
 });
 
 /**

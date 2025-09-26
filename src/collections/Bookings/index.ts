@@ -23,6 +23,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
   hooks: {
     beforeValidate: [saveSnapshots, setDatetimes],
   },
+  versions: true,
   fields: [
     {
       type: "group",

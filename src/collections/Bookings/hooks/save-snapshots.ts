@@ -22,7 +22,9 @@ export const saveSnapshots: CollectionBeforeValidateHook<Booking> = async ({
           .then((event) => {
             data.eventSnapshot = JSON.stringify(event);
           })
-      : Promise.resolve(null),
+      : Promise.resolve().then(() => {
+          data.eventSnapshot = JSON.stringify({});
+        }),
     data.customerRelation
       ? req.payload
           .findByID({
@@ -36,7 +38,9 @@ export const saveSnapshots: CollectionBeforeValidateHook<Booking> = async ({
           .then((customer) => {
             data.customerSnapshot = JSON.stringify(customer);
           })
-      : Promise.resolve(null),
+      : Promise.resolve().then(() => {
+          data.customerSnapshot = JSON.stringify({});
+        }),
   ]);
 
   return data;
