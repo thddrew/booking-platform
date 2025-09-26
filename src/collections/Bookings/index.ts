@@ -17,6 +17,9 @@ export const Bookings: CollectionConfig<"bookings"> = {
     read: () => true,
     update: superAdminOrTenantAdminAccess,
   },
+  admin: {
+    defaultColumns: ["eventRelation", "dtstart", "dtend"],
+  },
   hooks: {
     beforeValidate: [saveSnapshots, setDatetimes],
   },
@@ -33,52 +36,11 @@ export const Bookings: CollectionConfig<"bookings"> = {
       },
     },
     {
-      name: "customerId",
-      type: "text",
-      admin: {
-        readOnly: true,
-        position: "sidebar",
-      },
-    },
-    {
-      name: "eventSnapshot",
-      type: "json",
-      defaultValue: {},
-      admin: {
-        readOnly: true,
-        position: "sidebar",
-      },
-    },
-    {
-      name: "customerSnapshot",
-      type: "json",
-      defaultValue: {},
-      admin: {
-        readOnly: true,
-        position: "sidebar",
-      },
-    },
-    {
-      // We don't update this in the hooks because we use this to display the pricing summary in the UI
-      name: "pricingSnapshot",
-      type: "json",
-      defaultValue: {},
-      admin: { readOnly: true, position: "sidebar" },
-      validate: (value) => {
-        if (!value) return true;
-
-        const parsed = EventPricesRecordSchema.safeParse(value);
-
-        console.log(parsed.error);
-
-        return parsed.success ? true : parsed.error.message;
-      },
-    },
-    {
       type: "group",
       label: "Event & Schedule",
       fields: [
         {
+          label: "Event",
           name: "eventRelation",
           type: "relationship",
           relationTo: "events",
@@ -93,9 +55,10 @@ export const Bookings: CollectionConfig<"bookings"> = {
           admin: {
             placeholder:
               "Select an event to view the available time slots. Only published events are available.",
-            components: {
-              Label: "/src/components/blank",
-            },
+            // TODO: I want to remove the label in the editor but show it in the list column label
+            // components: {
+            //   Label: "/src/components/blank",
+            // },
             allowCreate: false,
           },
         },
@@ -126,6 +89,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
             },
             {
               name: "dtstart",
+              label: "Start Date",
               type: "date",
               required: true,
               admin: {
@@ -134,6 +98,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
             },
             {
               name: "dtend",
+              label: "End Date",
               type: "date",
               required: true,
               admin: {
@@ -211,23 +176,69 @@ export const Bookings: CollectionConfig<"bookings"> = {
       ],
     },
     {
-      name: "rrulestring",
-      type: "text",
+      name: "eventSnapshot",
+      type: "json",
+      defaultValue: {},
       admin: {
-        position: "sidebar",
+        readOnly: true,
       },
     },
     {
-      name: "paymentMethod",
-      type: "select",
-      options: [
+      name: "customerSnapshot",
+      type: "json",
+      defaultValue: {},
+      admin: {
+        readOnly: true,
+      },
+    },
+    {
+      // We don't update this in the hooks because we use this to display the pricing summary in the UI
+      name: "pricingSnapshot",
+      type: "json",
+      defaultValue: {},
+      admin: { readOnly: true },
+      validate: (value) => {
+        if (!value) return true;
+
+        const parsed = EventPricesRecordSchema.safeParse(value);
+        return parsed.success ? true : parsed.error.message;
+      },
+    },
+    {
+      name: "rrulestring",
+      type: "text",
+    },
+    {
+      type: "group",
+      admin: {
+        position: "sidebar",
+      },
+      fields: [
         {
-          label: "Stripe",
-          value: "stripe",
+          name: "paymentMethod",
+          type: "select",
+          options: [
+            {
+              label: "Pay now",
+              value: "payNow",
+            },
+            {
+              label: "Pay later",
+              value: "payLater",
+            },
+          ],
         },
         {
-          label: "In Person",
-          value: "inPerson",
+          name: "checkoutForm",
+          type: "ui",
+          admin: {
+            condition: (_, siblingData) =>
+              siblingData.paymentMethod === "payNow",
+            components: {
+              Field:
+                "/src/collections/Bookings/components/booking-checkout-form",
+            },
+          },
         },
       ],
     },

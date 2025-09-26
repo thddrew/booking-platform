@@ -1,39 +1,42 @@
 "use server";
 
-import { Gutter } from "@payloadcms/ui";
+import { Gutter, SetStepNav } from "@payloadcms/ui";
 import { redirect } from "next/navigation";
+import type { SearchParams } from "nuqs/server";
 import type { ListViewServerProps } from "payload";
-import { extractID } from "@/utilities/extractID";
-import { getDefaultConnectedAccount } from "@/utilities/getDefaultConnectedAccount";
-import PaymentsList from "./payments-list";
+import { getAccountStripe } from "@/lib/stripe/get-account-stripe";
+import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultConnectedAccount";
+import { paymentIntentsSearchParams } from "./params";
+import { PaymentsTable } from "./payments-table.client";
 
-export const ListView = async (args: ListViewServerProps) => {
-  const account = await getDefaultConnectedAccount();
-
-  if (!account) {
-    return <Gutter>No connected accounts</Gutter>;
+export const ListView = async (
+  args: ListViewServerProps & {
+    searchParams: Promise<SearchParams>;
   }
-
-  const tenantId = extractID(account);
-
+) => {
   if (!args.user) {
     redirect("/login");
   }
 
-  if (!tenantId) {
-    return <Gutter>No tenant selected</Gutter>;
-  }
+  const { limit, after } = await paymentIntentsSearchParams.parse(
+    args.searchParams
+  );
 
-  if (!account.stripeAccountId) {
-    return <Gutter>No stripe account ID</Gutter>;
-  }
+  const defaultConnectedAccount = await getTenantDefaultConnectedAccount();
+  const accountStripe = await getAccountStripe();
+
+  const checkouts = await accountStripe.checkout.sessions.list({
+    limit,
+    starting_after: after ?? undefined,
+    expand: ["data.customer", "data.line_items"],
+  });
 
   return (
     <Gutter>
-      <PaymentsList
-        user={args.user}
-        accountId={account.stripeAccountId}
-        tenant={tenantId}
+      <SetStepNav nav={[{ label: "Payments" }]} />
+      <PaymentsTable
+        data={checkouts.data}
+        account={defaultConnectedAccount}
       />
     </Gutter>
   );
