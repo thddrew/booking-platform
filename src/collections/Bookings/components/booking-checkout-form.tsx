@@ -27,13 +27,17 @@ const BookingCheckoutForm: TypedFieldComponent<
     ? customer.data.stripeCustomerId
     : undefined;
 
+  const stripeAccountId = stripeAccount?.stripeAccountId ?? undefined;
+
   return (
     <CheckoutProviderServer
       lineItems={lineItems}
       customerId={stripeCustomerId}
-      stripeAccount={stripeAccount?.stripeAccountId ?? undefined}
+      stripeAccountId={stripeAccountId}
     >
       <CheckoutForm
+        // TODO: I don't like having to pass this down in AGAIN
+        stripeAccountId={stripeAccountId}
         email={customer.success ? customer.data.email : undefined}
         isStripeCustomer={!!stripeCustomerId}
       />

@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultConnectedAccount";
 
 /**
- * Get the Stripe client for the current connected account
+ * Get the Stripe node client for the current connected account
  */
 export const getAccountStripe = async () => {
   const account = await getTenantDefaultConnectedAccount();

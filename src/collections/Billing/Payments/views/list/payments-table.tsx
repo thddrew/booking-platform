@@ -110,7 +110,6 @@ export const columns = [
       const intent = getValue();
 
       const fullIntent = isTypedObject(intent) ? intent : null;
-
       if (!fullIntent) return <div>-</div>;
 
       return (

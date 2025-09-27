@@ -5,16 +5,17 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useMemo } from "react";
 import { useStripeAppearance } from "@/hooks/use-stripe-appearance";
 import { createCheckoutSessionSecret } from "@/lib/stripe/checkouts";
+import { loadAccountStripe } from "@/lib/stripe/load-account-stripe";
 
 export const CheckoutProviderServer = ({
   lineItems,
   customerId,
-  stripeAccount,
+  stripeAccountId,
   customerEmail,
   children,
 }: {
   lineItems: { stripePriceId: string; quantity: number }[];
-  stripeAccount?: string;
+  stripeAccountId?: string;
   /**
    * Only one of customerId or customerEmail is required
    */
@@ -24,13 +25,8 @@ export const CheckoutProviderServer = ({
 }) => {
   const appearance = useStripeAppearance();
   const stripePromise = useMemo(() => {
-    return loadStripe(
-      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string,
-      {
-        stripeAccount,
-      }
-    );
-  }, [stripeAccount]);
+    return stripeAccountId ? loadAccountStripe(stripeAccountId) : undefined;
+  }, [stripeAccountId]);
 
   const fetchClientSecret = async () => {
     try {
@@ -53,6 +49,10 @@ export const CheckoutProviderServer = ({
       throw new Error(err);
     }
   };
+
+  if (!stripePromise) {
+    throw new Error("Stripe promise is undefined");
+  }
 
   return (
     <CheckoutProvider

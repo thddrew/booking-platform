@@ -10,7 +10,7 @@ import {
   BillingAddressElement,
   useCheckout,
 } from "@stripe/react-stripe-js/checkout";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, AlertCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,6 +19,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Alert, AlertTitle, AlertDescription } from "../ui/alert";
 
 const formSchema = z.object({
   email: z.email(),
@@ -29,11 +30,13 @@ export const CheckoutForm = ({
   email,
   name,
   isStripeCustomer,
+  stripeAccountId,
 }: {
   header?: React.ReactNode;
   email?: string | null;
   /** If customer is passed in, email cannot be changed */
   isStripeCustomer?: boolean;
+  stripeAccountId?: string | null;
   name?: string | null;
 }) => {
   const checkoutState = useCheckout();
@@ -71,7 +74,6 @@ export const CheckoutForm = ({
     if (!valid) return;
 
     const data = form.getValues();
-    console.log("data", data);
 
     try {
       if (!isStripeCustomer) {
@@ -87,7 +89,7 @@ export const CheckoutForm = ({
       if (checkout.canConfirm) {
         setConfirming(true);
         const confirmResult = await checkout.confirm({
-          returnUrl: window.location.href,
+          redirect: "if_required",
         });
 
         if (confirmResult.type === "error") {
@@ -96,11 +98,11 @@ export const CheckoutForm = ({
           return;
         }
 
+        console.log(confirmResult);
+
         setSuccess(true);
         return;
       }
-
-      console.log(checkout);
 
       throw new Error("Checkout cannot be confirmed");
     } catch (err) {
@@ -210,7 +212,14 @@ export const CheckoutForm = ({
           }}
         />
       </div>
-      {rootError && <p className="text-destructive">{rootError}</p>}
+      {rootError && (
+        <Alert variant="destructive">
+          <AlertTitle className="flex items-center gap-1">
+            <AlertCircleIcon className="size-3.5" /> There was a problem
+          </AlertTitle>
+          <AlertDescription>{rootError}</AlertDescription>
+        </Alert>
+      )}
       <Button
         className="w-full"
         onClick={onSubmit}
