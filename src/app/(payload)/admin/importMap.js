@@ -1,10 +1,11 @@
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { default as default_7991b87cc0bae9985fd5baa05c1cac9b } from '../../../../src/collections/Billing/ConnectedAccounts/components/onboard-stripe-cell'
 import { default as default_3e98d3dc976673ff46f9b53611c9a011 } from '../../../../src/collections/Billing/ConnectedAccounts/components/onboard-stripe-field'
 import { default as default_51936567376f48bbca3c2b3097756e2c } from '../../../../src/collections/Billing/ConnectedAccounts/views/onboarding/index'
 import { default as default_b42dc357258496846168c65da7ecbeeb } from '../../../../src/collections/Billing/Payments/views/list/index'
-import { default as default_45c974116577f88e9824e2c181285cfd } from '../../../../src/collections/Billing/payments-settings/views/list/index'
+import { default as default_f0a3cf713fa331688b37c7b82e5b2f9f } from '../../../../src/collections/Billing/PaymentsSettings/views/list/index'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -37,21 +38,26 @@ import { default as default_fc2c0b3d1a9911200cf4df449dd9ea32 } from '../../../..
 import { default as default_e44983ab9f708fe7a766ec40786db42e } from '../../../../src/collections/Bookings/components/events-calendar'
 import { default as default_3c2876d67fad29dffe659acc4c2d0d6b } from '../../../../src/collections/Bookings/components/configure-attendees'
 import { default as default_5a4992335ad0e66758f54d9656c672b9 } from '../../../../src/collections/Bookings/components/pricing-summary'
-import { default as default_6964b1bfeb1e319c62756eb6be1d5d29 } from '../../../../src/collections/Bookings/components/booking-checkout-form'
+import { default as default_049ad5e0576217a99c5961cf9d7382d1 } from '../../../../src/collections/Bookings/components/payment-status-cell'
+import { default as default_8556e17e99ca8aa5da5599518d1b88af } from '../../../../src/collections/Bookings/components/booking-payment-details'
+import { default as default_e5f4f349574e17574c3408c104498af8 } from '../../../../src/collections/Bookings/components/booking-checkout-button'
 import { default as default_6a45e4f5620d40cdf60c9fd3da134521 } from '../../../../src/components/stripe-notification/banner.server'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { default as default_df4731919bbe5e00b1791b88adcc7eb9 } from '../../../../src/components/providers/react-query'
 import { default as default_27f59fbc28ff75cbfa90b2c7909423ed } from '../../../../src/components/providers/nuqs'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
+import { default as default_da38590ff3ba72e686c0cf77be2cf57d } from '../../../../src/components/stripe-checkout/checkout-view'
+import { default as default_f83036f8249290e7f3600cb150b87829 } from '../../../../src/components/stripe-checkout/checkout-success-view'
 
 export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
+  "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "/src/collections/Billing/ConnectedAccounts/components/onboard-stripe-cell#default": default_7991b87cc0bae9985fd5baa05c1cac9b,
   "/src/collections/Billing/ConnectedAccounts/components/onboard-stripe-field#default": default_3e98d3dc976673ff46f9b53611c9a011,
   "/src/collections/Billing/ConnectedAccounts/views/onboarding/index#default": default_51936567376f48bbca3c2b3097756e2c,
   "/src/collections/Billing/Payments/views/list/index#default": default_b42dc357258496846168c65da7ecbeeb,
-  "/src/collections/Billing/payments-settings/views/list/index#default": default_45c974116577f88e9824e2c181285cfd,
+  "/src/collections/Billing/PaymentsSettings/views/list/index#default": default_f0a3cf713fa331688b37c7b82e5b2f9f,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -84,10 +90,14 @@ export const importMap = {
   "/src/collections/Bookings/components/events-calendar#default": default_e44983ab9f708fe7a766ec40786db42e,
   "/src/collections/Bookings/components/configure-attendees#default": default_3c2876d67fad29dffe659acc4c2d0d6b,
   "/src/collections/Bookings/components/pricing-summary#default": default_5a4992335ad0e66758f54d9656c672b9,
-  "/src/collections/Bookings/components/booking-checkout-form#default": default_6964b1bfeb1e319c62756eb6be1d5d29,
+  "/src/collections/Bookings/components/payment-status-cell#default": default_049ad5e0576217a99c5961cf9d7382d1,
+  "/src/collections/Bookings/components/booking-payment-details#default": default_8556e17e99ca8aa5da5599518d1b88af,
+  "/src/collections/Bookings/components/booking-checkout-button#default": default_e5f4f349574e17574c3408c104498af8,
   "/src/components/stripe-notification/banner.server#default": default_6a45e4f5620d40cdf60c9fd3da134521,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "/src/components/providers/react-query#default": default_df4731919bbe5e00b1791b88adcc7eb9,
   "/src/components/providers/nuqs#default": default_27f59fbc28ff75cbfa90b2c7909423ed,
-  "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62
+  "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
+  "/src/components/stripe-checkout/checkout-view#default": default_da38590ff3ba72e686c0cf77be2cf57d,
+  "/src/components/stripe-checkout/checkout-success-view#default": default_f83036f8249290e7f3600cb150b87829
 }
