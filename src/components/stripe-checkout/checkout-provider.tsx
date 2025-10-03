@@ -1,29 +1,94 @@
 "use client";
 
-import { CheckoutProvider } from "@stripe/react-stripe-js/checkout";
-import { loadStripe } from "@stripe/stripe-js";
-import { useMemo } from "react";
+import {
+  createParser,
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsJson,
+  parseAsString,
+  Parser,
+  useQueryStates,
+} from "nuqs";
+import { CheckoutProvider as StripeCheckoutProvider } from "@stripe/react-stripe-js/checkout";
+import { createContext, useContext, useMemo } from "react";
 import { useStripeAppearance } from "@/hooks/use-stripe-appearance";
 import { createCheckoutSessionSecret } from "@/lib/stripe/checkouts";
 import { loadAccountStripe } from "@/lib/stripe/load-account-stripe";
+import z from "zod";
+import { useSearchParams } from "next/navigation";
+import { parse } from "qs-esm";
 
-export const CheckoutProviderServer = ({
-  lineItems,
-  customerId,
-  stripeAccountId,
-  customerEmail,
+const checkoutContextSchema = z.object({
+  items: z.array(
+    z.object({
+      stripePriceId: z.string(),
+      quantity: z.preprocess(Number, z.number()),
+    })
+  ),
+  tenantId: z.string(),
+  bookingId: z.string(),
+  stAccId: z.string().nullish(),
+  stCusId: z.string().nullish(),
+  stCusEmail: z.string().nullish(),
+  returnUrl: z.string().nullish(),
+  cancelUrl: z.string().nullish(),
+});
+
+export type CheckoutContextType = z.infer<typeof checkoutContextSchema>;
+
+const CheckoutContext = createContext<CheckoutContextType>({
+  items: [],
+  bookingId: "",
+  tenantId: "",
+});
+
+export const useCheckoutAccount = () => {
+  const context = useContext(CheckoutContext);
+  if (!context) {
+    throw new Error(
+      "useCheckoutAccount must be used within a CheckoutProvider"
+    );
+  }
+  return context;
+};
+
+export const useCheckoutQueryStates = () => {
+  const args = useQueryStates({
+    tenantId: parseAsString,
+    bookingId: parseAsString,
+    stAccId: parseAsString,
+    stCusId: parseAsString,
+    stCusEmail: parseAsString,
+    returnUrl: parseAsString,
+    cancelUrl: parseAsString,
+  } satisfies Record<Exclude<keyof CheckoutContextType, "items">, Parser<any>>);
+
+  return args;
+};
+
+export const CheckoutProvider = ({
   children,
 }: {
-  lineItems: { stripePriceId: string; quantity: number }[];
-  stripeAccountId?: string;
-  /**
-   * Only one of customerId or customerEmail is required
-   */
-  customerId?: string | null;
-  customerEmail?: string | null;
   children: React.ReactNode;
 }) => {
   const appearance = useStripeAppearance();
+  const [
+    {
+      tenantId,
+      stAccId: stripeAccountId,
+      stCusId: stripeCustomerId,
+      stCusEmail: stripeCustomerEmail,
+      bookingId,
+      returnUrl,
+      cancelUrl,
+    },
+    setStates,
+  ] = useCheckoutQueryStates();
+
+  const params = useSearchParams();
+  const itemsSchema = checkoutContextSchema.pick({ items: true });
+  const parsed = itemsSchema.parse(parse(params.toString()));
+
   const stripePromise = useMemo(() => {
     return stripeAccountId ? loadAccountStripe(stripeAccountId) : undefined;
   }, [stripeAccountId]);
@@ -32,12 +97,18 @@ export const CheckoutProviderServer = ({
     try {
       // TODO: likely need to use a payload endpoint here instead of a server action on the client side
       const secret = await createCheckoutSessionSecret({
-        lineItems: lineItems.map((price) => ({
+        lineItems: parsed.items.map((price) => ({
           price: price.stripePriceId,
           quantity: price.quantity,
         })),
-        customerId: customerId ?? undefined,
-        customerEmail: customerEmail ?? undefined,
+        customerId: stripeCustomerId ?? undefined,
+        // Stripe doesn't allow both customerId and customerEmail to be set
+        customerEmail: stripeCustomerId
+          ? undefined
+          : (stripeCustomerEmail ?? undefined),
+        returnUrl: returnUrl ?? undefined,
+        tenantId,
+        bookingId,
       });
 
       if (!secret) {
@@ -55,16 +126,29 @@ export const CheckoutProviderServer = ({
   }
 
   return (
-    <CheckoutProvider
-      stripe={stripePromise}
-      options={{
-        fetchClientSecret,
-        elementsOptions: {
-          appearance,
-        },
+    <CheckoutContext.Provider
+      value={{
+        items: parsed.items,
+        tenantId: tenantId ?? "",
+        bookingId: bookingId ?? "",
+        stAccId: stripeAccountId,
+        stCusId: stripeCustomerId,
+        stCusEmail: stripeCustomerEmail,
+        returnUrl,
+        cancelUrl,
       }}
     >
-      {children}
-    </CheckoutProvider>
+      <StripeCheckoutProvider
+        stripe={stripePromise}
+        options={{
+          fetchClientSecret,
+          elementsOptions: {
+            appearance,
+          },
+        }}
+      >
+        {children}
+      </StripeCheckoutProvider>
+    </CheckoutContext.Provider>
   );
 };
