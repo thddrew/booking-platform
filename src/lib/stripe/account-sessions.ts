@@ -14,7 +14,7 @@ export type CreateStripeAccountSession = (
     ...params
   }: {
     account: string;
-    tenant: number;
+    tenant: string;
   } & Partial<Stripe.AccountSessionCreateParams>
 ) => Promise<{ clientSecret: string }>;
 

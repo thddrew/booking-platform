@@ -4,7 +4,7 @@ import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultCo
 /**
  * Get the Stripe node client for the current connected account
  */
-export const getAccountStripe = async () => {
+export const getDefaultAccountStripeClient = async () => {
   const account = await getTenantDefaultConnectedAccount();
 
   if (!account) {
@@ -18,5 +18,12 @@ export const getAccountStripe = async () => {
   return new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: "2025-08-27.basil",
     stripeAccount: account.stripeAccountId,
+  });
+};
+
+export const getAccountStripeClient = async (stripeAccount: string) => {
+  return new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: "2025-08-27.basil",
+    stripeAccount,
   });
 };

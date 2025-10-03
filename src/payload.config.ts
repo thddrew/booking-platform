@@ -12,7 +12,7 @@ import { superAdminFieldAccess } from "./access/superAdminFieldAccess";
 // Collections
 import { ConnectedAccounts } from "./collections/Billing/ConnectedAccounts";
 import { Payments } from "./collections/Billing/Payments";
-import { PaymentsSettings } from "./collections/Billing/payments-settings";
+import { PaymentsSettings } from "./collections/Billing/PaymentsSettings";
 import { Bookings } from "./collections/Bookings";
 import { Customers } from "./collections/Customers";
 import { Events } from "./collections/Events";
@@ -22,6 +22,7 @@ import { Tenants } from "./collections/Tenants";
 import Users from "./collections/Users";
 // import { customerCreatedWebhook } from "./lib/stripe/webhookHandlers/customer.created";
 // import { customerDeletedWebhook } from "./lib/stripe/webhookHandlers/customer.deleted";
+import { checkoutSessionUpdatedWebhook } from "./lib/stripe/webhookHandlers/checkout.session.updated";
 import type { Config } from "./payload-types";
 import { seed } from "./seed";
 
@@ -36,6 +37,17 @@ export default buildConfig({
         ? { email: "demo@payloadcms.com", password: "demo" }
         : undefined,
     components: {
+      views: {
+        checkout: {
+          exact: true,
+          Component: "/src/components/stripe-checkout/checkout-view",
+          path: "/checkout",
+        },
+        checkoutSuccess: {
+          Component: "/src/components/stripe-checkout/checkout-success-view",
+          path: "/checkout/success",
+        },
+      },
       beforeDashboard: [
         {
           path: "/src/components/stripe-notification/banner.server",
@@ -60,6 +72,7 @@ export default buildConfig({
     Bookings,
   ],
   db: postgresAdapter({
+    idType: "uuid",
     pool: {
       connectionString: process.env.POSTGRES_URL,
     },
@@ -108,6 +121,11 @@ export default buildConfig({
       webhooks: {
         // "customer.created": customerCreatedWebhook,
         // "customer.deleted": customerDeletedWebhook,
+        "checkout.session.completed": checkoutSessionUpdatedWebhook,
+        "checkout.session.expired": checkoutSessionUpdatedWebhook,
+        "checkout.session.async_payment_succeeded":
+          checkoutSessionUpdatedWebhook,
+        "checkout.session.async_payment_failed": checkoutSessionUpdatedWebhook,
       },
     }),
   ],

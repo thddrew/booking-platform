@@ -1,3 +1,5 @@
+import { Config } from "@/payload-types";
+import { CollectionSlug } from "payload";
 import React from "react";
 
 export type UTCDateString = string;
@@ -7,5 +9,9 @@ export type UTCDateString = string;
  */
 export type TypedFieldComponent<
   TComponent extends Record<string, any> & { data?: any },
-  TData,
+  TData extends Config["collections"][CollectionSlug],
 > = React.ComponentType<TComponent & { data: TData }>;
+
+export type XOR<T, U> =
+  | (T & { [K in keyof U]?: never })
+  | (U & { [K in keyof T]?: never });

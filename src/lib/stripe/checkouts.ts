@@ -1,20 +1,25 @@
 "use server";
 
 import type Stripe from "stripe";
-import { getAccountStripe } from "./get-account-stripe";
+import { getDefaultAccountStripeClient } from "./get-account-stripe";
+import { StripeCheckoutSessionMetadata } from "@/types/stripe-metadata";
 
 export const createCheckoutSessionSecret = async ({
   lineItems,
   promotionCode,
   customerId,
   customerEmail,
+  returnUrl,
+  tenantId,
+  bookingId,
 }: {
   lineItems: Stripe.Checkout.SessionCreateParams.LineItem[];
   promotionCode?: string;
   customerId?: string;
   customerEmail?: string;
-}) => {
-  const stripe = await getAccountStripe();
+  returnUrl?: string;
+} & StripeCheckoutSessionMetadata) => {
+  const stripe = await getDefaultAccountStripeClient();
 
   if (!lineItems.length) {
     throw new Error("Line items are required");
@@ -31,6 +36,11 @@ export const createCheckoutSessionSecret = async ({
       customer_email: customerEmail,
       // 1 hour from now
       expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
+      return_url: returnUrl,
+      metadata: {
+        tenantId: tenantId ?? null,
+        bookingId: bookingId ?? null,
+      } satisfies StripeCheckoutSessionMetadata,
     });
 
     return session.client_secret;

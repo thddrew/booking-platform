@@ -107,7 +107,7 @@ export interface Config {
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: number;
+    defaultIDType: string;
   };
   globals: {};
   globalsSelect: {};
@@ -149,8 +149,8 @@ export interface UserAuthOperations {
  * via the `definition` "pages".
  */
 export interface Page {
-  id: number;
-  tenant?: (number | null) | Tenant;
+  id: string;
+  tenant?: (string | null) | Tenant;
   title?: string | null;
   slug?: string | null;
   updatedAt: string;
@@ -161,7 +161,7 @@ export interface Page {
  * via the `definition` "tenants".
  */
 export interface Tenant {
-  id: number;
+  id: string;
   name: string;
   /**
    * Used for domain-based tenant handling
@@ -183,12 +183,12 @@ export interface Tenant {
  * via the `definition` "users".
  */
 export interface User {
-  id: number;
+  id: string;
   roles?: ('super-admin' | 'user')[] | null;
   username?: string | null;
   tenants?:
     | {
-        tenant: number | Tenant;
+        tenant: string | Tenant;
         roles: ('tenant-admin' | 'tenant-viewer')[];
         id?: string | null;
       }[]
@@ -216,8 +216,8 @@ export interface User {
  * via the `definition` "customers".
  */
 export interface Customer {
-  id: number;
-  tenant?: (number | null) | Tenant;
+  id: string;
+  tenant?: (string | null) | Tenant;
   name?: string | null;
   /**
    * One of email or phone is required
@@ -228,7 +228,7 @@ export interface Customer {
    */
   phone?: string | null;
   bookings?: {
-    docs?: (number | Booking)[];
+    docs?: (string | Booking)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -242,9 +242,9 @@ export interface Customer {
  * via the `definition` "bookings".
  */
 export interface Booking {
-  id: number;
-  tenant?: (number | null) | Tenant;
-  eventRelation?: (number | null) | Event;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  eventRelation?: (string | null) | Event;
   selectedScheduleInstanceData?:
     | {
         [k: string]: unknown;
@@ -256,8 +256,8 @@ export interface Booking {
     | null;
   dtstart: string;
   dtend: string;
+  customerRelation?: (string | null) | Customer;
   overrideMaxQuantity?: boolean | null;
-  customerRelation?: (number | null) | Customer;
   eventSnapshot?:
     | {
         [k: string]: unknown;
@@ -287,6 +287,7 @@ export interface Booking {
     | null;
   rrulestring?: string | null;
   stripeCheckoutSessionId?: string | null;
+  paymentStatus?: string | null;
   paymentMethod?: ('payNow' | 'payLater') | null;
   updatedAt: string;
   createdAt: string;
@@ -296,8 +297,8 @@ export interface Booking {
  * via the `definition` "events".
  */
 export interface Event {
-  id: number;
-  tenant?: (number | null) | Tenant;
+  id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Turning this off will hide the event from the public
    */
@@ -308,7 +309,7 @@ export interface Event {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -383,7 +384,7 @@ export interface Event {
   minQuantity?: number | null;
   customMin?: boolean | null;
   bookings?: {
-    docs?: (number | Booking)[];
+    docs?: (string | Booking)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -397,8 +398,8 @@ export interface Event {
  * via the `definition` "connectedAccounts".
  */
 export interface ConnectedAccount {
-  id: number;
-  tenant?: (number | null) | Tenant;
+  id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * When enabled, this will be the default connected account for the tenant
    */
@@ -413,8 +414,8 @@ export interface ConnectedAccount {
  * via the `definition` "payments".
  */
 export interface Payment {
-  id: number;
-  tenant?: (number | null) | Tenant;
+  id: string;
+  tenant?: (string | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -423,7 +424,7 @@ export interface Payment {
  * via the `definition` "paymentsSettings".
  */
 export interface PaymentsSetting {
-  id: number;
+  id: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -432,8 +433,8 @@ export interface PaymentsSetting {
  * via the `definition` "logs".
  */
 export interface Log {
-  id: number;
-  user: number | User;
+  id: string;
+  user: string | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -442,7 +443,7 @@ export interface Log {
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
-  id: number;
+  id: string;
   /**
    * Input data provided to the job
    */
@@ -534,56 +535,56 @@ export interface PayloadJob {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: number;
+  id: string;
   document?:
     | ({
         relationTo: 'pages';
-        value: number | Page;
+        value: string | Page;
       } | null)
     | ({
         relationTo: 'users';
-        value: number | User;
+        value: string | User;
       } | null)
     | ({
         relationTo: 'tenants';
-        value: number | Tenant;
+        value: string | Tenant;
       } | null)
     | ({
         relationTo: 'customers';
-        value: number | Customer;
+        value: string | Customer;
       } | null)
     | ({
         relationTo: 'connectedAccounts';
-        value: number | ConnectedAccount;
+        value: string | ConnectedAccount;
       } | null)
     | ({
         relationTo: 'payments';
-        value: number | Payment;
+        value: string | Payment;
       } | null)
     | ({
         relationTo: 'paymentsSettings';
-        value: number | PaymentsSetting;
+        value: string | PaymentsSetting;
       } | null)
     | ({
         relationTo: 'logs';
-        value: number | Log;
+        value: string | Log;
       } | null)
     | ({
         relationTo: 'events';
-        value: number | Event;
+        value: string | Event;
       } | null)
     | ({
         relationTo: 'bookings';
-        value: number | Booking;
+        value: string | Booking;
       } | null)
     | ({
         relationTo: 'payload-jobs';
-        value: number | PayloadJob;
+        value: string | PayloadJob;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -593,10 +594,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: number;
+  id: string;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   key?: string | null;
   value?:
@@ -616,7 +617,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: number;
+  id: string;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -799,13 +800,14 @@ export interface BookingsSelect<T extends boolean = true> {
   selectedScheduleInstanceData?: T;
   dtstart?: T;
   dtend?: T;
-  overrideMaxQuantity?: T;
   customerRelation?: T;
+  overrideMaxQuantity?: T;
   eventSnapshot?: T;
   customerSnapshot?: T;
   pricingSnapshot?: T;
   rrulestring?: T;
   stripeCheckoutSessionId?: T;
+  paymentStatus?: T;
   paymentMethod?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -883,10 +885,10 @@ export interface TaskSchedulePublish {
     locale?: string | null;
     doc?: {
       relationTo: 'events';
-      value: number | Event;
+      value: string | Event;
     } | null;
     global?: string | null;
-    user?: (number | null) | User;
+    user?: (string | null) | User;
   };
   output?: unknown;
 }

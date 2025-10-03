@@ -1,5 +1,3 @@
-import type { CollectionSlug } from "payload";
-import type { Config } from "@/payload-types";
 import { isNonNullish } from "./isNonNullish";
 
 export const isTypedObject = <T>(
