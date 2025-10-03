@@ -2,10 +2,16 @@ import type { CollectionBeforeValidateHook } from "payload";
 import type { Booking } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";
 
+/**
+ * Saves the snapshots of the event and customer.
+ */
 export const saveSnapshots: CollectionBeforeValidateHook<Booking> = async ({
   data,
   req,
+  context,
 }) => {
+  if (!context.triggerAfterChange) return data;
+
   if (!data) return data;
 
   await Promise.all([

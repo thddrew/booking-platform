@@ -25,6 +25,7 @@ interface CalendarContextValue {
   selectedEvent?: CalendarEvent;
   setEvents: (events: CalendarEvent[]) => void;
   loading: boolean;
+  getScrollToPosition?: (hourHeight: number) => number;
 }
 
 const CalendarContext = createContext<CalendarContextValue | undefined>(
@@ -60,6 +61,28 @@ export function CalendarProvider({
   const [events, setEvents] = useState<CalendarEvent[]>(initialEvents || []);
   const [loading, setLoading] = useState<boolean>(!!loadEvents);
 
+  // Initialize calendar based on selectedEvent if provided
+  useEffect(() => {
+    if (selectedEvent) {
+      try {
+        const eventDate = new Date(selectedEvent.dtstart);
+        if (!isNaN(eventDate.getTime())) {
+          setCurrentDate(eventDate);
+          // Use initialView if provided, otherwise keep current view (three-day default)
+          if (initialView) {
+            setView(initialView);
+          }
+        }
+      } catch (error) {
+        // Fallback to initialDate if event date is invalid
+        console.warn(
+          "Invalid selectedEvent.dtstart, falling back to initialDate:",
+          error
+        );
+      }
+    }
+  }, []); // Run once on mount
+
   const navigateDate = (direction: "prev" | "next") => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
@@ -85,6 +108,31 @@ export function CalendarProvider({
 
   const goToToday = () => {
     setCurrentDate(new Date());
+  };
+
+  const getScrollToPosition = (hourHeight: number) => {
+    // If selectedEvent is provided, scroll to its time
+    if (selectedEvent) {
+      try {
+        const eventStart = new Date(selectedEvent.dtstart);
+        const eventHour = eventStart.getHours();
+        const eventMinute = eventStart.getMinutes();
+        return Math.max(
+          0,
+          (eventHour - 2) * hourHeight + (eventMinute / 60) * hourHeight
+        );
+      } catch (error) {
+        // Fallback to current time if event parsing fails
+        console.warn(
+          "Failed to parse selectedEvent time for scrolling:",
+          error
+        );
+      }
+    }
+
+    // Default: scroll to current time
+    const currentHour = new Date().getHours();
+    return Math.max(0, (currentHour - 2) * hourHeight);
   };
 
   const viewDates = useMemo(() => {
@@ -173,6 +221,7 @@ export function CalendarProvider({
       value={{
         currentDate,
         events,
+        getScrollToPosition,
         goToToday,
         loading,
         navigateDate,

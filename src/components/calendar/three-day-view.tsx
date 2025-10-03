@@ -36,16 +36,16 @@ export function ThreeDayView({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const currentHour = today.getHours();
 
-  const { events, selectedEvent } = useCalendar();
+  const { events, selectedEvent, getScrollToPosition } = useCalendar();
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
+    if (scrollContainerRef.current && getScrollToPosition) {
       const hourHeight = 80;
-      const scrollPosition = Math.max(0, (currentHour - 2) * hourHeight);
+      const scrollPosition = getScrollToPosition(hourHeight);
 
       scrollContainerRef.current.scrollTop = scrollPosition;
     }
-  }, [currentHour]);
+  }, [currentHour, getScrollToPosition]);
 
   const formatHour = (hour: number) => {
     const date = new Date();
@@ -241,7 +241,7 @@ export function ThreeDayView({
                           "h-20 border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors w-full text-left",
                           isToday && "bg-primary/5",
                           isPast &&
-                            "bg-gray-100 hover:bg-gray-100 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.05)_4px,rgba(0,0,0,0.05)_8px)] cursor-not-allowed opacity-60"
+                            "bg-gray-100/30 hover:bg-gray-100/30 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.02)_4px,rgba(0,0,0,0.02)_8px)] cursor-not-allowed opacity-60"
                         )}
                         onClick={() =>
                           !isPast && !hasEvents && onTimeSlotClick?.(date, hour)

@@ -47,16 +47,23 @@ export function MonthView({
       const eventEnd = new Date(event.dtend);
       const targetDate = new Date(date);
 
-      const eventStartDate = new Date(eventStart);
-      const eventEndDate = new Date(eventEnd);
-      const targetDateCopy = new Date(targetDate);
+      targetDate.setHours(0, 0, 0, 0);
+      eventStart.setHours(0, 0, 0, 0);
+      eventEnd.setHours(0, 0, 0, 0);
 
-      targetDateCopy.setHours(0, 0, 0, 0);
-      eventStartDate.setHours(0, 0, 0, 0);
-      eventEndDate.setHours(0, 0, 0, 0);
-
-      return targetDateCopy >= eventStartDate && targetDateCopy <= eventEndDate;
+      return targetDate >= eventStart && targetDate <= eventEnd;
     });
+  };
+
+  const isPastDate = (date: Date) => {
+    const today = new Date();
+    const targetDate = new Date(date);
+
+    // Set both dates to start of day for accurate comparison
+    today.setHours(0, 0, 0, 0);
+    targetDate.setHours(0, 0, 0, 0);
+
+    return targetDate < today;
   };
 
   const separateEvents = (dayEvents: CalendarEvent[]) => {
@@ -110,6 +117,7 @@ export function MonthView({
             separateEvents(dayEvents);
           const isToday = date.toDateString() === today.toDateString();
           const isCurrentMonth = date.getMonth() === currentMonth;
+          const isPast = isPastDate(date);
 
           return (
             <div
@@ -120,14 +128,17 @@ export function MonthView({
               <div
                 role="button"
                 className={cn(
-                  "size-full flex flex-col min-h-28 border-r border-b p-2 cursor-pointer hover:bg-muted/50 transition-colors relative",
+                  "size-full flex flex-col min-h-28 border-r border-b p-2 cursor-pointer transition-colors relative",
                   !isCurrentMonth && "text-muted-foreground bg-muted/20",
-                  isToday && "bg-primary/5"
+                  isToday && "bg-primary/5",
+                  isPast &&
+                    "bg-gray-100/30 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.02)_4px,rgba(0,0,0,0.02)_8px)] cursor-not-allowed opacity-60 hover:bg-gray-100/30",
+                  !isPast && "hover:bg-muted/50"
                 )}
-                onClick={() => onDateClick?.(date)}
-                tabIndex={0}
+                onClick={() => !isPast && onDateClick?.(date)}
+                tabIndex={isPast ? -1 : 0}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
+                  if (!isPast && (e.key === "Enter" || e.key === " ")) {
                     e.preventDefault();
                     onDateClick?.(date);
                   }
@@ -139,7 +150,8 @@ export function MonthView({
                     className={cn(
                       "text-sm font-medium size-6",
                       isToday &&
-                        "bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs"
+                        "bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs",
+                      isPast && "text-primary font-semibold"
                     )}
                   >
                     {date.getDate()}
@@ -194,7 +206,7 @@ export function MonthView({
                   </div>
                 </div>
               </div>
-              {showCreateBtn && (
+              {showCreateBtn && !isPast && (
                 <button
                   className={cn(
                     "absolute bottom-2 right-2 w-7 h-7 bg-primary/70 text-primary-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-primary/100 hover:ring-2 hover:ring-primary/20 z-10"

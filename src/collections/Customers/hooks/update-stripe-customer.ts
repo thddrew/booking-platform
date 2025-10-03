@@ -1,4 +1,4 @@
-import { getAccountStripe } from "@/lib/stripe/get-account-stripe";
+import { getDefaultAccountStripeClient } from "@/lib/stripe/get-account-stripe";
 import { Customer } from "@/payload-types";
 import { StripeCustomerMetadata } from "@/types/stripe-metadata";
 import { extractID } from "@/utilities/extractID";
@@ -8,7 +8,7 @@ export const updateStripeCustomer: CollectionBeforeChangeHook<
   Customer
 > = async ({ data, operation }) => {
   if (operation === "update") {
-    const stripe = await getAccountStripe();
+    const stripe = await getDefaultAccountStripeClient();
 
     if (!data.stripeCustomerId) {
       console.error(

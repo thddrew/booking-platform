@@ -8,7 +8,7 @@ import { isSuperAdmin } from "./isSuperAdmin";
  */
 export const isSuperAdminOrTenantAdmin = (
   user: ClientUser | User | null,
-  requestedTenant: number | null
+  requestedTenant: string | null
 ) => {
   if (!user) {
     return false;
