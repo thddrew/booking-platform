@@ -5,18 +5,24 @@ import type { UIFieldClientComponent } from "payload";
 import { Fragment } from "react";
 import { formatCurrency } from "@/collections/Events/utils/format-currency";
 import { Separator } from "@/components/ui/separator";
-import { usePayloadFetch } from "@/hooks/use-payload-fetch";
-import type { Event } from "@/payload-types";
+import { usePayloadQuery } from "@/hooks/use-payload-query";
 import { useEventPricingSummary } from "./utils/use-event-pricing-summary";
+import { payloadSDK } from "@/hooks/payload-sdk";
 
 const PricingSummary: UIFieldClientComponent = (props) => {
-  const selectedEventField = useField<number>({
+  const selectedEventField = useField<string>({
     path: "eventRelation",
   });
-  const { data: event } = usePayloadFetch<Event>({
-    api: `/api/events/${selectedEventField.value}`,
-    options: {
-      enabled: !!selectedEventField.value,
+
+  const { data: event } = usePayloadQuery({
+    queryKey: ["events", selectedEventField.value],
+    queryFn: async () => {
+      const data = await payloadSDK.findByID({
+        collection: "events",
+        id: selectedEventField.value,
+      });
+
+      return data;
     },
   });
 

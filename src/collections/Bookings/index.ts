@@ -8,6 +8,8 @@ import { getDateString } from "../../components/calendar/utils/is-date";
 import { EventPricesRecordSchema } from "../Events/utils/schemas";
 import { saveSnapshots } from "./hooks/save-snapshots";
 import { setDatetimes } from "./hooks/set-datetimes";
+import { updateAccess } from "./access/update-access";
+import Stripe from "stripe";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
@@ -15,10 +17,10 @@ export const Bookings: CollectionConfig<"bookings"> = {
     create: superAdminOrTenantAdminAccess,
     delete: superAdminOrTenantAdminAccess,
     read: () => true,
-    update: superAdminOrTenantAdminAccess,
+    update: updateAccess,
   },
   admin: {
-    defaultColumns: ["eventRelation", "dtstart", "dtend"],
+    defaultColumns: ["eventRelation", "dtstart", "dtend", "paymentStatus"],
   },
   hooks: {
     beforeValidate: [saveSnapshots, setDatetimes],
@@ -111,6 +113,24 @@ export const Bookings: CollectionConfig<"bookings"> = {
     },
     {
       type: "group",
+      label: "Customer Information",
+      fields: [
+        {
+          name: "customerRelation",
+          type: "relationship",
+          relationTo: "customers",
+          admin: {
+            placeholder:
+              "Select an existing customer or press + to create a new customer",
+            components: {
+              Label: "/src/components/blank",
+            },
+          },
+        },
+      ],
+    },
+    {
+      type: "group",
       label: "Attendees & Pricing",
       fields: [
         {
@@ -149,54 +169,41 @@ export const Bookings: CollectionConfig<"bookings"> = {
     },
     {
       type: "group",
-      label: "Customer Information",
+      admin: {
+        readOnly: true,
+        hidden: true,
+      },
       fields: [
         {
-          name: "customerRelation",
-          type: "relationship",
-          relationTo: "customers",
-          admin: {
-            placeholder:
-              "Select an existing customer or press + to create a new customer",
-            components: {
-              Label: "/src/components/blank",
-            },
+          name: "eventSnapshot",
+          type: "json",
+          defaultValue: {},
+        },
+        {
+          name: "customerSnapshot",
+          type: "json",
+          defaultValue: {},
+        },
+        {
+          // We don't update this in the hooks because we use this to display the pricing summary in the UI
+          name: "pricingSnapshot",
+          type: "json",
+          defaultValue: {},
+          validate: (value) => {
+            if (!value) return true;
+
+            const parsed = EventPricesRecordSchema.safeParse(value);
+            return parsed.success ? true : parsed.error.message;
           },
         },
       ],
     },
     {
-      name: "eventSnapshot",
-      type: "json",
-      defaultValue: {},
-      admin: {
-        readOnly: true,
-      },
-    },
-    {
-      name: "customerSnapshot",
-      type: "json",
-      defaultValue: {},
-      admin: {
-        readOnly: true,
-      },
-    },
-    {
-      // We don't update this in the hooks because we use this to display the pricing summary in the UI
-      name: "pricingSnapshot",
-      type: "json",
-      defaultValue: {},
-      admin: { readOnly: true },
-      validate: (value) => {
-        if (!value) return true;
-
-        const parsed = EventPricesRecordSchema.safeParse(value);
-        return parsed.success ? true : parsed.error.message;
-      },
-    },
-    {
       name: "rrulestring",
       type: "text",
+      admin: {
+        hidden: true,
+      },
     },
     {
       type: "group",
@@ -209,11 +216,36 @@ export const Bookings: CollectionConfig<"bookings"> = {
           type: "text",
           admin: {
             readOnly: true,
+            hidden: true,
+          },
+        },
+        {
+          name: "paymentStatus",
+          type: "text",
+          admin: {
+            readOnly: true,
+            hidden: true,
+            components: {
+              Cell: "/src/collections/Bookings/components/payment-status-cell",
+            },
+          },
+        },
+        {
+          type: "ui",
+          name: "paymentDetails",
+          admin: {
+            components: {
+              Field:
+                "/src/collections/Bookings/components/booking-payment-details",
+            },
           },
         },
         {
           name: "paymentMethod",
           type: "select",
+          admin: {
+            condition: (_, siblingData) => !siblingData.stripeCheckoutSessionId,
+          },
           options: [
             {
               label: "Pay now",
@@ -230,10 +262,11 @@ export const Bookings: CollectionConfig<"bookings"> = {
           type: "ui",
           admin: {
             condition: (_, siblingData) =>
-              siblingData.paymentMethod === "payNow",
+              siblingData.paymentMethod === "payNow" &&
+              !siblingData.stripeCheckoutSessionId,
             components: {
               Field:
-                "/src/collections/Bookings/components/booking-checkout-form",
+                "/src/collections/Bookings/components/booking-checkout-button",
             },
           },
         },

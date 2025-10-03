@@ -12,17 +12,21 @@ import {
 } from "@/components/calendar/schemas";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { usePayloadFetch } from "@/hooks/use-payload-fetch";
+import { usePayloadQuery } from "@/hooks/use-payload-query";
 import { expandSchedule } from "@/lib/expand-schedule";
 import { getEventDuration } from "@/lib/get-event-duration";
 import { cn } from "@/lib/utils";
 import type { Booking, Event } from "@/payload-types";
+import { payloadSDK } from "@/hooks/payload-sdk";
+import { extractID } from "@/utilities/extractID";
 
 type FieldStateWithValue<T> = FieldState & {
   value: T;
 };
 
 const EventsCalendars: UIFieldClientComponent = (props) => {
+  const isDisabled = props.field.admin.disableBulkEdit;
+
   const selectedEvent = useFormFields(
     ([fields]) =>
       fields.eventRelation as FieldStateWithValue<Booking["eventRelation"]>
@@ -36,8 +40,19 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
     path: "selectedScheduleInstanceData",
   });
 
-  const { data } = usePayloadFetch<Event>({
-    api: `/api/events/${selectedEvent.value}`,
+  const { data } = usePayloadQuery({
+    queryKey: ["events", selectedEvent.value],
+    queryFn: async () => {
+      const data = await payloadSDK.findByID({
+        collection: "events",
+        id: selectedEvent.value ? extractID(selectedEvent.value) : "",
+      });
+
+      return data;
+    },
+    options: {
+      enabled: !!selectedEvent.value,
+    },
   });
 
   const schedules = data?.schedules?.schedule;
@@ -89,6 +104,7 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
           viewStart,
           viewEnd,
           config: {
+            includePastDates: true,
             generateId: () => "",
           },
         });
@@ -151,6 +167,8 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
         >
           <Calendar
             onEventClick={(calEvent) => {
+              if (isDisabled) return;
+
               scheduleInstanceData.setValue(calEvent);
               fieldDtstart.setValue(calEvent.dtstart);
               fieldDtend.setValue(calEvent.dtend);

@@ -8,11 +8,13 @@ import type { EventPriceType } from "@/collections/Events/utils/schemas";
 import type { CalendarEvent } from "@/components/calendar/schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { usePayloadFetch } from "@/hooks/use-payload-fetch";
-import type { Event } from "@/payload-types";
+import { usePayloadQuery } from "@/hooks/use-payload-query";
 import { useEventPricingSummary } from "./utils/use-event-pricing-summary";
+import { payloadSDK } from "@/hooks/payload-sdk";
 
-const ConfigureAttendees: UIFieldClientComponent = () => {
+const ConfigureAttendees: UIFieldClientComponent = (props) => {
+  const isDisabled = props.field.admin.disableBulkEdit;
+
   const field = useField<Record<string, EventPriceType>>({
     path: "pricingSnapshot",
   });
@@ -22,13 +24,19 @@ const ConfigureAttendees: UIFieldClientComponent = () => {
   const selectedInstanceField = useField<CalendarEvent>({
     path: "selectedScheduleInstanceData",
   });
-  const selectedEventField = useField<number>({
+  const selectedEventField = useField<string>({
     path: "eventRelation",
   });
-  const { data: event } = usePayloadFetch<Event>({
-    api: `/api/events/${selectedEventField.value}`,
-    options: {
-      enabled: !!selectedEventField.value,
+
+  const { data: event } = usePayloadQuery({
+    queryKey: ["events", selectedEventField.value],
+    queryFn: async () => {
+      const data = await payloadSDK.findByID({
+        collection: "events",
+        id: selectedEventField.value,
+      });
+
+      return data;
     },
   });
 
@@ -90,7 +98,7 @@ const ConfigureAttendees: UIFieldClientComponent = () => {
                 size="icon"
                 variant="outline"
                 className="size-10"
-                disabled={!value?.quantity}
+                disabled={isDisabled || !value?.quantity}
                 onClick={() => {
                   setPriceQuantity(
                     price,
@@ -115,9 +123,10 @@ const ConfigureAttendees: UIFieldClientComponent = () => {
                 variant="outline"
                 className="size-10"
                 disabled={
-                  overrideMaxQuantity === true
+                  isDisabled ||
+                  (overrideMaxQuantity === true
                     ? false
-                    : totalQuantity >= maxQuantity
+                    : totalQuantity >= maxQuantity)
                 }
                 onClick={() => {
                   setPriceQuantity(
