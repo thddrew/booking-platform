@@ -49,8 +49,9 @@ import { createStripeAccountSession } from "@/lib/stripe/account-sessions";
 import type { ConnectedAccount } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";
 import { isNonNull } from "@/utilities/isNonNull";
-import PaymentDetails from "./payment-details";
 import { isTypedObject } from "@/utilities/isTypedObject";
+import { PaymentStatusBadge } from "@/collections/Bookings/components/booking-payment-details";
+import { ConnectPaymentDetails } from "@stripe/react-connect-js";
 
 const columnHelper = createColumnHelper<Stripe.Checkout.Session>();
 
@@ -80,6 +81,17 @@ export const columns = [
   //     />
   //   ),
   // }),
+  columnHelper.accessor("status", {
+    meta: {
+      size: 0,
+    },
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.getValue("status") as Stripe.Checkout.Session.Status;
+
+      return <PaymentStatusBadge status={status} />;
+    },
+  }),
   columnHelper.accessor("created", {
     meta: {
       size: 0,
@@ -98,61 +110,6 @@ export const columns = [
             {formatDate(new Date(created * 1000))}
           </TooltipContent>
         </Tooltip>
-      );
-    },
-  }),
-  columnHelper.accessor("payment_intent", {
-    meta: {
-      size: 0,
-    },
-    header: "Paid on",
-    cell: ({ row, getValue }) => {
-      const intent = getValue();
-
-      const fullIntent = isTypedObject(intent) ? intent : null;
-      if (!fullIntent) return <div>-</div>;
-
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <p className="first-letter:capitalize w-fit">
-              {formatRelative(new Date(fullIntent.created * 1000), new Date())}
-            </p>
-          </TooltipTrigger>
-          <TooltipContent>
-            {formatDate(new Date(fullIntent.created * 1000))}
-          </TooltipContent>
-        </Tooltip>
-      );
-    },
-  }),
-  columnHelper.accessor("status", {
-    meta: {
-      size: 0,
-    },
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as Stripe.Checkout.Session.Status;
-      const statusLabel = status.replaceAll("_", " ").toLowerCase();
-
-      const mapStatusToVariant: Partial<
-        Record<
-          Stripe.Checkout.Session.Status,
-          Parameters<typeof Badge>[0]["variant"]
-        >
-      > = {
-        complete: "success",
-        expired: "destructive",
-        open: "warning",
-      };
-
-      return (
-        <Badge
-          variant={mapStatusToVariant[status] ?? "default"}
-          className="first-letter:capitalize block text-sm min-w-24 text-center"
-        >
-          {statusLabel}
-        </Badge>
       );
     },
   }),
@@ -229,11 +186,9 @@ export const columns = [
     cell: ({ row, table }) => {
       const payment = row.original;
 
-      const setSelectedPaymentIntentId =
+      const setSelectedChargeId =
         // @ts-expect-error this exists but not typed via global meta types
-        table.options.meta?.setSelectedPaymentIntentId as (
-          paymentIntentId: string
-        ) => void;
+        table.options.meta?.setSelectedChargeId as (chargeId: string) => void;
 
       return (
         <DropdownMenu>
@@ -265,10 +220,12 @@ export const columns = [
             <DropdownMenuItem>View customer</DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                if (row.original.payment_intent) {
-                  // We don't expand the payment intent, and so it is a string
-                  setSelectedPaymentIntentId(
-                    row.original.payment_intent as string
+                if (
+                  isTypedObject(row.original.payment_intent) &&
+                  isTypedObject(row.original.payment_intent.latest_charge)
+                ) {
+                  setSelectedChargeId(
+                    row.original.payment_intent.latest_charge.id
                   );
                 } else {
                   toast.error("No payment intent found");
@@ -299,12 +256,6 @@ function hasStripeAccountId(
   return isNonNull(account) && typeof account.stripeAccountId === "string";
 }
 
-function isExpandedCustomer(
-  customer: Stripe.Customer | Stripe.DeletedCustomer | string
-): customer is Stripe.Customer | Stripe.DeletedCustomer {
-  return isNonNull(customer);
-}
-
 const getCellSize = (columnDef: ColumnDef<Stripe.Checkout.Session>) => {
   const { autoWidth, size } = (columnDef.meta ?? {}) as {
     autoWidth?: boolean;
@@ -333,9 +284,9 @@ export function PaymentsTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [selectedPaymentIntentId, setSelectedPaymentIntentId] = React.useState<
-    string | null
-  >(null);
+  const [selectedChargeId, setSelectedChargeId] = React.useState<string | null>(
+    null
+  );
 
   const table = useReactTable({
     data,
@@ -355,13 +306,13 @@ export function PaymentsTable({
       rowSelection,
     },
     meta: {
-      setSelectedPaymentIntentId,
+      setSelectedChargeId,
     },
   });
 
   const tenant = account?.tenant ? extractID(account.tenant) : null;
 
-  const showPaymentDetails = !!isNonNull(selectedPaymentIntentId);
+  const showPaymentDetails = !!isNonNull(selectedChargeId);
 
   const hasStripeDetails = !!(
     isNonNull(user) &&
@@ -388,9 +339,13 @@ export function PaymentsTable({
           }}
         >
           {showPaymentDetails ? (
-            <PaymentDetails
-              paymentIntentOrChargeId={selectedPaymentIntentId}
-              onClose={() => setSelectedPaymentIntentId(null)}
+            <ConnectPaymentDetails
+              payment={selectedChargeId}
+              onClose={() => setSelectedChargeId(null)}
+              onLoadError={(e) => {
+                console.error(e);
+                toast.error("Failed to load Stripe payments");
+              }}
             />
           ) : null}
         </StripeConnect>
