@@ -5,14 +5,14 @@ import { TenantOrIdSchema } from "@/types/tenant";
 import { z } from "zod";
 
 const schema = {
-  id: z.number(),
+  id: z.string(),
   tenant: TenantOrIdSchema.nullish(),
   name: z.string().nullish(),
   email: z.string().nullish(),
   phone: z.string().nullish(),
   bookings: z
     .object({
-      docs: z.array(z.number()),
+      docs: z.array(z.string()),
       hasNextPage: z.boolean(),
       totalDocs: z.number(),
     })

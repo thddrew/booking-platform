@@ -27,6 +27,7 @@ export const Events: CollectionConfig<"events"> = {
   },
   admin: {
     useAsTitle: "title",
+    defaultColumns: ["title", "isActive", "_status"],
   },
   hooks: {
     beforeChange: [generateRrulestring],
@@ -50,6 +51,7 @@ export const Events: CollectionConfig<"events"> = {
       name: "stripeProductId",
       admin: {
         readOnly: true,
+        hidden: true,
         position: "sidebar",
       },
     },
@@ -69,6 +71,21 @@ export const Events: CollectionConfig<"events"> = {
               name: "description",
               type: "richText",
               label: "Description",
+            },
+            {
+              name: "thumbnail",
+              type: "upload",
+              relationTo: "media",
+            },
+            {
+              name: "gallery",
+              type: "upload",
+              admin: {
+                description:
+                  "These images will be displayed on the event's page",
+              },
+              relationTo: "media",
+              hasMany: true,
             },
           ],
         },
@@ -295,8 +312,7 @@ export const Events: CollectionConfig<"events"> = {
                   },
                   admin: {
                     readOnly: true,
-                    description:
-                      "Automatically generated rrule string. HIDE THIS FIELD LATER.",
+                    hidden: true,
                   },
                 },
               ],

@@ -13,10 +13,10 @@ export const OnboardingView = ({
   accountId,
   tenant,
 }: {
-  docId: number;
+  docId: string;
   user: User;
   accountId: string;
-  tenant: number;
+  tenant: string;
 }) => {
   const router = useRouter();
 

@@ -18,6 +18,7 @@ const OnboardStripeAccountLink = (args: UIFieldServerProps) => {
 const OnboardStripeAccountData = async (args: UIFieldServerProps) => {
   const account = await stripe.accounts.retrieve(args.data.stripeAccountId);
 
+  // TODO: need to handle errors during the processing step
   const isOnboarded =
     account.payouts_enabled === true && account.charges_enabled === true;
 

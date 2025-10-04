@@ -25,7 +25,7 @@ const darkModeAppearance: AppearanceOptions = {
   overlays: "drawer",
   variables: {
     colorPrimary: "#ebebeb",
-    colorBackground: "#171717",
+    colorBackground: "#141414",
     colorText: "#fbfbfb",
     colorDanger: "#ef4444",
     borderRadius: "0.625rem",

@@ -21,12 +21,16 @@ export const OnboardingLoader = async (args: DocumentViewServerProps) => {
   }
 
   return (
-    <OnboardingView
-      docId={doc.id}
-      user={args.user}
-      accountId={doc.stripeAccountId}
-      tenant={tenant}
-    />
+    <Gutter>
+      <div className="py-10">
+        <OnboardingView
+          docId={doc.id}
+          user={args.user}
+          accountId={doc.stripeAccountId}
+          tenant={tenant}
+        />
+      </div>
+    </Gutter>
   );
 };
 

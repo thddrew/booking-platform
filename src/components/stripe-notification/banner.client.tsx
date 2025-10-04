@@ -11,7 +11,7 @@ export const StripeNotificationBannerClient = ({
   user,
 }: {
   account: string;
-  tenant: number;
+  tenant: string;
   user: User;
 }) => {
   return (

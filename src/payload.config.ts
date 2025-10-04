@@ -1,8 +1,10 @@
 import path from "node:path";
+import sharp from "sharp";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 // Plugins
 import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
+import { s3Storage } from "@payloadcms/storage-s3";
 import { stripePlugin } from "@payloadcms/plugin-stripe";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
@@ -25,6 +27,7 @@ import Users from "./collections/Users";
 import { checkoutSessionUpdatedWebhook } from "./lib/stripe/webhookHandlers/checkout.session.updated";
 import type { Config } from "./payload-types";
 import { seed } from "./seed";
+import { Media } from "./collections/Media";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -33,7 +36,8 @@ export default buildConfig({
   admin: {
     user: "users",
     autoLogin:
-      process.env.NODE_ENV === "development"
+      process.env.NODE_ENV === "development" &&
+      process.env.PAYLOAD_AUTOLOGIN === "true"
         ? { email: "demo@payloadcms.com", password: "demo" }
         : undefined,
     components: {
@@ -70,7 +74,13 @@ export default buildConfig({
     Logs,
     Events,
     Bookings,
+    Media,
   ],
+  upload: {
+    abortOnLimit: true,
+    safeFileNames: true,
+  },
+  sharp,
   db: postgresAdapter({
     idType: "uuid",
     pool: {
@@ -99,6 +109,7 @@ export default buildConfig({
         payments: {},
         events: {},
         bookings: {},
+        media: {},
       },
       tenantField: {
         access: {
@@ -110,6 +121,26 @@ export default buildConfig({
         includeDefaultField: false,
       },
       userHasAccessToAllTenants: isSuperAdmin,
+    }),
+    s3Storage({
+      bucket: process.env.S3_BUCKET as string,
+      signedDownloads: {
+        shouldUseSignedURL: ({ filename }) => {
+          return filename.endsWith(".mp4");
+        },
+      },
+      config: {
+        region: "auto",
+        endpoint: process.env.S3_ENDPOINT as string,
+        credentials: {
+          accountId: process.env.S3_ACCOUNT_ID as string,
+          accessKeyId: process.env.S3_ACCESS_KEY as string,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
+        },
+      },
+      collections: {
+        media: true,
+      },
     }),
     stripePlugin({
       logs: true,

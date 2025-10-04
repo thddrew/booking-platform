@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const OnboardStripeAccountCell = async (
   args: DefaultServerCellComponentProps
 ) => {
+  if (!args.rowData?.stripeAccountId) return null;
   const account = await stripe.accounts.retrieve(args.rowData.stripeAccountId);
 
   const isOnboarded =

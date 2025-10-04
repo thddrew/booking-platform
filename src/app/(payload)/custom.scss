@@ -155,3 +155,21 @@ html {
 @layer utilities {
   @import 'tailwindcss/utilities.css';
 }
+
+// Custom overrides
+@media (max-width: 1024px) {
+  .file-details .thumbnail {
+      order: 1;
+      width: 100%;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 768px) {
+  .file-details header {
+      flex-wrap: nowrap;
+  }
+
+  .file-details .thumbnail {
+    width: 30%;
+}
+}

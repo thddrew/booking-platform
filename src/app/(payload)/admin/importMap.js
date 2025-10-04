@@ -46,6 +46,7 @@ import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } fro
 import { default as default_df4731919bbe5e00b1791b88adcc7eb9 } from '../../../../src/components/providers/react-query'
 import { default as default_27f59fbc28ff75cbfa90b2c7909423ed } from '../../../../src/components/providers/nuqs'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
+import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { default as default_da38590ff3ba72e686c0cf77be2cf57d } from '../../../../src/components/stripe-checkout/checkout-view'
 import { default as default_f83036f8249290e7f3600cb150b87829 } from '../../../../src/components/stripe-checkout/checkout-success-view'
 
@@ -98,6 +99,7 @@ export const importMap = {
   "/src/components/providers/react-query#default": default_df4731919bbe5e00b1791b88adcc7eb9,
   "/src/components/providers/nuqs#default": default_27f59fbc28ff75cbfa90b2c7909423ed,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
+  "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "/src/components/stripe-checkout/checkout-view#default": default_da38590ff3ba72e686c0cf77be2cf57d,
   "/src/components/stripe-checkout/checkout-success-view#default": default_f83036f8249290e7f3600cb150b87829
 }
