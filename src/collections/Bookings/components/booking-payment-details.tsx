@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getDefaultAccountStripeClient } from "@/lib/stripe/get-account-stripe";
+import { getCheckoutSessionStatus } from "@/lib/stripe/get-checkout-session-status";
 import { Booking } from "@/payload-types";
 import { TypedFieldComponent } from "@/types/custom";
 import { extractID } from "@/utilities/extractID";
@@ -28,23 +29,22 @@ import {
 import { ServerFieldBase, UIFieldClient } from "payload";
 import Stripe from "stripe";
 
+type Status = Stripe.Checkout.Session.Status | "refunded";
+
 const mapStatusToVariant: Partial<
-  Record<Stripe.Checkout.Session.Status, Parameters<typeof Badge>[0]["variant"]>
+  Record<Status, Parameters<typeof Badge>[0]["variant"]>
 > = {
   complete: "success",
   expired: "destructive",
   open: "warning",
+  refunded: "secondary",
 };
 
-export const PaymentStatusBadge = ({
-  status,
-}: {
-  status: Stripe.Checkout.Session.Status;
-}) => {
-  const statusLabel = status.replaceAll("_", " ").toLowerCase();
+export const PaymentStatusBadge = ({ status }: { status: Status | null }) => {
+  const statusLabel = status?.replaceAll("_", " ").toLowerCase();
   return (
     <Badge
-      variant={mapStatusToVariant[status] ?? "default"}
+      variant={status ? mapStatusToVariant[status] : "default"}
       className="first-letter:capitalize block text-sm text-center"
     >
       {statusLabel}
@@ -70,13 +70,11 @@ export const BookingPaymentDetails: TypedFieldComponent<
     }
   );
 
-  if (!checkoutSession.status) return null;
+  const checkoutStatus = getCheckoutSessionStatus(checkoutSession);
 
-  const latestCharge = isTypedObject(checkoutSession.payment_intent)
-    ? isTypedObject(checkoutSession.payment_intent.latest_charge)
-      ? checkoutSession.payment_intent.latest_charge
-      : null
-    : null;
+  if (!checkoutStatus.status) return null;
+
+  const { latestCharge } = checkoutStatus;
 
   return (
     <Card>

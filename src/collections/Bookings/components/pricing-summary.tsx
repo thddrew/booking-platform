@@ -1,36 +1,19 @@
 "use client";
 
-import { useField } from "@payloadcms/ui";
 import type { UIFieldClientComponent } from "payload";
 import { Fragment } from "react";
 import { formatCurrency } from "@/collections/Events/utils/format-currency";
 import { Separator } from "@/components/ui/separator";
-import { usePayloadQuery } from "@/hooks/use-payload-query";
 import { useEventPricingSummary } from "./utils/use-event-pricing-summary";
-import { payloadSDK } from "@/hooks/payload-sdk";
+import { useEventData } from "./utils/use-event-data";
 
 const PricingSummary: UIFieldClientComponent = (props) => {
-  const selectedEventField = useField<string>({
-    path: "eventRelation",
-  });
-
-  const { data: event } = usePayloadQuery({
-    queryKey: ["events", selectedEventField.value],
-    queryFn: async () => {
-      const data = await payloadSDK.findByID({
-        collection: "events",
-        id: selectedEventField.value,
-      });
-
-      return data;
-    },
-  });
-
+  const { data: eventData } = useEventData();
   const { totalAmount, totalQuantity, getPriceQuantity, getPriceSubtotal } =
     useEventPricingSummary();
 
-  const eventPrices = event?.prices ?? [];
-  const maxQuantity = event?.maxQuantity ?? 0;
+  const eventPrices = eventData?.prices ?? [];
+  const maxQuantity = eventData?.maxQuantity ?? 0;
 
   return (
     <>

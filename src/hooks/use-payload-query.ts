@@ -53,13 +53,11 @@ export const _usePayloadQuery = <Value>({
 export const usePayloadQuery = <Value>({
   queryKey,
   queryFn,
-  options,
+  ...options
 }: {
   queryKey: QueryKey;
   queryFn: () => Promise<Value>;
-  // TODO: add depth, limit, select, pagination api
-  options?: Omit<UseQueryOptions<Value>, "queryKey" | "queryFn">;
-}) =>
+} & Omit<UseQueryOptions<Value>, "queryKey" | "queryFn">) =>
   useQuery<Value>({
     queryKey,
     queryFn,

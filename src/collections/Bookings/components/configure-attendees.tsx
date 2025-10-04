@@ -8,9 +8,8 @@ import type { EventPriceType } from "@/collections/Events/utils/schemas";
 import type { CalendarEvent } from "@/components/calendar/schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { usePayloadQuery } from "@/hooks/use-payload-query";
 import { useEventPricingSummary } from "./utils/use-event-pricing-summary";
-import { payloadSDK } from "@/hooks/payload-sdk";
+import { useEventData } from "./utils/use-event-data";
 
 const ConfigureAttendees: UIFieldClientComponent = (props) => {
   const isDisabled = props.field.admin.disableBulkEdit;
@@ -24,29 +23,13 @@ const ConfigureAttendees: UIFieldClientComponent = (props) => {
   const selectedInstanceField = useField<CalendarEvent>({
     path: "selectedScheduleInstanceData",
   });
-  const selectedEventField = useField<string>({
-    path: "eventRelation",
-  });
 
-  const { data: event } = usePayloadQuery({
-    queryKey: ["events", selectedEventField.value],
-    queryFn: async () => {
-      const data = await payloadSDK.findByID({
-        collection: "events",
-        id: selectedEventField.value,
-      });
-
-      return data;
-    },
-  });
-
-  const eventPrices = event?.prices ?? [];
-  const maxQuantity = event?.maxQuantity ?? 0;
+  const { data: eventData } = useEventData();
 
   const { totalQuantity, getPriceQuantity, getPriceSubtotal } =
     useEventPricingSummary();
 
-  if (!selectedEventField.value) {
+  if (!eventData) {
     return (
       <p className="text-muted-foreground">
         Select an event and time slot above to view the available pricing tiers.
@@ -79,6 +62,9 @@ const ConfigureAttendees: UIFieldClientComponent = (props) => {
       ...field.value,
     });
   };
+
+  const eventPrices = eventData?.prices ?? [];
+  const maxQuantity = eventData?.maxQuantity ?? 0;
 
   return (
     <div className="mb-6 space-y-3">

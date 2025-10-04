@@ -1,61 +1,38 @@
 "use client";
 
-import { useField, useFormFields } from "@payloadcms/ui";
-import type { FieldState, UIFieldClientComponent } from "payload";
+import { useField } from "@payloadcms/ui";
+import type { UIFieldClientComponent } from "payload";
 import { useEffect, useState } from "react";
 import { Calendar } from "@/components/calendar/calendar";
 import { CalendarProvider } from "@/components/calendar/calendar-provider";
 import {
-  type CalendarEvent,
   CalendarEventTypes,
   ScheduleInstance,
 } from "@/components/calendar/schemas";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { usePayloadQuery } from "@/hooks/use-payload-query";
 import { expandSchedule } from "@/lib/expand-schedule";
 import { getEventDuration } from "@/lib/get-event-duration";
 import { cn } from "@/lib/utils";
-import type { Booking, Event } from "@/payload-types";
-import { payloadSDK } from "@/hooks/payload-sdk";
-import { extractID } from "@/utilities/extractID";
-
-type FieldStateWithValue<T> = FieldState & {
-  value: T;
-};
+import { EventPricesRecordType } from "@/collections/Events/utils/schemas";
+import { useEventData } from "./utils/use-event-data";
 
 const EventsCalendars: UIFieldClientComponent = (props) => {
   const isDisabled = props.field.admin.disableBulkEdit;
 
-  const selectedEvent = useFormFields(
-    ([fields]) =>
-      fields.eventRelation as FieldStateWithValue<Booking["eventRelation"]>
-  );
   const fieldDtstart = useField<Date>({ path: "dtstart" });
   const fieldDtend = useField<Date>({ path: "dtend" });
-  const fieldPricingSnapshot = useField({
+
+  const fieldPricingSnapshot = useField<EventPricesRecordType>({
     path: "pricingSnapshot",
   });
   const scheduleInstanceData = useField<ScheduleInstance>({
     path: "selectedScheduleInstanceData",
   });
 
-  const { data } = usePayloadQuery({
-    queryKey: ["events", selectedEvent.value],
-    queryFn: async () => {
-      const data = await payloadSDK.findByID({
-        collection: "events",
-        id: selectedEvent.value ? extractID(selectedEvent.value) : "",
-      });
+  const { data: eventData } = useEventData();
 
-      return data;
-    },
-    options: {
-      enabled: !!selectedEvent.value,
-    },
-  });
-
-  const schedules = data?.schedules?.schedule;
+  const schedules = eventData?.schedules?.schedule;
   const [selectedSchedules, setSelectedSchedules] = useState<
     Record<string, boolean>
   >({});
@@ -90,17 +67,17 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
               scheduleId: schedule.id,
               dtstart: schedule.dtstart,
               dtend: schedule.dtend,
-              maxQuantity: data?.maxQuantity || 0,
+              maxQuantity: eventData?.maxQuantity || 0,
             },
           ];
         }
 
         const expandedSchedule = expandSchedule({
           rruleString: schedule.rrulestring,
-          eventMaxQuantity: data?.maxQuantity || 0,
+          eventMaxQuantity: eventData?.maxQuantity || 0,
           eventDuration: getEventDuration(schedule.dtstart, schedule.dtend),
           scheduleId: schedule.id,
-          eventName: data?.title,
+          eventName: eventData?.title,
           viewStart,
           viewEnd,
           config: {
@@ -132,7 +109,7 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
                 >
                   <Checkbox
                     checked={selectedSchedules[schedule.id]}
-                    disabled={!schedule.isActive}
+                    disabled={isDisabled || !schedule.isActive}
                     onCheckedChange={(checked) => {
                       setSelectedSchedules({
                         ...selectedSchedules,

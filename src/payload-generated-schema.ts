@@ -12,13 +12,14 @@ import {
   index,
   uniqueIndex,
   foreignKey,
-  serial,
-  integer,
+  uuid,
   varchar,
   timestamp,
+  integer,
   numeric,
   boolean,
   jsonb,
+  serial,
   pgEnum,
 } from "@payloadcms/db-postgres/drizzle/pg-core";
 import { sql, relations } from "@payloadcms/db-postgres/drizzle";
@@ -40,7 +41,11 @@ export const enum__events_v_version_status = pgEnum(
 );
 export const enum_bookings_payment_method = pgEnum(
   "enum_bookings_payment_method",
-  ["stripe", "inPerson"],
+  ["payNow", "payLater"],
+);
+export const enum__bookings_v_version_payment_method = pgEnum(
+  "enum__bookings_v_version_payment_method",
+  ["payNow", "payLater"],
 );
 export const enum_payload_jobs_log_task_slug = pgEnum(
   "enum_payload_jobs_log_task_slug",
@@ -58,8 +63,8 @@ export const enum_payload_jobs_task_slug = pgEnum(
 export const pages = pgTable(
   "pages",
   {
-    id: serial("id").primaryKey(),
-    tenant: integer("tenant_id").references(() => tenants.id, {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
       onDelete: "set null",
     }),
     title: varchar("title"),
@@ -91,9 +96,9 @@ export const users_roles = pgTable(
   "users_roles",
   {
     order: integer("order").notNull(),
-    parent: integer("parent_id").notNull(),
+    parent: uuid("parent_id").notNull(),
     value: enum_users_roles("value"),
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
   },
   (columns) => ({
     orderIdx: index("users_roles_order_idx").on(columns.order),
@@ -112,7 +117,7 @@ export const users_tenants_roles = pgTable(
     order: integer("order").notNull(),
     parent: varchar("parent_id").notNull(),
     value: enum_users_tenants_roles("value"),
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
   },
   (columns) => ({
     orderIdx: index("users_tenants_roles_order_idx").on(columns.order),
@@ -129,9 +134,9 @@ export const users_tenants = pgTable(
   "users_tenants",
   {
     _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
+    _parentID: uuid("_parent_id").notNull(),
     id: varchar("id").primaryKey(),
-    tenant: integer("tenant_id")
+    tenant: uuid("tenant_id")
       .notNull()
       .references(() => tenants.id, {
         onDelete: "set null",
@@ -155,7 +160,7 @@ export const users_sessions = pgTable(
   "users_sessions",
   {
     _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
+    _parentID: uuid("_parent_id").notNull(),
     id: varchar("id").primaryKey(),
     createdAt: timestamp("created_at", {
       mode: "string",
@@ -182,7 +187,7 @@ export const users_sessions = pgTable(
 export const users = pgTable(
   "users",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     username: varchar("username"),
     updatedAt: timestamp("updated_at", {
       mode: "string",
@@ -225,7 +230,7 @@ export const users = pgTable(
 export const tenants = pgTable(
   "tenants",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name").notNull(),
     domain: varchar("domain"),
     slug: varchar("slug").notNull(),
@@ -263,12 +268,12 @@ export const tenants = pgTable(
 export const customers = pgTable(
   "customers",
   {
-    id: serial("id").primaryKey(),
-    tenant: integer("tenant_id").references(() => tenants.id, {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
       onDelete: "set null",
     }),
-    name: varchar("name").notNull(),
-    email: varchar("email").notNull(),
+    name: varchar("name"),
+    email: varchar("email"),
     phone: varchar("phone"),
     stripeCustomerId: varchar("stripe_customer_id"),
     updatedAt: timestamp("updated_at", {
@@ -285,6 +290,11 @@ export const customers = pgTable(
     })
       .defaultNow()
       .notNull(),
+    deletedAt: timestamp("deleted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
   },
   (columns) => ({
     customers_tenant_idx: index("customers_tenant_idx").on(columns.tenant),
@@ -294,14 +304,17 @@ export const customers = pgTable(
     customers_created_at_idx: index("customers_created_at_idx").on(
       columns.createdAt,
     ),
+    customers_deleted_at_idx: index("customers_deleted_at_idx").on(
+      columns.deletedAt,
+    ),
   }),
 );
 
 export const connected_accounts = pgTable(
   "connected_accounts",
   {
-    id: serial("id").primaryKey(),
-    tenant: integer("tenant_id").references(() => tenants.id, {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
       onDelete: "set null",
     }),
     default: boolean("default").default(false),
@@ -338,8 +351,8 @@ export const connected_accounts = pgTable(
 export const payments = pgTable(
   "payments",
   {
-    id: serial("id").primaryKey(),
-    tenant: integer("tenant_id").references(() => tenants.id, {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
       onDelete: "set null",
     }),
     updatedAt: timestamp("updated_at", {
@@ -371,7 +384,7 @@ export const payments = pgTable(
 export const payments_settings = pgTable(
   "payments_settings",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     updatedAt: timestamp("updated_at", {
       mode: "string",
       withTimezone: true,
@@ -400,8 +413,8 @@ export const payments_settings = pgTable(
 export const logs = pgTable(
   "logs",
   {
-    id: serial("id").primaryKey(),
-    user: integer("user_id")
+    id: uuid("id").defaultRandom().primaryKey(),
+    user: uuid("user_id")
       .notNull()
       .references(() => users.id, {
         onDelete: "set null",
@@ -432,7 +445,7 @@ export const events_schedules_schedule = pgTable(
   "events_schedules_schedule",
   {
     _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
+    _parentID: uuid("_parent_id").notNull(),
     id: varchar("id").primaryKey(),
     isActive: boolean("is_active").default(true),
     scheduleName: varchar("schedule_name"),
@@ -466,7 +479,7 @@ export const events_prices = pgTable(
   "events_prices",
   {
     _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
+    _parentID: uuid("_parent_id").notNull(),
     id: varchar("id").primaryKey(),
     stripePriceId: varchar("stripe_price_id"),
     isActive: boolean("is_active").default(true),
@@ -490,8 +503,8 @@ export const events_prices = pgTable(
 export const events = pgTable(
   "events",
   {
-    id: serial("id").primaryKey(),
-    tenant: integer("tenant_id").references(() => tenants.id, {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
       onDelete: "set null",
     }),
     isActive: boolean("is_active").default(true),
@@ -534,8 +547,8 @@ export const _events_v_version_schedules_schedule = pgTable(
   "_events_v_version_schedules_schedule",
   {
     _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: serial("id").primaryKey(),
+    _parentID: uuid("_parent_id").notNull(),
+    id: uuid("id").defaultRandom().primaryKey(),
     isActive: boolean("is_active").default(true),
     scheduleName: varchar("schedule_name"),
     dtstart: timestamp("dtstart", {
@@ -571,8 +584,8 @@ export const _events_v_version_prices = pgTable(
   "_events_v_version_prices",
   {
     _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
-    id: serial("id").primaryKey(),
+    _parentID: uuid("_parent_id").notNull(),
+    id: uuid("id").defaultRandom().primaryKey(),
     stripePriceId: varchar("stripe_price_id"),
     isActive: boolean("is_active").default(true),
     label: varchar("label"),
@@ -598,11 +611,11 @@ export const _events_v_version_prices = pgTable(
 export const _events_v = pgTable(
   "_events_v",
   {
-    id: serial("id").primaryKey(),
-    parent: integer("parent_id").references(() => events.id, {
+    id: uuid("id").defaultRandom().primaryKey(),
+    parent: uuid("parent_id").references(() => events.id, {
       onDelete: "set null",
     }),
-    version_tenant: integer("version_tenant_id").references(() => tenants.id, {
+    version_tenant: uuid("version_tenant_id").references(() => tenants.id, {
       onDelete: "set null",
     }),
     version_isActive: boolean("version_is_active").default(true),
@@ -678,19 +691,14 @@ export const _events_v = pgTable(
 export const bookings = pgTable(
   "bookings",
   {
-    id: serial("id").primaryKey(),
-    tenant: integer("tenant_id").references(() => tenants.id, {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
       onDelete: "set null",
     }),
-    stripeCheckoutSessionId: varchar("stripe_checkout_session_id"),
-    eventId: varchar("event_id").notNull(),
-    event: integer("event_id").references(() => events.id, {
+    eventRelation: uuid("event_relation_id").references(() => events.id, {
       onDelete: "set null",
     }),
-    customerId: varchar("customer_id").notNull(),
-    customer: integer("customer_id").references(() => customers.id, {
-      onDelete: "set null",
-    }),
+    selectedScheduleInstanceData: jsonb("selected_schedule_instance_data"),
     dtstart: timestamp("dtstart", {
       mode: "string",
       withTimezone: true,
@@ -701,11 +709,20 @@ export const bookings = pgTable(
       withTimezone: true,
       precision: 3,
     }).notNull(),
+    customerRelation: uuid("customer_relation_id").references(
+      () => customers.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    overrideMaxQuantity: boolean("override_max_quantity"),
+    eventSnapshot: jsonb("event_snapshot").default(sql`'{}'::jsonb`),
+    customerSnapshot: jsonb("customer_snapshot").default(sql`'{}'::jsonb`),
+    pricingSnapshot: jsonb("pricing_snapshot").default(sql`'{}'::jsonb`),
     rrulestring: varchar("rrulestring"),
+    stripeCheckoutSessionId: varchar("stripe_checkout_session_id"),
+    paymentStatus: varchar("payment_status"),
     paymentMethod: enum_bookings_payment_method("payment_method"),
-    eventSnapshot: jsonb("event_snapshot"),
-    customerSnapshot: jsonb("customer_snapshot"),
-    pricingSnapshot: jsonb("pricing_snapshot"),
     updatedAt: timestamp("updated_at", {
       mode: "string",
       withTimezone: true,
@@ -723,8 +740,12 @@ export const bookings = pgTable(
   },
   (columns) => ({
     bookings_tenant_idx: index("bookings_tenant_idx").on(columns.tenant),
-    bookings_event_idx: index("bookings_event_idx").on(columns.event),
-    bookings_customer_idx: index("bookings_customer_idx").on(columns.customer),
+    bookings_event_relation_idx: index("bookings_event_relation_idx").on(
+      columns.eventRelation,
+    ),
+    bookings_customer_relation_idx: index("bookings_customer_relation_idx").on(
+      columns.customerRelation,
+    ),
     bookings_updated_at_idx: index("bookings_updated_at_idx").on(
       columns.updatedAt,
     ),
@@ -734,11 +755,115 @@ export const bookings = pgTable(
   }),
 );
 
+export const _bookings_v = pgTable(
+  "_bookings_v",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    parent: uuid("parent_id").references(() => bookings.id, {
+      onDelete: "set null",
+    }),
+    version_tenant: uuid("version_tenant_id").references(() => tenants.id, {
+      onDelete: "set null",
+    }),
+    version_eventRelation: uuid("version_event_relation_id").references(
+      () => events.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_selectedScheduleInstanceData: jsonb(
+      "version_selected_schedule_instance_data",
+    ),
+    version_dtstart: timestamp("version_dtstart", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }).notNull(),
+    version_dtend: timestamp("version_dtend", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }).notNull(),
+    version_customerRelation: uuid("version_customer_relation_id").references(
+      () => customers.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_overrideMaxQuantity: boolean("version_override_max_quantity"),
+    version_eventSnapshot: jsonb("version_event_snapshot").default(
+      sql`'{}'::jsonb`,
+    ),
+    version_customerSnapshot: jsonb("version_customer_snapshot").default(
+      sql`'{}'::jsonb`,
+    ),
+    version_pricingSnapshot: jsonb("version_pricing_snapshot").default(
+      sql`'{}'::jsonb`,
+    ),
+    version_rrulestring: varchar("version_rrulestring"),
+    version_stripeCheckoutSessionId: varchar(
+      "version_stripe_checkout_session_id",
+    ),
+    version_paymentStatus: varchar("version_payment_status"),
+    version_paymentMethod: enum__bookings_v_version_payment_method(
+      "version_payment_method",
+    ),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (columns) => ({
+    _bookings_v_parent_idx: index("_bookings_v_parent_idx").on(columns.parent),
+    _bookings_v_version_version_tenant_idx: index(
+      "_bookings_v_version_version_tenant_idx",
+    ).on(columns.version_tenant),
+    _bookings_v_version_version_event_relation_idx: index(
+      "_bookings_v_version_version_event_relation_idx",
+    ).on(columns.version_eventRelation),
+    _bookings_v_version_version_customer_relation_idx: index(
+      "_bookings_v_version_version_customer_relation_idx",
+    ).on(columns.version_customerRelation),
+    _bookings_v_version_version_updated_at_idx: index(
+      "_bookings_v_version_version_updated_at_idx",
+    ).on(columns.version_updatedAt),
+    _bookings_v_version_version_created_at_idx: index(
+      "_bookings_v_version_version_created_at_idx",
+    ).on(columns.version_createdAt),
+    _bookings_v_created_at_idx: index("_bookings_v_created_at_idx").on(
+      columns.createdAt,
+    ),
+    _bookings_v_updated_at_idx: index("_bookings_v_updated_at_idx").on(
+      columns.updatedAt,
+    ),
+  }),
+);
+
 export const payload_jobs_log = pgTable(
   "payload_jobs_log",
   {
     _order: integer("_order").notNull(),
-    _parentID: integer("_parent_id").notNull(),
+    _parentID: uuid("_parent_id").notNull(),
     id: varchar("id").primaryKey(),
     executedAt: timestamp("executed_at", {
       mode: "string",
@@ -771,7 +896,7 @@ export const payload_jobs_log = pgTable(
 export const payload_jobs = pgTable(
   "payload_jobs",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     input: jsonb("input"),
     completedAt: timestamp("completed_at", {
       mode: "string",
@@ -836,7 +961,7 @@ export const payload_jobs = pgTable(
 export const payload_locked_documents = pgTable(
   "payload_locked_documents",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     globalSlug: varchar("global_slug"),
     updatedAt: timestamp("updated_at", {
       mode: "string",
@@ -871,19 +996,19 @@ export const payload_locked_documents_rels = pgTable(
   {
     id: serial("id").primaryKey(),
     order: integer("order"),
-    parent: integer("parent_id").notNull(),
+    parent: uuid("parent_id").notNull(),
     path: varchar("path").notNull(),
-    pagesID: integer("pages_id"),
-    usersID: integer("users_id"),
-    tenantsID: integer("tenants_id"),
-    customersID: integer("customers_id"),
-    connectedAccountsID: integer("connected_accounts_id"),
-    paymentsID: integer("payments_id"),
-    paymentsSettingsID: integer("payments_settings_id"),
-    logsID: integer("logs_id"),
-    eventsID: integer("events_id"),
-    bookingsID: integer("bookings_id"),
-    "payload-jobsID": integer("payload_jobs_id"),
+    pagesID: uuid("pages_id"),
+    usersID: uuid("users_id"),
+    tenantsID: uuid("tenants_id"),
+    customersID: uuid("customers_id"),
+    connectedAccountsID: uuid("connected_accounts_id"),
+    paymentsID: uuid("payments_id"),
+    paymentsSettingsID: uuid("payments_settings_id"),
+    logsID: uuid("logs_id"),
+    eventsID: uuid("events_id"),
+    bookingsID: uuid("bookings_id"),
+    "payload-jobsID": uuid("payload_jobs_id"),
   },
   (columns) => ({
     order: index("payload_locked_documents_rels_order_idx").on(columns.order),
@@ -990,7 +1115,7 @@ export const payload_locked_documents_rels = pgTable(
 export const payload_preferences = pgTable(
   "payload_preferences",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     key: varchar("key"),
     value: jsonb("value"),
     updatedAt: timestamp("updated_at", {
@@ -1026,9 +1151,9 @@ export const payload_preferences_rels = pgTable(
   {
     id: serial("id").primaryKey(),
     order: integer("order"),
-    parent: integer("parent_id").notNull(),
+    parent: uuid("parent_id").notNull(),
     path: varchar("path").notNull(),
-    usersID: integer("users_id"),
+    usersID: uuid("users_id"),
   },
   (columns) => ({
     order: index("payload_preferences_rels_order_idx").on(columns.order),
@@ -1053,7 +1178,7 @@ export const payload_preferences_rels = pgTable(
 export const payload_migrations = pgTable(
   "payload_migrations",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name"),
     batch: numeric("batch"),
     updatedAt: timestamp("updated_at", {
@@ -1254,15 +1379,37 @@ export const relations_bookings = relations(bookings, ({ one }) => ({
     references: [tenants.id],
     relationName: "tenant",
   }),
-  event: one(events, {
-    fields: [bookings.event],
+  eventRelation: one(events, {
+    fields: [bookings.eventRelation],
     references: [events.id],
-    relationName: "event",
+    relationName: "eventRelation",
   }),
-  customer: one(customers, {
-    fields: [bookings.customer],
+  customerRelation: one(customers, {
+    fields: [bookings.customerRelation],
     references: [customers.id],
-    relationName: "customer",
+    relationName: "customerRelation",
+  }),
+}));
+export const relations__bookings_v = relations(_bookings_v, ({ one }) => ({
+  parent: one(bookings, {
+    fields: [_bookings_v.parent],
+    references: [bookings.id],
+    relationName: "parent",
+  }),
+  version_tenant: one(tenants, {
+    fields: [_bookings_v.version_tenant],
+    references: [tenants.id],
+    relationName: "version_tenant",
+  }),
+  version_eventRelation: one(events, {
+    fields: [_bookings_v.version_eventRelation],
+    references: [events.id],
+    relationName: "version_eventRelation",
+  }),
+  version_customerRelation: one(customers, {
+    fields: [_bookings_v.version_customerRelation],
+    references: [customers.id],
+    relationName: "version_customerRelation",
   }),
 }));
 export const relations_payload_jobs_log = relations(
@@ -1387,6 +1534,7 @@ type DatabaseSchema = {
   enum_events_status: typeof enum_events_status;
   enum__events_v_version_status: typeof enum__events_v_version_status;
   enum_bookings_payment_method: typeof enum_bookings_payment_method;
+  enum__bookings_v_version_payment_method: typeof enum__bookings_v_version_payment_method;
   enum_payload_jobs_log_task_slug: typeof enum_payload_jobs_log_task_slug;
   enum_payload_jobs_log_state: typeof enum_payload_jobs_log_state;
   enum_payload_jobs_task_slug: typeof enum_payload_jobs_task_slug;
@@ -1409,6 +1557,7 @@ type DatabaseSchema = {
   _events_v_version_prices: typeof _events_v_version_prices;
   _events_v: typeof _events_v;
   bookings: typeof bookings;
+  _bookings_v: typeof _bookings_v;
   payload_jobs_log: typeof payload_jobs_log;
   payload_jobs: typeof payload_jobs;
   payload_locked_documents: typeof payload_locked_documents;
@@ -1435,6 +1584,7 @@ type DatabaseSchema = {
   relations__events_v_version_prices: typeof relations__events_v_version_prices;
   relations__events_v: typeof relations__events_v;
   relations_bookings: typeof relations_bookings;
+  relations__bookings_v: typeof relations__bookings_v;
   relations_payload_jobs_log: typeof relations_payload_jobs_log;
   relations_payload_jobs: typeof relations_payload_jobs;
   relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels;
