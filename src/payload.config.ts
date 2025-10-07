@@ -124,6 +124,7 @@ export default buildConfig({
     }),
     s3Storage({
       bucket: process.env.S3_BUCKET as string,
+      clientUploads: true,
       signedDownloads: {
         shouldUseSignedURL: ({ filename }) => {
           return filename.endsWith(".mp4");

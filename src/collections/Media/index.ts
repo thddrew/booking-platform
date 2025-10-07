@@ -1,9 +1,11 @@
+import { getTenantFromCookie } from "@payloadcms/plugin-multi-tenant/utilities";
 import { CollectionConfig } from "payload";
 
 export const Media: CollectionConfig<"media"> = {
   slug: "media",
   trash: true,
   upload: {
+    mimeTypes: ["image/*", "video/*"],
     adminThumbnail: "thumbnail",
     imageSizes: [
       {
