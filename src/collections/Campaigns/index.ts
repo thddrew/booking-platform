@@ -6,6 +6,9 @@ export const Campaigns: CollectionConfig<"campaigns"> = {
   slug: "campaigns",
   versions: true,
   trash: true,
+  admin: {
+    defaultColumns: ["campaignName", "description"],
+  },
   hooks: {
     afterChange: [createCampaign],
     afterDelete: [deleteCampaign],
@@ -13,12 +16,12 @@ export const Campaigns: CollectionConfig<"campaigns"> = {
   fields: [
     {
       type: "text",
-      name: "Campaign Name",
+      name: "campaignName",
       required: true,
     },
     {
       type: "text",
-      name: "Description",
+      name: "description",
     },
     {
       type: "relationship",

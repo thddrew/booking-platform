@@ -465,8 +465,8 @@ export interface Media {
 export interface Campaign {
   id: string;
   tenant?: (string | null) | Tenant;
-  'Campaign Name': string;
-  Description?: string | null;
+  campaignName: string;
+  description?: string | null;
   /**
    * These are the customers who will receive the campaign emails
    */
@@ -968,8 +968,8 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CampaignsSelect<T extends boolean = true> {
   tenant?: T;
-  'Campaign Name'?: T;
-  Description?: T;
+  campaignName?: T;
+  description?: T;
   subscribers?: T;
   updatedAt?: T;
   createdAt?: T;
