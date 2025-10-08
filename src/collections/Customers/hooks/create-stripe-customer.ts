@@ -14,7 +14,7 @@ export const createStripeCustomer: CollectionBeforeChangeHook<
       const customer = await stripe.customers.create({
         phone: data.phone ?? undefined,
         email: data.email ?? undefined,
-        name: data.name ?? undefined,
+        name: data.fullName ?? undefined,
         metadata: {
           tenantId: data.tenant ? extractID(data.tenant) : null,
         } satisfies StripeCustomerMetadata,

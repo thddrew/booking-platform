@@ -1,4 +1,5 @@
 import type {
+  CollectionAfterReadHook,
   CollectionConfig,
   EmailField,
   TextField,
@@ -9,6 +10,9 @@ import { Customer } from "@/payload-types";
 import { superAdminOrTenantAdminFieldAccess } from "../Billing/fieldAccess/superAdminOrTenantAdmin";
 import { createStripeCustomer } from "./hooks/create-stripe-customer";
 import { updateStripeCustomer } from "./hooks/update-stripe-customer";
+import { deleteSubscriber } from "./hooks/delete-subscriber";
+import { deleteStripeCustomer } from "./hooks/delete-stripe-customer";
+import { createSubscriber } from "./hooks/create-subscriber";
 
 const phoneValidate: Validate<string, unknown, Customer, TextField> = (
   value,
@@ -16,6 +20,17 @@ const phoneValidate: Validate<string, unknown, Customer, TextField> = (
 ) => {
   if (!value && !ctx.siblingData.email) {
     return "Email or phone is required";
+  }
+
+  return true;
+};
+
+const nameValidate: Validate<string, unknown, Customer, TextField> = (
+  value,
+  ctx
+) => {
+  if (!value && !ctx.siblingData.firstName && !ctx.siblingData.lastName) {
+    return "First name or last name is required";
   }
 
   return true;
@@ -46,15 +61,41 @@ export const Customers: CollectionConfig<"customers"> = {
   trash: true,
   hooks: {
     beforeChange: [createStripeCustomer, updateStripeCustomer],
+    afterChange: [createSubscriber],
+    afterDelete: [deleteStripeCustomer, deleteSubscriber],
   },
   admin: {
-    useAsTitle: "name",
-    defaultColumns: ["name", "email", "phone"],
+    useAsTitle: "fullName",
+    defaultColumns: ["fullName", "email", "phone"],
   },
   fields: [
     {
-      name: "name",
+      name: "firstName",
       type: "text",
+      validate: nameValidate,
+    },
+    {
+      name: "lastName",
+      type: "text",
+      validate: nameValidate,
+    },
+    {
+      name: "fullName",
+      type: "text",
+      admin: {
+        readOnly: true,
+        hidden: true,
+      },
+      hooks: {
+        beforeChange: [
+          ({ data }) => {
+            if (data?.firstName && data?.lastName) {
+              return `${data.firstName} ${data.lastName}`;
+            }
+            return data;
+          },
+        ],
+      },
     },
     {
       name: "email",
@@ -82,11 +123,20 @@ export const Customers: CollectionConfig<"customers"> = {
       },
     },
     {
+      name: "campaign",
+      type: "join",
+      collection: "campaigns",
+      on: "subscribers",
+      admin: {
+        condition: (_, __, ctx) => ctx.operation !== "create",
+      },
+    },
+    {
       name: "stripeCustomerId",
       type: "text",
       admin: {
         readOnly: true,
-        position: "sidebar",
+        hidden: true,
       },
       access: {
         read: superAdminOrTenantAdminFieldAccess,

@@ -3,7 +3,7 @@
 import { toast } from "@payloadcms/ui";
 import { ConnectPayments } from "@stripe/react-connect-js";
 import StripeConnect from "@/components/stripe-connect";
-import { createStripeDashboardSession } from "@/lib/stripe/account-sessions";
+import { createStripeDashboardSession } from "@/lib/stripe/create-account-sessions";
 import type { User } from "@/payload-types";
 
 export const PaymentMethods = ({

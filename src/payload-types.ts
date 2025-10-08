@@ -78,6 +78,7 @@ export interface Config {
     events: Event;
     bookings: Booking;
     media: Media;
+    campaigns: Campaign;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
   collectionsJoins: {
     customers: {
       bookings: 'bookings';
+      campaign: 'campaigns';
     };
     events: {
       bookings: 'bookings';
@@ -103,6 +105,7 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -220,7 +223,9 @@ export interface User {
 export interface Customer {
   id: string;
   tenant?: (string | null) | Tenant;
-  name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  fullName?: string | null;
   /**
    * One of email or phone is required
    */
@@ -231,6 +236,11 @@ export interface Customer {
   phone?: string | null;
   bookings?: {
     docs?: (string | Booking)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  campaign?: {
+    docs?: (string | Campaign)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -450,6 +460,23 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaigns".
+ */
+export interface Campaign {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  'Campaign Name': string;
+  Description?: string | null;
+  /**
+   * These are the customers who will receive the campaign emails
+   */
+  subscribers?: (string | Customer)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "connectedAccounts".
  */
 export interface ConnectedAccount {
@@ -637,6 +664,10 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: 'campaigns';
+        value: string | Campaign;
+      } | null)
+    | ({
         relationTo: 'payload-jobs';
         value: string | PayloadJob;
       } | null);
@@ -742,10 +773,13 @@ export interface TenantsSelect<T extends boolean = true> {
  */
 export interface CustomersSelect<T extends boolean = true> {
   tenant?: T;
-  name?: T;
+  firstName?: T;
+  lastName?: T;
+  fullName?: T;
   email?: T;
   phone?: T;
   bookings?: T;
+  campaign?: T;
   stripeCustomerId?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -927,6 +961,19 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaigns_select".
+ */
+export interface CampaignsSelect<T extends boolean = true> {
+  tenant?: T;
+  'Campaign Name'?: T;
+  Description?: T;
+  subscribers?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

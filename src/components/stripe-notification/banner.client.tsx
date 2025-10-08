@@ -1,7 +1,7 @@
 "use client";
 
 import { ConnectNotificationBanner } from "@stripe/react-connect-js";
-import { createStripeNotificationBannerSession } from "@/lib/stripe/account-sessions";
+import { createStripeNotificationBannerSession } from "@/lib/stripe/create-account-sessions";
 import type { User } from "@/payload-types";
 import StripeConnect from "../stripe-connect";
 

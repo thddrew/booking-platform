@@ -4,7 +4,7 @@ import { toast } from "@payloadcms/ui";
 import { ConnectAccountOnboarding } from "@stripe/react-connect-js";
 import { useRouter } from "next/navigation";
 import StripeConnect from "@/components/stripe-connect";
-import { createStripeOnboardingSession } from "@/lib/stripe/account-sessions";
+import { createStripeOnboardingSession } from "@/lib/stripe/create-account-sessions";
 import type { User } from "@/payload-types";
 
 export const OnboardingView = ({

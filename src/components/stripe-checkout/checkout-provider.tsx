@@ -12,7 +12,7 @@ import {
 import { CheckoutProvider as StripeCheckoutProvider } from "@stripe/react-stripe-js/checkout";
 import { createContext, useContext, useMemo } from "react";
 import { useStripeAppearance } from "@/hooks/use-stripe-appearance";
-import { createCheckoutSessionSecret } from "@/lib/stripe/checkouts";
+import { createCheckoutSessionSecret } from "@/lib/stripe/create-checkout-secret";
 import { loadAccountStripe } from "@/lib/stripe/load-account-stripe";
 import z from "zod";
 import { useSearchParams } from "next/navigation";

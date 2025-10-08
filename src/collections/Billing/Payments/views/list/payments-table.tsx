@@ -45,7 +45,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { createStripeAccountSession } from "@/lib/stripe/account-sessions";
+import { createStripeAccountSession } from "@/lib/stripe/create-account-sessions";
 import type { ConnectedAccount } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";
 import { isNonNull } from "@/utilities/isNonNull";

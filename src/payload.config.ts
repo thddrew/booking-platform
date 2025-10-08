@@ -24,10 +24,11 @@ import { Tenants } from "./collections/Tenants";
 import Users from "./collections/Users";
 // import { customerCreatedWebhook } from "./lib/stripe/webhookHandlers/customer.created";
 // import { customerDeletedWebhook } from "./lib/stripe/webhookHandlers/customer.deleted";
-import { checkoutSessionUpdatedWebhook } from "./lib/stripe/webhookHandlers/checkout.session.updated";
+import { checkoutSessionUpdatedWebhook } from "./lib/stripe/webhooks/checkout.session.updated";
 import type { Config } from "./payload-types";
 import { seed } from "./seed";
 import { Media } from "./collections/Media";
+import { Campaigns } from "./collections/Campaigns";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -75,6 +76,7 @@ export default buildConfig({
     Events,
     Bookings,
     Media,
+    Campaigns,
   ],
   upload: {
     abortOnLimit: true,
@@ -110,6 +112,7 @@ export default buildConfig({
         events: {},
         bookings: {},
         media: {},
+        campaigns: {},
       },
       tenantField: {
         access: {

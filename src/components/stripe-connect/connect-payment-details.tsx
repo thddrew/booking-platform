@@ -1,6 +1,6 @@
 "use client";
 
-import { createStripeAccountSession } from "@/lib/stripe/account-sessions";
+import { createStripeAccountSession } from "@/lib/stripe/create-account-sessions";
 import StripeConnect from "../stripe-connect";
 import { User } from "@/payload-types";
 import { useState } from "react";

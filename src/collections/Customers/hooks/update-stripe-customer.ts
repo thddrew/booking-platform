@@ -22,7 +22,7 @@ export const updateStripeCustomer: CollectionBeforeChangeHook<
         await stripe.customers.update(data.stripeCustomerId, {
           phone: data.phone ?? undefined,
           email: data.email ?? undefined,
-          name: data.name ?? undefined,
+          name: data.fullName ?? undefined,
           metadata: {
             tenantId: data.tenant ? extractID(data.tenant) : null,
           } satisfies StripeCustomerMetadata,
