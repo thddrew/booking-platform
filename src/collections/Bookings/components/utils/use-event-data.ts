@@ -1,4 +1,4 @@
-import { payloadSDK } from "@/hooks/payload-sdk";
+import { payloadSDK } from "@/lib/payload/payload-sdk";
 import { usePayloadQuery } from "@/hooks/use-payload-query";
 import { Booking, Event } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";

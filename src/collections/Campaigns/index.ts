@@ -7,6 +7,7 @@ export const Campaigns: CollectionConfig<"campaigns"> = {
   versions: true,
   trash: true,
   admin: {
+    useAsTitle: "campaignName",
     defaultColumns: ["campaignName", "description"],
   },
   hooks: {
@@ -15,23 +16,52 @@ export const Campaigns: CollectionConfig<"campaigns"> = {
   },
   fields: [
     {
-      type: "text",
-      name: "campaignName",
-      required: true,
-    },
-    {
-      type: "text",
-      name: "description",
-    },
-    {
-      type: "relationship",
-      name: "subscribers",
-      relationTo: "customers",
-      hasMany: true,
-      admin: {
-        description:
-          "These are the customers who will receive the campaign emails",
-      },
+      type: "tabs",
+      tabs: [
+        {
+          label: "Campaign Details",
+          fields: [
+            {
+              type: "text",
+              name: "campaignName",
+              required: true,
+            },
+            {
+              type: "text",
+              name: "description",
+            },
+            {
+              type: "relationship",
+              name: "subscribers",
+              relationTo: "customers",
+              hasMany: true,
+              admin: {
+                description:
+                  "These are the customers who will receive the campaign emails",
+              },
+            },
+          ],
+        },
+        {
+          label: "Emails",
+          admin: {
+            condition: (_, __, ctx) => ctx.operation !== "create",
+          },
+          fields: [
+            {
+              type: "join",
+              name: "emails",
+              collection: "emails",
+              on: "campaign",
+              hasMany: true,
+              admin: {
+                description:
+                  "These are the emails that will be sent for this campaign",
+              },
+            },
+          ],
+        },
+      ],
     },
   ],
 };

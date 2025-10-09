@@ -25,7 +25,7 @@ import CheckoutFormSkeleton from "./checkout-form-skeleton";
 import Link from "next/link";
 import { ConfirmDialog } from "../confirm-dialog";
 import { DialogClose, DialogDescription } from "../ui/dialog";
-import { payloadSDK } from "@/hooks/payload-sdk";
+import { payloadSDK } from "@/lib/payload/payload-sdk";
 import { PAYMENT_STATUS } from "@/collections/Bookings/components/utils/payment-statuses";
 
 const formSchema = z.object({

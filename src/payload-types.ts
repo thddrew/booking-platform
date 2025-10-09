@@ -79,6 +79,7 @@ export interface Config {
     bookings: Booking;
     media: Media;
     campaigns: Campaign;
+    emails: Email;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -91,6 +92,9 @@ export interface Config {
     };
     events: {
       bookings: 'bookings';
+    };
+    campaigns: {
+      emails: 'emails';
     };
   };
   collectionsSelect: {
@@ -106,6 +110,7 @@ export interface Config {
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
+    emails: EmailsSelect<false> | EmailsSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -471,6 +476,45 @@ export interface Campaign {
    * These are the customers who will receive the campaign emails
    */
   subscribers?: (string | Customer)[] | null;
+  /**
+   * These are the emails that will be sent for this campaign
+   */
+  emails?: {
+    docs?: (string | Email)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * Emails can be sent to a campaign, specific customers, or both.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emails".
+ */
+export interface Email {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  subject: string;
+  emailContent?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * The campaign that this email is associated with. Only one campaign is allowed per email.
+   */
+  campaign?: (string | null) | Campaign;
+  /**
+   * The customers that will receive this email.
+   */
+  customers?: (string | Customer)[] | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -666,6 +710,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'campaigns';
         value: string | Campaign;
+      } | null)
+    | ({
+        relationTo: 'emails';
+        value: string | Email;
       } | null)
     | ({
         relationTo: 'payload-jobs';
@@ -971,6 +1019,21 @@ export interface CampaignsSelect<T extends boolean = true> {
   campaignName?: T;
   description?: T;
   subscribers?: T;
+  emails?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emails_select".
+ */
+export interface EmailsSelect<T extends boolean = true> {
+  tenant?: T;
+  subject?: T;
+  emailContent?: T;
+  campaign?: T;
+  customers?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

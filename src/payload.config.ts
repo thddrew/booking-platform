@@ -30,6 +30,7 @@ import { seed } from "./seed";
 import { Media } from "./collections/Media";
 import { Campaigns } from "./collections/Campaigns";
 import { resendWebhook } from "./endpoints/webhooks/resend";
+import { Emails } from "./collections/Emails";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -78,6 +79,7 @@ export default buildConfig({
     Bookings,
     Media,
     Campaigns,
+    Emails,
   ],
   endpoints: [resendWebhook],
   upload: {
@@ -115,6 +117,7 @@ export default buildConfig({
         bookings: {},
         media: {},
         campaigns: {},
+        emails: {},
       },
       tenantField: {
         access: {

@@ -156,12 +156,21 @@ html {
   @import 'tailwindcss/utilities.css';
 }
 
+.live-preview-window {
+  width: 50%;
+}
+
 // Custom overrides
 @media (max-width: 1024px) {
   .file-details .thumbnail {
       order: 1;
       width: 100%;
   }
+
+  .live-preview-window {
+    width: 50%;
+  }
+
 }
 
 @media (max-width: 1024px) and (min-width: 768px) {
@@ -171,5 +180,11 @@ html {
 
   .file-details .thumbnail {
     width: 30%;
+  }
 }
+
+@media (max-width: 768px) {
+  .live-preview-window {
+    width: 100%;
+  }
 }
