@@ -1,5 +1,5 @@
 import { LogoWithCoverImageIcon } from "./logo-with-color-image";
-import { BlockItem } from "@maily-to/core/blocks";
+import { BlockItem } from "@thddrew/maily-core/blocks";
 import { LogoWithTextHorizonIcon } from "./logo-with-text-horizon";
 import { LogoWithTextVerticalIcon } from "./logo-with-text-vertical";
 

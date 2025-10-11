@@ -3,7 +3,15 @@ import { CollectionConfig } from "payload";
 
 export const Emails: CollectionConfig<"emails"> = {
   slug: "emails",
-  versions: true,
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 3000,
+        showSaveDraftButton: true,
+      },
+      schedulePublish: true,
+    },
+  },
   trash: true,
   admin: {
     useAsTitle: "subject",

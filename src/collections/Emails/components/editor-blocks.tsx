@@ -22,7 +22,7 @@ import {
   heading3,
   text,
   BlockGroupItem,
-} from "@maily-to/core/blocks";
+} from "@thddrew/maily-core/blocks";
 import {
   headerLogoWithCoverImage,
   headerLogoWithTextHorizontal,

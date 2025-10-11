@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, use } from "react";
-import { Editor, type EditorProps, getDefaultExtensions } from "@maily-to/core";
-import { ImageUploadExtension } from "@maily-to/core/extensions";
+import { Editor, type EditorProps } from "@thddrew/maily-core";
+import { ImageUploadExtension } from "@thddrew/maily-core/extensions";
 import { slashCommands } from "./editor-blocks";
 import type { JSONContent } from "@tiptap/core";
 import { createRoot } from "react-dom/client";
@@ -16,6 +16,8 @@ type EditorType = Parameters<NonNullable<EditorProps["onCreate"]>>[0];
 type AppProps = {
   contentJson: JSONContent | undefined;
   updateJson: (json: JSONContent) => void;
+  shadowRoot?: ShadowRoot;
+  portalContainer?: HTMLElement | null;
 };
 
 function EditorContent(props: AppProps) {
@@ -26,6 +28,7 @@ function EditorContent(props: AppProps) {
     <Editor
       blocks={slashCommands}
       contentJson={defaultContentJson}
+      portalContainer={props.portalContainer || undefined}
       onCreate={(editor) => {
         setEditor(editor);
       }}
@@ -34,11 +37,14 @@ function EditorContent(props: AppProps) {
         props.updateJson(editor.getJSON());
       }}
       config={{
+        hasMenuBar: false,
         // Classes must be defined in public/maily-to.css
-        bodyClassName: "mly:min-h-[300px]",
+        bodyClassName: "mly:min-h-[300px] mly:bg-muted",
+        toolbarClassName: "mly:bg-muted",
+        contentClassName: `px-10!`,
       }}
       extensions={[
-        ...getDefaultExtensions(slashCommands),
+        // ...getDefaultExtensions(slashCommands),
         ImageUploadExtension.configure({
           onImageUpload: async (file) => {
             console.log(file);
@@ -57,23 +63,19 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const shadowRootRef = useRef<ShadowRoot | null>(null);
+  const rootContainerRef = useRef<HTMLDivElement | null>(null);
   const reactContainerRef = useRef<HTMLDivElement | null>(null);
+  const portalContainerRef = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<ReturnType<typeof createRoot> | null>(null);
   const field = useField();
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Only create shadow root once
+    // Only create shadow root once and when theme is ready
     if (!shadowRootRef.current) {
       const shadowRoot = containerRef.current.attachShadow({ mode: "open" });
       shadowRootRef.current = shadowRoot;
-
-      // Create container for React
-      const reactContainer = document.createElement("div");
-      reactContainer.setAttribute("data-theme", theme);
-      reactContainerRef.current = reactContainer;
-      shadowRoot.appendChild(reactContainer);
 
       // Inject the style.css into shadow DOM
       const style = document.createElement("link");
@@ -81,13 +83,27 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
       style.href = "/maily-to.css";
       shadowRoot.appendChild(style);
 
+      // Root container for data-theme
+      const rootContainer = document.createElement("div");
+      rootContainer.setAttribute("data-theme", theme);
+      rootContainerRef.current = rootContainer;
+      shadowRoot.appendChild(rootContainer);
+
+      // Create container for React content
+      const reactContainer = document.createElement("div");
+      reactContainerRef.current = reactContainer;
+      rootContainer.appendChild(reactContainer);
+
+      // Create portal container (direct child of root container)
+      const portalContainer = document.createElement("div");
+      portalContainer.id = "portal-container";
+      portalContainer.style.position = "relative";
+      portalContainer.style.zIndex = "9999";
+      portalContainerRef.current = portalContainer;
+      rootContainer.appendChild(portalContainer);
+
       // Create root only once
       rootRef.current = createRoot(reactContainer);
-    }
-
-    // Update theme attribute
-    if (reactContainerRef.current) {
-      reactContainerRef.current.setAttribute("data-theme", theme);
     }
 
     // Render with updated props
@@ -97,6 +113,7 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
           // @ts-expect-error - TODO: fix this typing
           contentJson={field.value}
           updateJson={field.setValue}
+          portalContainer={portalContainerRef.current}
         />
       );
     }
@@ -111,12 +128,17 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
   }, []);
 
   useEffect(() => {
-    if (reactContainerRef.current) {
-      reactContainerRef.current.setAttribute("data-theme", theme);
+    if (rootContainerRef.current) {
+      rootContainerRef.current.setAttribute("data-theme", theme);
     }
   }, [theme]);
 
-  return <div ref={containerRef} />;
+  return (
+    <div>
+      <p className="mb-1">Body</p>
+      <div ref={containerRef} />
+    </div>
+  );
 };
 
 export default EditorShadowRoot;

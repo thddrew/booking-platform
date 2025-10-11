@@ -3,7 +3,7 @@ import {
   LayoutTemplateIcon,
   RectangleHorizontalIcon,
 } from "lucide-react";
-import { BlockItem } from "@maily-to/core/blocks";
+import { BlockItem } from "@thddrew/maily-core/blocks";
 
 export const footerCopyrightText: BlockItem = {
   title: "Footer Copyright",

@@ -1,10 +1,10 @@
 import configPromise from "@payload-config";
 import { headers as getHeaders } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import type { Where } from "payload";
+import { JSONContent, render } from "@thddrew/maily-render";
 import { getPayload } from "payload";
 
-import { RenderPage } from "../../../../../components/RenderPage";
+import { RefreshRouteOnSave } from "@/app/components/live-preview-refresh";
 
 export default async function Page({
   params: paramsPromise,
@@ -52,8 +52,6 @@ export default async function Page({
 
   const emailQuery = await payload.find({
     collection: "emails",
-    overrideAccess: false,
-    user,
     draft: true,
     trash: true,
     where: {
@@ -79,6 +77,15 @@ export default async function Page({
     return notFound();
   }
 
+  const html = await render(emailData.emailContent as JSONContent);
+
   // The page was found, render the page with data
-  return <RenderPage data={emailData} />;
+  return (
+    <div>
+      <RefreshRouteOnSave />
+      <div className="py-4">
+        <div dangerouslySetInnerHTML={{ __html: html }} />
+      </div>
+    </div>
+  );
 }
