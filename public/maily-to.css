@@ -61,8 +61,8 @@
     --mly-color-muted-foreground: oklch(0.556 0 0);
     --mly-spacing: 0.25rem;
     --mly-container-xs: 20rem;
-    --mly-text-xs: 0.875rem;
-    --mly-text-xs--line-height: calc(1 / 0.875);
+    --mly-text-xs: 0.8rem;
+    --mly-text-xs--line-height: calc(1 / 0.8);
     --mly-text-sm: 0.929rem;
     --mly-text-sm--line-height: calc(1.25 / 0.929);
     --mly-text-base: 1rem;
@@ -2070,6 +2070,10 @@
 
   .mly\:p-2 {
     padding: calc(var(--mly-spacing) * 2);
+  }
+
+  .mly\:p-2\.5 {
+    padding: calc(var(--mly-spacing) * 2.5);
   }
 
   .mly\:p-3 {

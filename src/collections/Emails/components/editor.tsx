@@ -35,8 +35,6 @@ function EditorContent(props: AppProps) {
     return null;
   }
 
-  console.log("portalContainer", props.portalContainer);
-
   return (
     <Editor
       blocks={slashCommands}
