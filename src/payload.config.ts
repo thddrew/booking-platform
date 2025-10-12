@@ -29,7 +29,7 @@ import type { Config } from "./payload-types";
 import { seed } from "./seed";
 import { Media } from "./collections/Media";
 import { Campaigns } from "./collections/Campaigns";
-import { resendWebhook } from "./endpoints/webhooks/resend";
+import { resendWebhookHandler } from "./endpoints/webhooks/resend-handler";
 import { Emails } from "./collections/Emails";
 
 const filename = fileURLToPath(import.meta.url);
@@ -81,7 +81,7 @@ export default buildConfig({
     Campaigns,
     Emails,
   ],
-  endpoints: [resendWebhook],
+  endpoints: [resendWebhookHandler],
   upload: {
     abortOnLimit: true,
     safeFileNames: true,

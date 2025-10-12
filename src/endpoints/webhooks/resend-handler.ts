@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { ResendWebhookPayload } from "@/types/resend";
 import { contactUpdatedWebhook } from "@/lib/resend/webhooks/contact.updated";
 
-export const resendWebhook: Endpoint = {
+export const resendWebhookHandler: Endpoint = {
   path: "/webhooks/resend",
   method: "post",
   handler: async (req) => {
