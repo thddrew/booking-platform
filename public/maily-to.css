@@ -1753,6 +1753,58 @@
     }
   }
 
+  .mly\:space-x-1 {
+    :where(& > :not(:last-child)) {
+      --mly-tw-space-x-reverse: 0;
+      margin-inline-end: calc(calc(var(--mly-spacing) * 1) * calc(1 - var(--mly-tw-space-x-reverse)));
+      margin-inline-start: calc(calc(var(--mly-spacing) * 1) * var(--mly-tw-space-x-reverse));
+    }
+  }
+
+  .mly\:space-x-2 {
+    :where(& > :not(:last-child)) {
+      --mly-tw-space-x-reverse: 0;
+      margin-inline-end: calc(calc(var(--mly-spacing) * 2) * calc(1 - var(--mly-tw-space-x-reverse)));
+      margin-inline-start: calc(calc(var(--mly-spacing) * 2) * var(--mly-tw-space-x-reverse));
+    }
+  }
+
+  .mly\:space-x-3 {
+    :where(& > :not(:last-child)) {
+      --mly-tw-space-x-reverse: 0;
+      margin-inline-end: calc(calc(var(--mly-spacing) * 3) * calc(1 - var(--mly-tw-space-x-reverse)));
+      margin-inline-start: calc(calc(var(--mly-spacing) * 3) * var(--mly-tw-space-x-reverse));
+    }
+  }
+
+  .mly\:mr-0 {
+    margin-right: 0px;
+  }
+
+  .mly\:opacity-50 {
+    opacity: 0.5;
+  }
+
+  .mly\:opacity-60 {
+    opacity: 0.6;
+  }
+
+  .mly\:opacity-70 {
+    opacity: 0.7;
+  }
+
+  .mly\:opacity-80 {
+    opacity: 0.8;
+  }
+
+  .mly\:disabled\:opacity-80 {
+    opacity: 0.8;
+  }
+
+  .mly\:opacity-90 {
+    opacity: 0.9;
+  }
+
   .mly\:border-border {
     border-color: var(--border);
   }
@@ -2805,6 +2857,43 @@
   .mly\:resize-none {
     resize: none;
   }
+
+  .mly\:max-w-22 {
+    max-width: calc(var(--mly-spacing) * 22);
+  }
+
+
+  .mly\:size-1 {
+    width: calc(var(--mly-spacing) * 1);
+    height: calc(var(--mly-spacing) * 1);
+  }
+
+  .mly\:size-2 {
+    width: calc(var(--mly-spacing) * 2);
+    height: calc(var(--mly-spacing) * 2);
+  }
+
+  .mly\:size-3 {
+    width: calc(var(--mly-spacing) * 3);
+    height: calc(var(--mly-spacing) * 3);
+  }
+
+  .mly\:size-4 {
+    width: calc(var(--mly-spacing) * 4);
+    height: calc(var(--mly-spacing) * 4);
+  }
+
+  .mly\:size-5 {
+    width: calc(var(--mly-spacing) * 5);
+    height: calc(var(--mly-spacing) * 5);
+  }
+
+  .mly\:size-6 {
+    width: calc(var(--mly-spacing) * 6);
+    height: calc(var(--mly-spacing) * 6);
+  }
+
+
 }
 
 :root {

@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useRef, use } from "react";
 import { Editor, type EditorProps } from "@thddrew/maily-core";
-import { ImageUploadExtension } from "@thddrew/maily-core/extensions";
+import {
+  getVariableSuggestions,
+  ImageUploadExtension,
+  VariableExtension,
+} from "@thddrew/maily-core/extensions";
 import { slashCommands } from "./editor-blocks";
 import type { JSONContent } from "@tiptap/core";
 import { createRoot } from "react-dom/client";
@@ -10,6 +14,9 @@ import { useField, useTheme } from "@payloadcms/ui";
 import { TypedFieldComponent } from "@/types/custom";
 import { JSONFieldServerComponent } from "payload";
 import { Email } from "@/payload-types";
+import { ErrorBoundary } from "react-error-boundary";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircleIcon } from "lucide-react";
 
 type EditorType = Parameters<NonNullable<EditorProps["onCreate"]>>[0];
 
@@ -24,11 +31,17 @@ function EditorContent(props: AppProps) {
   const { contentJson: defaultContentJson } = props;
   const [editor, setEditor] = useState<EditorType>();
 
+  if (!props.portalContainer) {
+    return null;
+  }
+
+  console.log("portalContainer", props.portalContainer);
+
   return (
     <Editor
       blocks={slashCommands}
       contentJson={defaultContentJson}
-      portalContainer={props.portalContainer || undefined}
+      portalContainer={props.portalContainer}
       onCreate={(editor) => {
         setEditor(editor);
       }}
@@ -44,7 +57,6 @@ function EditorContent(props: AppProps) {
         contentClassName: `px-10!`,
       }}
       extensions={[
-        // ...getDefaultExtensions(slashCommands),
         ImageUploadExtension.configure({
           onImageUpload: async (file) => {
             console.log(file);
@@ -52,6 +64,16 @@ function EditorContent(props: AppProps) {
             return "";
           },
         }),
+      ]}
+      variables={[
+        {
+          name: "customer-name",
+          label: "Customer Name",
+        },
+        {
+          name: "booking-name",
+          label: "Booking Name",
+        },
       ]}
     />
   );
@@ -136,7 +158,22 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
   return (
     <div>
       <p className="mb-1">Body</p>
-      <div ref={containerRef} />
+      <ErrorBoundary
+        fallback={
+          <Alert className="my-4 twp">
+            <AlertTitle className="flex items-center gap-2">
+              <AlertCircleIcon className="size-4" />
+              Something went wrong.
+            </AlertTitle>
+            <AlertDescription>
+              There was a problem loading the email editor. Please try
+              refreshing or contact support.
+            </AlertDescription>
+          </Alert>
+        }
+      >
+        <div ref={containerRef} />
+      </ErrorBoundary>
     </div>
   );
 };

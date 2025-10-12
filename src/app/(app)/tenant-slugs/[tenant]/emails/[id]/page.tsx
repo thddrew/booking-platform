@@ -83,7 +83,7 @@ export default async function Page({
   return (
     <div>
       <RefreshRouteOnSave />
-      <div className="py-4">
+      <div className="p-4">
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>
     </div>
