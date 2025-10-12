@@ -29,7 +29,7 @@ import { payloadSDK } from "@/lib/payload/payload-sdk";
 import { PAYMENT_STATUS } from "@/collections/Bookings/components/utils/payment-statuses";
 
 const formSchema = z.object({
-  email: z.email(),
+  email: z.string().email(),
 });
 
 export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {
