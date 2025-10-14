@@ -12,8 +12,6 @@ import { useEventPricingSummary } from "./utils/use-event-pricing-summary";
 import { useEventData } from "./utils/use-event-data";
 
 const ConfigureAttendees: UIFieldClientComponent = (props) => {
-  const isDisabled = props.field.admin.disableBulkEdit;
-
   const field = useField<Record<string, EventPriceType>>({
     path: "pricingSnapshot",
   });
@@ -24,7 +22,7 @@ const ConfigureAttendees: UIFieldClientComponent = (props) => {
     path: "selectedScheduleInstanceData",
   });
 
-  const { data: eventData } = useEventData();
+  const { data: eventData, isPaid: isDisabled } = useEventData();
 
   const { totalQuantity, getPriceQuantity, getPriceSubtotal } =
     useEventPricingSummary();

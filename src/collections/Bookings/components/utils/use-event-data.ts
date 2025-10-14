@@ -4,6 +4,7 @@ import { Booking, Event } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";
 import { useField, useFormFields } from "@payloadcms/ui";
 import { FieldState } from "payload";
+import { isNonNullish } from "@/utilities/isNonNullish";
 
 type FieldStateWithValue<T> = FieldState & {
   value: T;
@@ -42,8 +43,10 @@ export const useEventData = () => {
     enabled: !fieldPaymentStatus.value && !!fieldSelectedEventId.value,
   });
 
+  const isPaid = isNonNullish(fieldPaymentStatus.value);
+
   // If the booking has been paid, use the snapshot of the event, otherwise use the data from the event
   const eventData = fieldPaymentStatus.value ? fieldEventSnapshot.value : data;
 
-  return { data: eventData };
+  return { data: eventData, isPaid };
 };

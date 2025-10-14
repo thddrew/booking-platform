@@ -155,12 +155,15 @@ html {
 @layer utilities {
   @import 'tailwindcss/utilities.css';
 }
+// Custom overrides
+.resize-vertical {
+  resize: vertical;
+}
 
 .live-preview-window {
   width: 50%;
 }
 
-// Custom overrides
 @media (max-width: 1024px) {
   .file-details .thumbnail {
       order: 1;
@@ -188,3 +191,4 @@ html {
     width: 100%;
   }
 }
+

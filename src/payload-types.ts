@@ -93,9 +93,6 @@ export interface Config {
     events: {
       bookings: 'bookings';
     };
-    campaigns: {
-      emails: 'emails';
-    };
   };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -476,49 +473,9 @@ export interface Campaign {
    * These are the customers who will receive the campaign emails
    */
   subscribers?: (string | Customer)[] | null;
-  /**
-   * These are the emails that will be sent for this campaign
-   */
-  emails?: {
-    docs?: (string | Email)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
-}
-/**
- * Emails can be sent to a campaign, specific customers, or both.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "emails".
- */
-export interface Email {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  subject: string;
-  emailContent?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  /**
-   * The campaign that this email is associated with. Only one campaign is allowed per email.
-   */
-  campaign?: (string | null) | Campaign;
-  /**
-   * The customers that will receive this email.
-   */
-  customers?: (string | Customer)[] | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -564,6 +521,37 @@ export interface Log {
   user: string | User;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * Emails can be sent to a campaign, specific customers, or both.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emails".
+ */
+export interface Email {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  subject: string;
+  /**
+   * The preview text is the snippet of text that is pulled into the inbox preview of an email client, usually right after the subject line.
+   */
+  preview?: string | null;
+  /**
+   * Any variables will be populated based on where the email is send from. For example, if the email is sent for a booking, the customer name and booking name will be populated.
+   */
+  emailContent?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1020,7 +1008,6 @@ export interface CampaignsSelect<T extends boolean = true> {
   campaignName?: T;
   description?: T;
   subscribers?: T;
-  emails?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1032,9 +1019,8 @@ export interface CampaignsSelect<T extends boolean = true> {
 export interface EmailsSelect<T extends boolean = true> {
   tenant?: T;
   subject?: T;
+  preview?: T;
   emailContent?: T;
-  campaign?: T;
-  customers?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

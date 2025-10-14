@@ -18,8 +18,6 @@ import { EventPricesRecordType } from "@/collections/Events/utils/schemas";
 import { useEventData } from "./utils/use-event-data";
 
 const EventsCalendars: UIFieldClientComponent = (props) => {
-  const isDisabled = props.field.admin.disableBulkEdit;
-
   const fieldDtstart = useField<Date>({ path: "dtstart" });
   const fieldDtend = useField<Date>({ path: "dtend" });
 
@@ -30,7 +28,7 @@ const EventsCalendars: UIFieldClientComponent = (props) => {
     path: "selectedScheduleInstanceData",
   });
 
-  const { data: eventData } = useEventData();
+  const { data: eventData, isPaid: isDisabled } = useEventData();
 
   const schedules = eventData?.schedules?.schedule;
   const [selectedSchedules, setSelectedSchedules] = useState<

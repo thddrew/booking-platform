@@ -47,19 +47,7 @@ export const Campaigns: CollectionConfig<"campaigns"> = {
           admin: {
             condition: (_, __, ctx) => ctx.operation !== "create",
           },
-          fields: [
-            {
-              type: "join",
-              name: "emails",
-              collection: "emails",
-              on: "campaign",
-              hasMany: true,
-              admin: {
-                description:
-                  "These are the emails that will be sent for this campaign",
-              },
-            },
-          ],
+          fields: [],
         },
       ],
     },

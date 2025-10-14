@@ -8,8 +8,10 @@ import Stripe from "stripe";
 export const getCheckoutSessionStatus = (
   checkoutSession: Stripe.Response<Stripe.Checkout.Session>
 ) => {
-  const latestCharge = isTypedObject(checkoutSession.payment_intent)
-    ? isTypedObject(checkoutSession.payment_intent.latest_charge)
+  const latestCharge = isTypedObject<Stripe.PaymentIntent>(
+    checkoutSession.payment_intent
+  )
+    ? isTypedObject<Stripe.Charge>(checkoutSession.payment_intent.latest_charge)
       ? checkoutSession.payment_intent.latest_charge
       : null
     : null;

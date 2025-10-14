@@ -333,6 +333,7 @@ export const Events: CollectionConfig<"events"> = {
                   type: "text",
                   name: "stripePriceId",
                   admin: {
+                    hidden: true,
                     readOnly: true,
                   },
                 },
@@ -408,6 +409,9 @@ export const Events: CollectionConfig<"events"> = {
               name: "customMax",
               label: "Custom",
               type: "checkbox",
+              admin: {
+                hidden: true,
+              },
             },
             {
               name: "minQuantity",
@@ -421,6 +425,9 @@ export const Events: CollectionConfig<"events"> = {
               name: "customMin",
               label: "Custom",
               type: "checkbox",
+              admin: {
+                hidden: true,
+              },
             },
           ],
         },

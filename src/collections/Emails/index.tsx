@@ -14,6 +14,7 @@ export const Emails: CollectionConfig<"emails"> = {
   },
   trash: true,
   admin: {
+    defaultColumns: ["subject", "preview", "updatedAt", "createdAt"],
     useAsTitle: "subject",
     description:
       "Emails can be sent to a campaign, specific customers, or both.",
@@ -46,9 +47,21 @@ export const Emails: CollectionConfig<"emails"> = {
               required: true,
             },
             {
+              type: "textarea",
+              name: "preview",
+              admin: {
+                rows: 2,
+                className: "resize-vertical",
+                description:
+                  "The preview text is the snippet of text that is pulled into the inbox preview of an email client, usually right after the subject line.",
+              },
+            },
+            {
               type: "json",
               name: "emailContent",
               admin: {
+                description:
+                  "Any variables will be populated based on where the email is send from. For example, if the email is sent for a booking, the customer name and booking name will be populated.",
                 components: {
                   Field: "/src/collections/Emails/components/editor",
                 },
@@ -61,28 +74,6 @@ export const Emails: CollectionConfig<"emails"> = {
           fields: [],
         },
       ],
-    },
-    {
-      type: "relationship",
-      name: "campaign",
-      relationTo: "campaigns",
-      hasMany: false,
-      admin: {
-        allowCreate: false,
-        position: "sidebar",
-        description:
-          "The campaign that this email is associated with. Only one campaign is allowed per email.",
-      },
-    },
-    {
-      type: "relationship",
-      name: "customers",
-      relationTo: "customers",
-      hasMany: true,
-      admin: {
-        position: "sidebar",
-        description: "The customers that will receive this email.",
-      },
     },
   ],
 };

@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --port 4000",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --turbopack --port 4000",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build --turbopack",
     "dev:fresh": "cross-env NODE_OPTIONS=--no-deprecation && pnpm seed && next dev --turbopack --port 4000",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
@@ -118,7 +118,7 @@
     "eslint": "8.57.0",
     "eslint-config-next": "15.0.0",
     "supabase": "^2.40.7",
-    "typescript": "5.9.2"
+    "typescript": "5.9.3"
   },
   "pnpm": {
     "overrides": {

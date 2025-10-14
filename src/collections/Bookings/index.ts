@@ -9,7 +9,6 @@ import { EventPricesRecordSchema } from "../Events/utils/schemas";
 import { saveSnapshots } from "./hooks/save-snapshots";
 import { setDatetimes } from "./hooks/set-datetimes";
 import { updateAccess } from "./access/update-access";
-import Stripe from "stripe";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",

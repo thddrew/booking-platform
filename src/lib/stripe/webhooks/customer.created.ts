@@ -10,12 +10,15 @@ export const customerCreatedWebhook: StripeWebhookHandler<
 
     const customerMetadata = stripeCustomerMetadata.safeParse(metadata);
 
+    const [firstName, lastName] = name?.split(" ") ?? [];
+
     await payload.create({
       req,
       collection: "customers",
       data: {
         stripeCustomerId: id,
-        name: name ?? `name-${id}`,
+        firstName,
+        lastName,
         email: email ?? `${id}@stripe.com`,
         phone,
         tenant: customerMetadata.data?.tenantId,

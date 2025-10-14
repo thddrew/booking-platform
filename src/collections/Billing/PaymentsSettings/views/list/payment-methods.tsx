@@ -13,7 +13,7 @@ export const PaymentMethods = ({
 }: {
   user: User;
   accountId: string;
-  tenant: number;
+  tenant: string;
 }) => {
   return (
     <StripeConnect

@@ -1,29 +1,24 @@
 "use client";
 
-import { useState, useEffect, useRef, use } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, Ref } from "react";
 import { Editor, type EditorProps } from "@thddrew/maily-core";
-import {
-  getVariableSuggestions,
-  ImageUploadExtension,
-  VariableExtension,
-} from "@thddrew/maily-core/extensions";
+import { ImageUploadExtension } from "@thddrew/maily-core/extensions";
 import { slashCommands } from "./editor-blocks";
 import type { JSONContent } from "@tiptap/core";
 import { createRoot } from "react-dom/client";
-import { useField, useTheme } from "@payloadcms/ui";
-import { TypedFieldComponent } from "@/types/custom";
-import { JSONFieldServerComponent } from "payload";
-import { Email } from "@/payload-types";
+import { FieldDescription, useField, useTheme } from "@payloadcms/ui";
+import { JSONFieldClientComponent } from "payload";
 import { ErrorBoundary } from "react-error-boundary";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
+import { getVariables } from "./variables";
 
 type EditorType = Parameters<NonNullable<EditorProps["onCreate"]>>[0];
 
 type AppProps = {
   contentJson: JSONContent | undefined;
   updateJson: (json: JSONContent) => void;
-  shadowRoot?: ShadowRoot;
+  onMount: Ref<HTMLDivElement>;
   portalContainer?: HTMLElement | null;
 };
 
@@ -36,50 +31,42 @@ function EditorContent(props: AppProps) {
   }
 
   return (
-    <Editor
-      blocks={slashCommands}
-      contentJson={defaultContentJson}
-      portalContainer={props.portalContainer}
-      onCreate={(editor) => {
-        setEditor(editor);
-      }}
-      onUpdate={(editor) => {
-        setEditor(editor);
-        props.updateJson(editor.getJSON());
-      }}
-      config={{
-        hasMenuBar: false,
-        // Classes must be defined in public/maily-to.css
-        bodyClassName: "mly:min-h-[300px] mly:bg-muted",
-        toolbarClassName: "mly:bg-muted",
-        contentClassName: `px-10!`,
-      }}
-      extensions={[
-        ImageUploadExtension.configure({
-          onImageUpload: async (file) => {
-            console.log(file);
+    <div ref={props.onMount}>
+      <Editor
+        blocks={slashCommands}
+        contentJson={defaultContentJson}
+        portalContainer={props.portalContainer}
+        onCreate={(editor) => {
+          setEditor(editor);
+        }}
+        onUpdate={(editor) => {
+          setEditor(editor);
+          props.updateJson(editor.getJSON());
+        }}
+        config={{
+          hasMenuBar: false,
+          // Classes must be defined in public/maily-to.css
+          bodyClassName:
+            "mly:min-h-[300px] mly:mt-0 mly:bg-transparent mly:border-0 mly:p-0",
+          toolbarClassName: "mly:bg-muted",
+          contentClassName: `mly:px-10! mly:mx-auto`,
+        }}
+        extensions={[
+          ImageUploadExtension.configure({
+            onImageUpload: async (file) => {
+              console.log(file);
 
-            return "";
-          },
-        }),
-      ]}
-      variables={[
-        {
-          name: "customer-name",
-          label: "Customer Name",
-        },
-        {
-          name: "booking-name",
-          label: "Booking Name",
-        },
-      ]}
-    />
+              return "";
+            },
+          }),
+        ]}
+        variables={getVariables()}
+      />
+    </div>
   );
 }
 
-const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
-  props
-) => {
+const EditorShadowRoot: JSONFieldClientComponent = (props) => {
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const shadowRootRef = useRef<ShadowRoot | null>(null);
@@ -87,9 +74,10 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
   const reactContainerRef = useRef<HTMLDivElement | null>(null);
   const portalContainerRef = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<ReturnType<typeof createRoot> | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
   const field = useField();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!containerRef.current) return;
 
     // Only create shadow root once and when theme is ready
@@ -134,18 +122,11 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
           contentJson={field.value}
           updateJson={field.setValue}
           portalContainer={portalContainerRef.current}
+          onMount={editorRef}
         />
       );
     }
-
-    return () => {
-      // Only unmount on final cleanup
-      if (rootRef.current) {
-        rootRef.current.unmount();
-        rootRef.current = null;
-      }
-    };
-  }, []);
+  }, [field.value]);
 
   useEffect(() => {
     if (rootContainerRef.current) {
@@ -153,12 +134,22 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
     }
   }, [theme]);
 
+  useEffect(() => {
+    return () => {
+      if (editorRef.current) {
+        queueMicrotask(() => {
+          rootRef.current?.unmount();
+        });
+      }
+    };
+  }, []);
+
   return (
-    <div>
+    <div className="twp">
       <p className="mb-1">Body</p>
       <ErrorBoundary
         fallback={
-          <Alert className="my-4 twp">
+          <Alert className="my-4">
             <AlertTitle className="flex items-center gap-2">
               <AlertCircleIcon className="size-4" />
               Something went wrong.
@@ -170,8 +161,16 @@ const EditorShadowRoot: TypedFieldComponent<JSONFieldServerComponent, Email> = (
           </Alert>
         }
       >
-        <div ref={containerRef} />
+        <div
+          className="bg-(--theme-input-bg) rounded border border-(--theme-elevation-150)"
+          ref={containerRef}
+        />
       </ErrorBoundary>
+      <FieldDescription
+        className="mt-2"
+        description={props.field.admin?.description}
+        path={props.path}
+      />
     </div>
   );
 };

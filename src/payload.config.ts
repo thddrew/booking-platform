@@ -31,6 +31,7 @@ import { Media } from "./collections/Media";
 import { Campaigns } from "./collections/Campaigns";
 import { resendWebhookHandler } from "./endpoints/webhooks/resend-handler";
 import { Emails } from "./collections/Emails";
+import { initializeNovuWorkflows } from "./lib/novu/workflow/initialize-novu-workflows";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -96,6 +97,10 @@ export default buildConfig({
   onInit: async (args) => {
     if (process.env.SEED_DB) {
       await seed(args);
+    }
+
+    if (process.env.INITIALIZE_NOVU_WORKFLOWS) {
+      await initializeNovuWorkflows(args);
     }
   },
   editor: lexicalEditor({}),

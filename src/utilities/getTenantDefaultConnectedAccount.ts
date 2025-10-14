@@ -16,7 +16,7 @@ export const getTenantDefaultConnectedAccount = cache(async () => {
   const payload = await getPayload({ config });
   const { user } = await payload.auth({ headers: requestHeaders });
 
-  const tenant = getTenantFromCookie(requestHeaders, "number") as number | null;
+  const tenant = getTenantFromCookie(requestHeaders, "text") as string | null;
 
   if (!tenant) {
     // Super admin should impersonate a tenant to access a default connected account

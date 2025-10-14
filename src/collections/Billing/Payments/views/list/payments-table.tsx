@@ -220,12 +220,18 @@ export const columns = [
             <DropdownMenuItem>View customer</DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
+                if (!row.original.payment_intent) return;
+
                 if (
-                  isTypedObject(row.original.payment_intent) &&
-                  isTypedObject(row.original.payment_intent.latest_charge)
+                  isTypedObject<Stripe.PaymentIntent>(
+                    row.original.payment_intent
+                  ) &&
+                  isTypedObject<Stripe.Charge>(
+                    row.original.payment_intent.latest_charge
+                  )
                 ) {
                   setSelectedChargeId(
-                    row.original.payment_intent.latest_charge.id
+                    row.original.payment_intent?.latest_charge?.id
                   );
                 } else {
                   toast.error("No payment intent found");

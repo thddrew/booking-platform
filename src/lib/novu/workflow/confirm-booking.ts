@@ -1,20 +1,23 @@
 import { workflow } from "@novu/framework";
-import { z } from "zod";
+import { workflowPayloadSchema } from "./schemas";
 
-export const confirmBookingWorkflow = () =>
+export const confirmBookingWorkflowId = "confirm-booking";
+
+/**
+ * This likely only needs to be called once when the app initializes or when the workflow is updated.
+ */
+export const createConfirmBookingWorkflow = () =>
   workflow(
-    "confirm-booking",
+    confirmBookingWorkflowId,
     async ({ step, payload }) => {
       await step.email("send-email", async () => {
         return {
-          subject: `Booking Confirmed`,
-          body: "Your booking has been confirmed",
+          subject: payload.subject,
+          body: payload.body,
         };
       });
     },
     {
-      payloadSchema: z.object({
-        bookingId: z.string(),
-      }),
+      payloadSchema: workflowPayloadSchema,
     }
   );

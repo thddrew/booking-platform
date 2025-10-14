@@ -8,6 +8,7 @@ const PaymentStatusCell = async (
     Stripe.Checkout.Session.Status
   >
 ) => {
+  if (!args.cellData) return <div>-</div>;
   return <PaymentStatusBadge status={args.cellData} />;
 };
 

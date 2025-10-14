@@ -7,7 +7,9 @@ import { z } from "zod";
 const schema = {
   id: z.string(),
   tenant: TenantOrIdSchema.nullish(),
-  name: z.string().nullish(),
+  firstName: z.string().nullish(),
+  lastName: z.string().nullish(),
+  fullName: z.string().nullish(),
   email: z.string().nullish(),
   phone: z.string().nullish(),
   bookings: z
