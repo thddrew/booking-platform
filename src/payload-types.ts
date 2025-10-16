@@ -13,466 +13,456 @@
  * via the `definition` "supportedTimezones".
  */
 export type SupportedTimezones =
-	| "Pacific/Midway"
-	| "Pacific/Niue"
-	| "Pacific/Honolulu"
-	| "Pacific/Rarotonga"
-	| "America/Anchorage"
-	| "Pacific/Gambier"
-	| "America/Los_Angeles"
-	| "America/Tijuana"
-	| "America/Denver"
-	| "America/Phoenix"
-	| "America/Chicago"
-	| "America/Guatemala"
-	| "America/New_York"
-	| "America/Bogota"
-	| "America/Caracas"
-	| "America/Santiago"
-	| "America/Buenos_Aires"
-	| "America/Sao_Paulo"
-	| "Atlantic/South_Georgia"
-	| "Atlantic/Azores"
-	| "Atlantic/Cape_Verde"
-	| "Europe/London"
-	| "Europe/Berlin"
-	| "Africa/Lagos"
-	| "Europe/Athens"
-	| "Africa/Cairo"
-	| "Europe/Moscow"
-	| "Asia/Riyadh"
-	| "Asia/Dubai"
-	| "Asia/Baku"
-	| "Asia/Karachi"
-	| "Asia/Tashkent"
-	| "Asia/Calcutta"
-	| "Asia/Dhaka"
-	| "Asia/Almaty"
-	| "Asia/Jakarta"
-	| "Asia/Bangkok"
-	| "Asia/Shanghai"
-	| "Asia/Singapore"
-	| "Asia/Tokyo"
-	| "Asia/Seoul"
-	| "Australia/Brisbane"
-	| "Australia/Sydney"
-	| "Pacific/Guam"
-	| "Pacific/Noumea"
-	| "Pacific/Auckland"
-	| "Pacific/Fiji";
+  | 'Pacific/Midway'
+  | 'Pacific/Niue'
+  | 'Pacific/Honolulu'
+  | 'Pacific/Rarotonga'
+  | 'America/Anchorage'
+  | 'Pacific/Gambier'
+  | 'America/Los_Angeles'
+  | 'America/Tijuana'
+  | 'America/Denver'
+  | 'America/Phoenix'
+  | 'America/Chicago'
+  | 'America/Guatemala'
+  | 'America/New_York'
+  | 'America/Bogota'
+  | 'America/Caracas'
+  | 'America/Santiago'
+  | 'America/Buenos_Aires'
+  | 'America/Sao_Paulo'
+  | 'Atlantic/South_Georgia'
+  | 'Atlantic/Azores'
+  | 'Atlantic/Cape_Verde'
+  | 'Europe/London'
+  | 'Europe/Berlin'
+  | 'Africa/Lagos'
+  | 'Europe/Athens'
+  | 'Africa/Cairo'
+  | 'Europe/Moscow'
+  | 'Asia/Riyadh'
+  | 'Asia/Dubai'
+  | 'Asia/Baku'
+  | 'Asia/Karachi'
+  | 'Asia/Tashkent'
+  | 'Asia/Calcutta'
+  | 'Asia/Dhaka'
+  | 'Asia/Almaty'
+  | 'Asia/Jakarta'
+  | 'Asia/Bangkok'
+  | 'Asia/Shanghai'
+  | 'Asia/Singapore'
+  | 'Asia/Tokyo'
+  | 'Asia/Seoul'
+  | 'Australia/Brisbane'
+  | 'Australia/Sydney'
+  | 'Pacific/Guam'
+  | 'Pacific/Noumea'
+  | 'Pacific/Auckland'
+  | 'Pacific/Fiji';
 
 export interface Config {
-	auth: {
-		users: UserAuthOperations;
-	};
-	blocks: {};
-	collections: {
-		pages: Page;
-		users: User;
-		tenants: Tenant;
-		customers: Customer;
-		connectedAccounts: ConnectedAccount;
-		payments: Payment;
-		paymentsSettings: PaymentsSetting;
-		logs: Log;
-		events: Event;
-		bookings: Booking;
-		media: Media;
-		campaigns: Campaign;
-		emails: Email;
-		"payload-jobs": PayloadJob;
-		"payload-locked-documents": PayloadLockedDocument;
-		"payload-preferences": PayloadPreference;
-		"payload-migrations": PayloadMigration;
-	};
-	collectionsJoins: {
-		customers: {
-			bookings: "bookings";
-			campaign: "campaigns";
-		};
-		events: {
-			bookings: "bookings";
-		};
-	};
-	collectionsSelect: {
-		pages: PagesSelect<false> | PagesSelect<true>;
-		users: UsersSelect<false> | UsersSelect<true>;
-		tenants: TenantsSelect<false> | TenantsSelect<true>;
-		customers: CustomersSelect<false> | CustomersSelect<true>;
-		connectedAccounts:
-			| ConnectedAccountsSelect<false>
-			| ConnectedAccountsSelect<true>;
-		payments: PaymentsSelect<false> | PaymentsSelect<true>;
-		paymentsSettings:
-			| PaymentsSettingsSelect<false>
-			| PaymentsSettingsSelect<true>;
-		logs: LogsSelect<false> | LogsSelect<true>;
-		events: EventsSelect<false> | EventsSelect<true>;
-		bookings: BookingsSelect<false> | BookingsSelect<true>;
-		media: MediaSelect<false> | MediaSelect<true>;
-		campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
-		emails: EmailsSelect<false> | EmailsSelect<true>;
-		"payload-jobs": PayloadJobsSelect<false> | PayloadJobsSelect<true>;
-		"payload-locked-documents":
-			| PayloadLockedDocumentsSelect<false>
-			| PayloadLockedDocumentsSelect<true>;
-		"payload-preferences":
-			| PayloadPreferencesSelect<false>
-			| PayloadPreferencesSelect<true>;
-		"payload-migrations":
-			| PayloadMigrationsSelect<false>
-			| PayloadMigrationsSelect<true>;
-	};
-	db: {
-		defaultIDType: string;
-	};
-	globals: {};
-	globalsSelect: {};
-	locale: null;
-	user: User & {
-		collection: "users";
-	};
-	jobs: {
-		tasks: {
-			schedulePublish: TaskSchedulePublish;
-			inline: {
-				input: unknown;
-				output: unknown;
-			};
-		};
-		workflows: unknown;
-	};
+  auth: {
+    users: UserAuthOperations;
+  };
+  blocks: {};
+  collections: {
+    pages: Page;
+    users: User;
+    tenants: Tenant;
+    customers: Customer;
+    connectedAccounts: ConnectedAccount;
+    payments: Payment;
+    paymentsSettings: PaymentsSetting;
+    logs: Log;
+    events: Event;
+    bookings: Booking;
+    media: Media;
+    campaigns: Campaign;
+    emails: Email;
+    'payload-jobs': PayloadJob;
+    'payload-locked-documents': PayloadLockedDocument;
+    'payload-preferences': PayloadPreference;
+    'payload-migrations': PayloadMigration;
+  };
+  collectionsJoins: {
+    customers: {
+      bookings: 'bookings';
+      campaign: 'campaigns';
+    };
+    events: {
+      bookings: 'bookings';
+    };
+  };
+  collectionsSelect: {
+    pages: PagesSelect<false> | PagesSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
+    connectedAccounts: ConnectedAccountsSelect<false> | ConnectedAccountsSelect<true>;
+    payments: PaymentsSelect<false> | PaymentsSelect<true>;
+    paymentsSettings: PaymentsSettingsSelect<false> | PaymentsSettingsSelect<true>;
+    logs: LogsSelect<false> | LogsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    bookings: BookingsSelect<false> | BookingsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
+    emails: EmailsSelect<false> | EmailsSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
+  };
+  db: {
+    defaultIDType: string;
+  };
+  globals: {};
+  globalsSelect: {};
+  locale: null;
+  user: User & {
+    collection: 'users';
+  };
+  jobs: {
+    tasks: {
+      schedulePublish: TaskSchedulePublish;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
+    workflows: unknown;
+  };
 }
 export interface UserAuthOperations {
-	forgotPassword: {
-		email: string;
-		password: string;
-	};
-	login: {
-		email: string;
-		password: string;
-	};
-	registerFirstUser: {
-		email: string;
-		password: string;
-	};
-	unlock: {
-		email: string;
-		password: string;
-	};
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	title?: string | null;
-	slug?: string | null;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title?: string | null;
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenants".
  */
 export interface Tenant {
-	id: string;
-	name: string;
-	/**
-	 * Used for domain-based tenant handling
-	 */
-	domain?: string | null;
-	/**
-	 * Used for url paths, example: /tenant-slug/page-slug
-	 */
-	slug: string;
-	/**
-	 * If checked, logging in is not required to read. Useful for building public pages.
-	 */
-	allowPublicRead?: boolean | null;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  name: string;
+  /**
+   * Used for domain-based tenant handling
+   */
+  domain?: string | null;
+  /**
+   * Used for url paths, example: /tenant-slug/page-slug
+   */
+  slug: string;
+  /**
+   * If checked, logging in is not required to read. Useful for building public pages.
+   */
+  allowPublicRead?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-	id: string;
-	roles?: ("super-admin" | "user")[] | null;
-	username?: string | null;
-	tenants?:
-		| {
-				tenant: string | Tenant;
-				roles: ("tenant-admin" | "tenant-viewer")[];
-				id?: string | null;
-		  }[]
-		| null;
-	updatedAt: string;
-	createdAt: string;
-	email: string;
-	resetPasswordToken?: string | null;
-	resetPasswordExpiration?: string | null;
-	salt?: string | null;
-	hash?: string | null;
-	loginAttempts?: number | null;
-	lockUntil?: string | null;
-	sessions?:
-		| {
-				id: string;
-				createdAt?: string | null;
-				expiresAt: string;
-		  }[]
-		| null;
-	password?: string | null;
+  id: string;
+  roles?: ('super-admin' | 'user')[] | null;
+  username?: string | null;
+  tenants?:
+    | {
+        tenant: string | Tenant;
+        roles: ('tenant-admin' | 'tenant-viewer')[];
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "customers".
  */
 export interface Customer {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	firstName?: string | null;
-	lastName?: string | null;
-	fullName?: string | null;
-	/**
-	 * One of email or phone is required
-	 */
-	email?: string | null;
-	/**
-	 * One of email or phone is required
-	 */
-	phone?: string | null;
-	bookings?: {
-		docs?: (string | Booking)[];
-		hasNextPage?: boolean;
-		totalDocs?: number;
-	};
-	campaign?: {
-		docs?: (string | Campaign)[];
-		hasNextPage?: boolean;
-		totalDocs?: number;
-	};
-	stripeCustomerId?: string | null;
-	updatedAt: string;
-	createdAt: string;
-	deletedAt?: string | null;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  firstName?: string | null;
+  lastName?: string | null;
+  fullName?: string | null;
+  /**
+   * One of email or phone is required
+   */
+  email?: string | null;
+  /**
+   * One of email or phone is required
+   */
+  phone?: string | null;
+  bookings?: {
+    docs?: (string | Booking)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  campaign?: {
+    docs?: (string | Campaign)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  stripeCustomerId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings".
  */
 export interface Booking {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	eventRelation?: (string | null) | Event;
-	selectedScheduleInstanceData?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	dtstart: string;
-	dtend: string;
-	customerRelation?: (string | null) | Customer;
-	overrideMaxQuantity?: boolean | null;
-	eventSnapshot?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	customerSnapshot?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	pricingSnapshot?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	rrulestring?: string | null;
-	stripeCheckoutSessionId?: string | null;
-	paymentStatus?: string | null;
-	paymentMethod?: ("payNow" | "payLater") | null;
-	bookingConfirmationEmail?: (string | null) | Email;
-	bookingCancelledEmail?: (string | null) | Email;
-	bookingUpdatedEmail?: (string | null) | Email;
-	updatedAt: string;
-	createdAt: string;
-	deletedAt?: string | null;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  eventRelation?: (string | null) | Event;
+  selectedScheduleInstanceData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  dtstart: string;
+  dtend: string;
+  customerRelation?: (string | null) | Customer;
+  overrideMaxQuantity?: boolean | null;
+  eventSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  customerSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  pricingSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  rrulestring?: string | null;
+  stripeCheckoutSessionId?: string | null;
+  paymentStatus?: string | null;
+  paymentMethod?: ('payNow' | 'payLater') | null;
+  bookingConfirmationEmail?: (string | null) | Email;
+  bookingCancelledEmail?: (string | null) | Email;
+  bookingUpdatedEmail?: (string | null) | Email;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events".
  */
 export interface Event {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	/**
-	 * Turning this off will hide the event from the public
-	 */
-	isActive?: boolean | null;
-	stripeProductId?: string | null;
-	title: string;
-	description?: {
-		root: {
-			type: string;
-			children: {
-				type: any;
-				version: number;
-				[k: string]: unknown;
-			}[];
-			direction: ("ltr" | "rtl") | null;
-			format: "left" | "start" | "center" | "right" | "end" | "justify" | "";
-			indent: number;
-			version: number;
-		};
-		[k: string]: unknown;
-	} | null;
-	thumbnail?: (string | null) | Media;
-	/**
-	 * These images will be displayed on the event's page
-	 */
-	gallery?: (string | Media)[] | null;
-	/**
-	 * Create one or more schedules for the event
-	 */
-	schedules?: {
-		schedule?:
-			| {
-					isActive?: boolean | null;
-					scheduleName?: string | null;
-					dtstart: string;
-					dtend: string;
-					isRecurring?: boolean | null;
-					interval?: number | null;
-					frequency?: ("DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY") | null;
-					SU?: boolean | null;
-					MO?: boolean | null;
-					TU?: boolean | null;
-					WE?: boolean | null;
-					TH?: boolean | null;
-					FR?: boolean | null;
-					SA?: boolean | null;
-					monthDays?: string | null;
-					months?: string | null;
-					/**
-					 * The last date the event will occur. Leave blank to repeat indefinitely.
-					 */
-					until?: string | null;
-					/**
-					 * Set a total number of occurrences for the event. Leave blank for no limit.
-					 */
-					count?: number | null;
-					rrulestring?: string | null;
-					id?: string | null;
-			  }[]
-			| null;
-	};
-	prices?:
-		| {
-				stripePriceId?: string | null;
-				isActive?: boolean | null;
-				label: string;
-				/**
-				 * Helpful description for the pricing tier
-				 */
-				description?: string | null;
-				/**
-				 * Amount in dollars. Set to 0 to make it free.
-				 */
-				amount: number;
-				/**
-				 * Number of spots one unit represents (typically 1). Eg. 1 order of this may take up 2 spots.
-				 */
-				quantityUnit?: number | null;
-				quantity?: number | null;
-				id?: string | null;
-		  }[]
-		| null;
-	maxQuantity: number;
-	customMax?: boolean | null;
-	minQuantity?: number | null;
-	customMin?: boolean | null;
-	bookings?: {
-		docs?: (string | Booking)[];
-		hasNextPage?: boolean;
-		totalDocs?: number;
-	};
-	updatedAt: string;
-	createdAt: string;
-	deletedAt?: string | null;
-	_status?: ("draft" | "published") | null;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * Turning this off will hide the event from the public
+   */
+  isActive?: boolean | null;
+  stripeProductId?: string | null;
+  title: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  thumbnail?: (string | null) | Media;
+  /**
+   * These images will be displayed on the event's page
+   */
+  gallery?: (string | Media)[] | null;
+  /**
+   * Create one or more schedules for the event
+   */
+  schedules?: {
+    schedule?:
+      | {
+          isActive?: boolean | null;
+          scheduleName?: string | null;
+          dtstart: string;
+          dtend: string;
+          isRecurring?: boolean | null;
+          interval?: number | null;
+          frequency?: ('DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY') | null;
+          SU?: boolean | null;
+          MO?: boolean | null;
+          TU?: boolean | null;
+          WE?: boolean | null;
+          TH?: boolean | null;
+          FR?: boolean | null;
+          SA?: boolean | null;
+          monthDays?: string | null;
+          months?: string | null;
+          /**
+           * The last date the event will occur. Leave blank to repeat indefinitely.
+           */
+          until?: string | null;
+          /**
+           * Set a total number of occurrences for the event. Leave blank for no limit.
+           */
+          count?: number | null;
+          rrulestring?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  prices?:
+    | {
+        stripePriceId?: string | null;
+        isActive?: boolean | null;
+        label: string;
+        /**
+         * Helpful description for the pricing tier
+         */
+        description?: string | null;
+        /**
+         * Amount in dollars. Set to 0 to make it free.
+         */
+        amount: number;
+        /**
+         * Number of spots one unit represents (typically 1). Eg. 1 order of this may take up 2 spots.
+         */
+        quantityUnit?: number | null;
+        quantity?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  maxQuantity: number;
+  customMax?: boolean | null;
+  minQuantity?: number | null;
+  customMin?: boolean | null;
+  bookings?: {
+    docs?: (string | Booking)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	title?: string | null;
-	/**
-	 * Alt text for the media
-	 */
-	alt?: string | null;
-	updatedAt: string;
-	createdAt: string;
-	deletedAt?: string | null;
-	url?: string | null;
-	thumbnailURL?: string | null;
-	filename?: string | null;
-	mimeType?: string | null;
-	filesize?: number | null;
-	width?: number | null;
-	height?: number | null;
-	focalX?: number | null;
-	focalY?: number | null;
-	sizes?: {
-		thumbnail?: {
-			url?: string | null;
-			width?: number | null;
-			height?: number | null;
-			mimeType?: string | null;
-			filesize?: number | null;
-			filename?: string | null;
-		};
-		mobile?: {
-			url?: string | null;
-			width?: number | null;
-			height?: number | null;
-			mimeType?: string | null;
-			filesize?: number | null;
-			filename?: string | null;
-		};
-		desktop?: {
-			url?: string | null;
-			width?: number | null;
-			height?: number | null;
-			mimeType?: string | null;
-			filesize?: number | null;
-			filename?: string | null;
-		};
-	};
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title?: string | null;
+  /**
+   * Alt text for the media
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    mobile?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    desktop?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * Emails can be sent to a campaign, specific customers, or both.
@@ -481,666 +471,665 @@ export interface Media {
  * via the `definition` "emails".
  */
 export interface Email {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	subject: string;
-	/**
-	 * The preview text is the snippet of text that is pulled into the inbox preview of an email client, usually right after the subject line.
-	 */
-	preview?: string | null;
-	/**
-	 * Any variables will be populated based on where the email is send from. For example, if the email is sent for a booking, the customer name and booking name will be populated.
-	 */
-	emailContent?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	emailType?:
-		| ("booking-confirmation" | "booking-cancelled" | "booking-updated")
-		| null;
-	updatedAt: string;
-	createdAt: string;
-	deletedAt?: string | null;
-	_status?: ("draft" | "published") | null;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  subject: string;
+  /**
+   * The preview text is the snippet of text that is pulled into the inbox preview of an email client, usually right after the subject line.
+   */
+  preview?: string | null;
+  /**
+   * Any variables will be populated based on where the email is send from. For example, if the email is sent for a booking, the customer name and booking name will be populated.
+   */
+  emailContent?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  emailType?: ('booking-confirmation' | 'booking-cancelled' | 'booking-updated') | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaigns".
  */
 export interface Campaign {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	campaignName: string;
-	description?: string | null;
-	/**
-	 * These are the customers who will receive the campaign emails
-	 */
-	subscribers?: (string | Customer)[] | null;
-	updatedAt: string;
-	createdAt: string;
-	deletedAt?: string | null;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  campaignName: string;
+  description?: string | null;
+  /**
+   * These are the customers who will receive the campaign emails
+   */
+  subscribers?: (string | Customer)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "connectedAccounts".
  */
 export interface ConnectedAccount {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	/**
-	 * When enabled, this will be the default connected account for the tenant
-	 */
-	default?: boolean | null;
-	name?: string | null;
-	stripeAccountId?: string | null;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * When enabled, this will be the default connected account for the tenant
+   */
+  default?: boolean | null;
+  name?: string | null;
+  stripeAccountId?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payments".
  */
 export interface Payment {
-	id: string;
-	tenant?: (string | null) | Tenant;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  tenant?: (string | null) | Tenant;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "paymentsSettings".
  */
 export interface PaymentsSetting {
-	id: string;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "logs".
  */
 export interface Log {
-	id: string;
-	user: string | User;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  user: string | User;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
-	id: string;
-	/**
-	 * Input data provided to the job
-	 */
-	input?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	taskStatus?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	completedAt?: string | null;
-	totalTried?: number | null;
-	/**
-	 * If hasError is true this job will not be retried
-	 */
-	hasError?: boolean | null;
-	/**
-	 * If hasError is true, this is the error that caused it
-	 */
-	error?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	/**
-	 * Task execution log
-	 */
-	log?:
-		| {
-				executedAt: string;
-				completedAt: string;
-				taskSlug: "inline" | "schedulePublish";
-				taskID: string;
-				input?:
-					| {
-							[k: string]: unknown;
-					  }
-					| unknown[]
-					| string
-					| number
-					| boolean
-					| null;
-				output?:
-					| {
-							[k: string]: unknown;
-					  }
-					| unknown[]
-					| string
-					| number
-					| boolean
-					| null;
-				state: "failed" | "succeeded";
-				error?:
-					| {
-							[k: string]: unknown;
-					  }
-					| unknown[]
-					| string
-					| number
-					| boolean
-					| null;
-				id?: string | null;
-		  }[]
-		| null;
-	taskSlug?: ("inline" | "schedulePublish") | null;
-	queue?: string | null;
-	waitUntil?: string | null;
-	processing?: boolean | null;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'schedulePublish';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'schedulePublish') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-	id: string;
-	document?:
-		| ({
-				relationTo: "pages";
-				value: string | Page;
-		  } | null)
-		| ({
-				relationTo: "users";
-				value: string | User;
-		  } | null)
-		| ({
-				relationTo: "tenants";
-				value: string | Tenant;
-		  } | null)
-		| ({
-				relationTo: "customers";
-				value: string | Customer;
-		  } | null)
-		| ({
-				relationTo: "connectedAccounts";
-				value: string | ConnectedAccount;
-		  } | null)
-		| ({
-				relationTo: "payments";
-				value: string | Payment;
-		  } | null)
-		| ({
-				relationTo: "paymentsSettings";
-				value: string | PaymentsSetting;
-		  } | null)
-		| ({
-				relationTo: "logs";
-				value: string | Log;
-		  } | null)
-		| ({
-				relationTo: "events";
-				value: string | Event;
-		  } | null)
-		| ({
-				relationTo: "bookings";
-				value: string | Booking;
-		  } | null)
-		| ({
-				relationTo: "media";
-				value: string | Media;
-		  } | null)
-		| ({
-				relationTo: "campaigns";
-				value: string | Campaign;
-		  } | null)
-		| ({
-				relationTo: "emails";
-				value: string | Email;
-		  } | null)
-		| ({
-				relationTo: "payload-jobs";
-				value: string | PayloadJob;
-		  } | null);
-	globalSlug?: string | null;
-	user: {
-		relationTo: "users";
-		value: string | User;
-	};
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  document?:
+    | ({
+        relationTo: 'pages';
+        value: string | Page;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: string | User;
+      } | null)
+    | ({
+        relationTo: 'tenants';
+        value: string | Tenant;
+      } | null)
+    | ({
+        relationTo: 'customers';
+        value: string | Customer;
+      } | null)
+    | ({
+        relationTo: 'connectedAccounts';
+        value: string | ConnectedAccount;
+      } | null)
+    | ({
+        relationTo: 'payments';
+        value: string | Payment;
+      } | null)
+    | ({
+        relationTo: 'paymentsSettings';
+        value: string | PaymentsSetting;
+      } | null)
+    | ({
+        relationTo: 'logs';
+        value: string | Log;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: string | Event;
+      } | null)
+    | ({
+        relationTo: 'bookings';
+        value: string | Booking;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'campaigns';
+        value: string | Campaign;
+      } | null)
+    | ({
+        relationTo: 'emails';
+        value: string | Email;
+      } | null)
+    | ({
+        relationTo: 'payload-jobs';
+        value: string | PayloadJob;
+      } | null);
+  globalSlug?: string | null;
+  user: {
+    relationTo: 'users';
+    value: string | User;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-	id: string;
-	user: {
-		relationTo: "users";
-		value: string | User;
-	};
-	key?: string | null;
-	value?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  user: {
+    relationTo: 'users';
+    value: string | User;
+  };
+  key?: string | null;
+  value?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-	id: string;
-	name?: string | null;
-	batch?: number | null;
-	updatedAt: string;
-	createdAt: string;
+  id: string;
+  name?: string | null;
+  batch?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
-	tenant?: T;
-	title?: T;
-	slug?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  tenant?: T;
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-	roles?: T;
-	username?: T;
-	tenants?:
-		| T
-		| {
-				tenant?: T;
-				roles?: T;
-				id?: T;
-		  };
-	updatedAt?: T;
-	createdAt?: T;
-	email?: T;
-	resetPasswordToken?: T;
-	resetPasswordExpiration?: T;
-	salt?: T;
-	hash?: T;
-	loginAttempts?: T;
-	lockUntil?: T;
-	sessions?:
-		| T
-		| {
-				id?: T;
-				createdAt?: T;
-				expiresAt?: T;
-		  };
+  roles?: T;
+  username?: T;
+  tenants?:
+    | T
+    | {
+        tenant?: T;
+        roles?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
-	name?: T;
-	domain?: T;
-	slug?: T;
-	allowPublicRead?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  name?: T;
+  domain?: T;
+  slug?: T;
+  allowPublicRead?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "customers_select".
  */
 export interface CustomersSelect<T extends boolean = true> {
-	tenant?: T;
-	firstName?: T;
-	lastName?: T;
-	fullName?: T;
-	email?: T;
-	phone?: T;
-	bookings?: T;
-	campaign?: T;
-	stripeCustomerId?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	deletedAt?: T;
+  tenant?: T;
+  firstName?: T;
+  lastName?: T;
+  fullName?: T;
+  email?: T;
+  phone?: T;
+  bookings?: T;
+  campaign?: T;
+  stripeCustomerId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "connectedAccounts_select".
  */
 export interface ConnectedAccountsSelect<T extends boolean = true> {
-	tenant?: T;
-	default?: T;
-	name?: T;
-	stripeAccountId?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  tenant?: T;
+  default?: T;
+  name?: T;
+  stripeAccountId?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payments_select".
  */
 export interface PaymentsSelect<T extends boolean = true> {
-	tenant?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  tenant?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "paymentsSettings_select".
  */
 export interface PaymentsSettingsSelect<T extends boolean = true> {
-	updatedAt?: T;
-	createdAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "logs_select".
  */
 export interface LogsSelect<T extends boolean = true> {
-	user?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
-	tenant?: T;
-	isActive?: T;
-	stripeProductId?: T;
-	title?: T;
-	description?: T;
-	thumbnail?: T;
-	gallery?: T;
-	schedules?:
-		| T
-		| {
-				schedule?:
-					| T
-					| {
-							isActive?: T;
-							scheduleName?: T;
-							dtstart?: T;
-							dtend?: T;
-							isRecurring?: T;
-							interval?: T;
-							frequency?: T;
-							SU?: T;
-							MO?: T;
-							TU?: T;
-							WE?: T;
-							TH?: T;
-							FR?: T;
-							SA?: T;
-							monthDays?: T;
-							months?: T;
-							until?: T;
-							count?: T;
-							rrulestring?: T;
-							id?: T;
-					  };
-		  };
-	prices?:
-		| T
-		| {
-				stripePriceId?: T;
-				isActive?: T;
-				label?: T;
-				description?: T;
-				amount?: T;
-				quantityUnit?: T;
-				quantity?: T;
-				id?: T;
-		  };
-	maxQuantity?: T;
-	customMax?: T;
-	minQuantity?: T;
-	customMin?: T;
-	bookings?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	deletedAt?: T;
-	_status?: T;
+  tenant?: T;
+  isActive?: T;
+  stripeProductId?: T;
+  title?: T;
+  description?: T;
+  thumbnail?: T;
+  gallery?: T;
+  schedules?:
+    | T
+    | {
+        schedule?:
+          | T
+          | {
+              isActive?: T;
+              scheduleName?: T;
+              dtstart?: T;
+              dtend?: T;
+              isRecurring?: T;
+              interval?: T;
+              frequency?: T;
+              SU?: T;
+              MO?: T;
+              TU?: T;
+              WE?: T;
+              TH?: T;
+              FR?: T;
+              SA?: T;
+              monthDays?: T;
+              months?: T;
+              until?: T;
+              count?: T;
+              rrulestring?: T;
+              id?: T;
+            };
+      };
+  prices?:
+    | T
+    | {
+        stripePriceId?: T;
+        isActive?: T;
+        label?: T;
+        description?: T;
+        amount?: T;
+        quantityUnit?: T;
+        quantity?: T;
+        id?: T;
+      };
+  maxQuantity?: T;
+  customMax?: T;
+  minQuantity?: T;
+  customMin?: T;
+  bookings?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings_select".
  */
 export interface BookingsSelect<T extends boolean = true> {
-	tenant?: T;
-	eventRelation?: T;
-	selectedScheduleInstanceData?: T;
-	dtstart?: T;
-	dtend?: T;
-	customerRelation?: T;
-	overrideMaxQuantity?: T;
-	eventSnapshot?: T;
-	customerSnapshot?: T;
-	pricingSnapshot?: T;
-	rrulestring?: T;
-	stripeCheckoutSessionId?: T;
-	paymentStatus?: T;
-	paymentMethod?: T;
-	bookingConfirmationEmail?: T;
-	bookingCancelledEmail?: T;
-	bookingUpdatedEmail?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	deletedAt?: T;
+  tenant?: T;
+  eventRelation?: T;
+  selectedScheduleInstanceData?: T;
+  dtstart?: T;
+  dtend?: T;
+  customerRelation?: T;
+  overrideMaxQuantity?: T;
+  eventSnapshot?: T;
+  customerSnapshot?: T;
+  pricingSnapshot?: T;
+  rrulestring?: T;
+  stripeCheckoutSessionId?: T;
+  paymentStatus?: T;
+  paymentMethod?: T;
+  bookingConfirmationEmail?: T;
+  bookingCancelledEmail?: T;
+  bookingUpdatedEmail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-	tenant?: T;
-	title?: T;
-	alt?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	deletedAt?: T;
-	url?: T;
-	thumbnailURL?: T;
-	filename?: T;
-	mimeType?: T;
-	filesize?: T;
-	width?: T;
-	height?: T;
-	focalX?: T;
-	focalY?: T;
-	sizes?:
-		| T
-		| {
-				thumbnail?:
-					| T
-					| {
-							url?: T;
-							width?: T;
-							height?: T;
-							mimeType?: T;
-							filesize?: T;
-							filename?: T;
-					  };
-				mobile?:
-					| T
-					| {
-							url?: T;
-							width?: T;
-							height?: T;
-							mimeType?: T;
-							filesize?: T;
-							filename?: T;
-					  };
-				desktop?:
-					| T
-					| {
-							url?: T;
-							width?: T;
-							height?: T;
-							mimeType?: T;
-							filesize?: T;
-							filename?: T;
-					  };
-		  };
+  tenant?: T;
+  title?: T;
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        mobile?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        desktop?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaigns_select".
  */
 export interface CampaignsSelect<T extends boolean = true> {
-	tenant?: T;
-	campaignName?: T;
-	description?: T;
-	subscribers?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	deletedAt?: T;
+  tenant?: T;
+  campaignName?: T;
+  description?: T;
+  subscribers?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "emails_select".
  */
 export interface EmailsSelect<T extends boolean = true> {
-	tenant?: T;
-	subject?: T;
-	preview?: T;
-	emailContent?: T;
-	emailType?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	deletedAt?: T;
-	_status?: T;
+  tenant?: T;
+  subject?: T;
+  preview?: T;
+  emailContent?: T;
+  emailType?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs_select".
  */
 export interface PayloadJobsSelect<T extends boolean = true> {
-	input?: T;
-	taskStatus?: T;
-	completedAt?: T;
-	totalTried?: T;
-	hasError?: T;
-	error?: T;
-	log?:
-		| T
-		| {
-				executedAt?: T;
-				completedAt?: T;
-				taskSlug?: T;
-				taskID?: T;
-				input?: T;
-				output?: T;
-				state?: T;
-				error?: T;
-				id?: T;
-		  };
-	taskSlug?: T;
-	queue?: T;
-	waitUntil?: T;
-	processing?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-	document?: T;
-	globalSlug?: T;
-	user?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  document?: T;
+  globalSlug?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-	user?: T;
-	key?: T;
-	value?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  user?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-	name?: T;
-	batch?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  name?: T;
+  batch?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskSchedulePublish".
  */
 export interface TaskSchedulePublish {
-	input: {
-		type?: ("publish" | "unpublish") | null;
-		locale?: string | null;
-		doc?:
-			| ({
-					relationTo: "events";
-					value: string | Event;
-			  } | null)
-			| ({
-					relationTo: "emails";
-					value: string | Email;
-			  } | null);
-		global?: string | null;
-		user?: (string | null) | User;
-	};
-	output?: unknown;
+  input: {
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
+    doc?:
+      | ({
+          relationTo: 'events';
+          value: string | Event;
+        } | null)
+      | ({
+          relationTo: 'emails';
+          value: string | Email;
+        } | null);
+    global?: string | null;
+    user?: (string | null) | User;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-	[k: string]: unknown;
+  [k: string]: unknown;
 }
 
-declare module "payload" {
-	export interface GeneratedTypes extends Config {}
+
+declare module 'payload' {
+  export interface GeneratedTypes extends Config {}
 }
