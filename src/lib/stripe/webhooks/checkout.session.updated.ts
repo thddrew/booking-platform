@@ -44,6 +44,7 @@ export const checkoutSessionUpdatedWebhook: StripeWebhookHandler<
       },
       context: {
         triggerAfterChange: false,
+        isStripePaid: true,
       },
     });
   } catch (err) {

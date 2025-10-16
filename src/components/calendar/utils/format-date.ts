@@ -21,5 +21,5 @@ export const formatCompactDate = (date: Date) => {
 };
 
 export const formatCompactDateRange = (start: Date, end: Date) => {
-  return formatter.formatRange(start, end);
+  return compactFormatter.formatRange(start, end);
 };

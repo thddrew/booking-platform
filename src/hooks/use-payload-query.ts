@@ -1,6 +1,8 @@
 import {
   QueryKey,
+  UseMutationOptions,
   type UseQueryOptions,
+  useMutation,
   useQuery,
 } from "@tanstack/react-query";
 import type { Where } from "payload";
@@ -61,5 +63,15 @@ export const usePayloadQuery = <Value>({
   useQuery<Value>({
     queryKey,
     queryFn,
+    ...options,
+  });
+
+export const usePayloadMutation = <TData, TVariables = void, TError = Error>(
+  mutationFn: (variables: TVariables) => Promise<TData>,
+  options?: Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">
+) =>
+  useMutation<TData, TError, TVariables>({
+    mutationKey: options?.mutationKey,
+    mutationFn,
     ...options,
   });

@@ -1,4 +1,9 @@
-import type { CollectionConfig } from "payload";
+import type {
+  CollectionConfig,
+  FieldHook,
+  FieldHookArgs,
+  RelationshipValue,
+} from "payload";
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
 import {
   CalendarEventSchema,
@@ -9,9 +14,16 @@ import { EventPricesRecordSchema } from "../Events/utils/schemas";
 import { saveSnapshots } from "./hooks/save-snapshots";
 import { setDatetimes } from "./hooks/set-datetimes";
 import { updateAccess } from "./access/update-access";
+import {
+  BOOKING_CANCELLED,
+  BOOKING_CONFIRMATION,
+  BOOKING_UPDATED,
+} from "../Emails/utils/email-types";
+import { newBookingEmail } from "./hooks/new-booking-email";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
+  trash: true,
   access: {
     create: superAdminOrTenantAdminAccess,
     delete: superAdminOrTenantAdminAccess,
@@ -23,6 +35,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
   },
   hooks: {
     beforeValidate: [saveSnapshots, setDatetimes],
+    afterChange: [newBookingEmail],
   },
   versions: true,
   fields: [
@@ -219,11 +232,11 @@ export const Bookings: CollectionConfig<"bookings"> = {
           },
         },
         {
+          // TODO: show badge field component
           name: "paymentStatus",
           type: "text",
           admin: {
             readOnly: true,
-            hidden: true,
             components: {
               Cell: "/src/collections/Bookings/components/payment-status-cell",
             },
@@ -267,6 +280,98 @@ export const Bookings: CollectionConfig<"bookings"> = {
               Field:
                 "/src/collections/Bookings/components/booking-checkout-button",
             },
+          },
+        },
+      ],
+    },
+    {
+      type: "group",
+      admin: {
+        position: "sidebar",
+      },
+      fields: [
+        {
+          name: "bookingConfirmationEmail",
+          type: "relationship",
+          relationTo: "emails",
+          admin: {
+            components: {
+              Description: {
+                path: "/src/collections/Bookings/components/email-description",
+                clientProps: {
+                  errorMessage:
+                    "No email is selected. The user will not receive a confirmation email.",
+                },
+              },
+            },
+          },
+          defaultValue: async ({ req }) => {
+            const emails = await req.payload.find({
+              collection: "emails",
+              where: {
+                emailType: {
+                  equals: BOOKING_CONFIRMATION,
+                },
+              },
+            });
+
+            return emails.docs[0]?.id;
+          },
+        },
+        {
+          name: "bookingCancelledEmail",
+          type: "relationship",
+          relationTo: "emails",
+          admin: {
+            components: {
+              Description: {
+                path: "/src/collections/Bookings/components/email-description",
+                clientProps: {
+                  errorMessage:
+                    "No email is selected. The user will not receive a cancellation email.",
+                },
+              },
+            },
+          },
+          defaultValue: async ({ req }) => {
+            const emails = await req.payload.find({
+              collection: "emails",
+              where: {
+                emailType: {
+                  equals: BOOKING_CANCELLED,
+                },
+              },
+            });
+
+            return emails.docs[0]?.id;
+          },
+        },
+        {
+          name: "bookingUpdatedEmail",
+          type: "relationship",
+          relationTo: "emails",
+          admin: {
+            components: {
+              Description: {
+                path: "/src/collections/Bookings/components/email-description",
+                clientProps: {
+                  errorMessage:
+                    "No email is selected. The user will not receive an updated email.",
+                },
+              },
+            },
+          },
+          defaultValue: async ({ req }) => {
+            const emails = await req.payload.find({
+              collection: "emails",
+              where: {
+                emailType: {
+                  equals: BOOKING_UPDATED,
+                },
+              },
+            });
+
+            return emails.docs[0]?.id;
           },
         },
       ],

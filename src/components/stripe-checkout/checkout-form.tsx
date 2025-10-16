@@ -20,7 +20,7 @@ import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Alert, AlertTitle, AlertDescription } from "../ui/alert";
-import { useCheckoutAccount } from "./checkout-provider";
+import { useCheckoutDetails } from "./checkout-provider";
 import CheckoutFormSkeleton from "./checkout-form-skeleton";
 import Link from "next/link";
 import { ConfirmDialog } from "../confirm-dialog";
@@ -38,7 +38,7 @@ export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {
     stCusEmail: stripeCustomerEmail,
     bookingId,
     cancelUrl,
-  } = useCheckoutAccount();
+  } = useCheckoutDetails();
   const checkoutState = useCheckout();
 
   const [confirming, setConfirming] = useState<boolean>(false);

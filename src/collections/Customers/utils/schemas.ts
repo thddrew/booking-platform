@@ -23,6 +23,13 @@ const schema = {
   updatedAt: z.string(),
   createdAt: z.string(),
   deletedAt: z.string().nullish(),
+  campaign: z
+    .object({
+      docs: z.array(z.string()),
+      hasNextPage: z.boolean(),
+      totalDocs: z.number(),
+    })
+    .optional(),
 } satisfies {
   [key in keyof Customer]: z.ZodType<Customer[key]>;
 };

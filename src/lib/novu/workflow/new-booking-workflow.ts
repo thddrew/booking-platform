@@ -1,14 +1,11 @@
 import { workflow } from "@novu/framework";
 import { workflowPayloadSchema } from "./schemas";
 
-export const confirmBookingWorkflowId = "confirm-booking";
+export const newBookingWorkflowId = "new-booking";
 
-/**
- * This likely only needs to be called once when the app initializes or when the workflow is updated.
- */
-export const createConfirmBookingWorkflow = () =>
+export const getNewBookingWorkflow = () =>
   workflow(
-    confirmBookingWorkflowId,
+    newBookingWorkflowId,
     async ({ step, payload }) => {
       await step.email("send-email", async () => {
         return {

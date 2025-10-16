@@ -9,6 +9,7 @@ import React from "react";
 
 import { importMap } from "./admin/importMap.js";
 import "./custom.scss";
+import DeveloperToolsServer from "../../components/developer-tools/developer-tools.server";
 
 type Args = {
   children: React.ReactNode;
@@ -30,6 +31,7 @@ const Layout = ({ children }: Args) => (
     serverFunction={serverFunction}
   >
     {children}
+    <DeveloperToolsServer />
   </RootLayout>
 );
 

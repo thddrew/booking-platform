@@ -303,8 +303,12 @@ export interface Booking {
   stripeCheckoutSessionId?: string | null;
   paymentStatus?: string | null;
   paymentMethod?: ('payNow' | 'payLater') | null;
+  bookingConfirmationEmail?: (string | null) | Email;
+  bookingCancelledEmail?: (string | null) | Email;
+  bookingUpdatedEmail?: (string | null) | Email;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -461,6 +465,38 @@ export interface Media {
   };
 }
 /**
+ * Emails can be sent to a campaign, specific customers, or both.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emails".
+ */
+export interface Email {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  subject: string;
+  /**
+   * The preview text is the snippet of text that is pulled into the inbox preview of an email client, usually right after the subject line.
+   */
+  preview?: string | null;
+  /**
+   * Any variables will be populated based on where the email is send from. For example, if the email is sent for a booking, the customer name and booking name will be populated.
+   */
+  emailContent?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  emailType?: ('booking-confirmation' | 'booking-cancelled' | 'booking-updated') | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaigns".
  */
@@ -521,37 +557,6 @@ export interface Log {
   user: string | User;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * Emails can be sent to a campaign, specific customers, or both.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "emails".
- */
-export interface Email {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  subject: string;
-  /**
-   * The preview text is the snippet of text that is pulled into the inbox preview of an email client, usually right after the subject line.
-   */
-  preview?: string | null;
-  /**
-   * Any variables will be populated based on where the email is send from. For example, if the email is sent for a booking, the customer name and booking name will be populated.
-   */
-  emailContent?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -941,8 +946,12 @@ export interface BookingsSelect<T extends boolean = true> {
   stripeCheckoutSessionId?: T;
   paymentStatus?: T;
   paymentMethod?: T;
+  bookingConfirmationEmail?: T;
+  bookingCancelledEmail?: T;
+  bookingUpdatedEmail?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1021,6 +1030,7 @@ export interface EmailsSelect<T extends boolean = true> {
   subject?: T;
   preview?: T;
   emailContent?: T;
+  emailType?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

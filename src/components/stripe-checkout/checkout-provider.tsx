@@ -42,29 +42,29 @@ const CheckoutContext = createContext<CheckoutContextType>({
   tenantId: "",
 });
 
-export const useCheckoutAccount = () => {
+/**
+ * Provides the checkout details from the query states to be used during the checkout process.
+ * Not to be confused with Stripe's useCheckout which provides references to the Stripe Checkout object.
+ */
+export const useCheckoutDetails = () => {
   const context = useContext(CheckoutContext);
   if (!context) {
     throw new Error(
-      "useCheckoutAccount must be used within a CheckoutProvider"
+      "useCheckoutDetails must be used within a CheckoutProvider"
     );
   }
   return context;
 };
 
-export const useCheckoutQueryStates = () => {
-  const args = useQueryStates({
-    tenantId: parseAsString,
-    bookingId: parseAsString,
-    stAccId: parseAsString,
-    stCusId: parseAsString,
-    stCusEmail: parseAsString,
-    returnUrl: parseAsString,
-    cancelUrl: parseAsString,
-  } satisfies Record<Exclude<keyof CheckoutContextType, "items">, Parser<any>>);
-
-  return args;
-};
+const checkoutQueryStatesSchema = {
+  tenantId: parseAsString,
+  bookingId: parseAsString,
+  stAccId: parseAsString,
+  stCusId: parseAsString,
+  stCusEmail: parseAsString,
+  returnUrl: parseAsString,
+  cancelUrl: parseAsString,
+} satisfies Record<Exclude<keyof CheckoutContextType, "items">, Parser<any>>;
 
 export const CheckoutProvider = ({
   children,
@@ -83,7 +83,7 @@ export const CheckoutProvider = ({
       cancelUrl,
     },
     setStates,
-  ] = useCheckoutQueryStates();
+  ] = useQueryStates(checkoutQueryStatesSchema);
 
   const params = useSearchParams();
   const itemsSchema = checkoutContextSchema.pick({ items: true });

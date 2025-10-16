@@ -41,6 +41,7 @@ import { default as default_5a4992335ad0e66758f54d9656c672b9 } from '../../../..
 import { default as default_049ad5e0576217a99c5961cf9d7382d1 } from '../../../../src/collections/Bookings/components/payment-status-cell'
 import { default as default_8556e17e99ca8aa5da5599518d1b88af } from '../../../../src/collections/Bookings/components/booking-payment-details'
 import { default as default_e5f4f349574e17574c3408c104498af8 } from '../../../../src/collections/Bookings/components/booking-checkout-button'
+import { default as default_66bd98b1df7532c0c59400e9da781e1a } from '../../../../src/collections/Bookings/components/email-description'
 import { default as default_f541f473daeb0e67b33f5ca920ba12c9 } from '../../../../src/collections/Emails/components/editor'
 import { default as default_6a45e4f5620d40cdf60c9fd3da134521 } from '../../../../src/components/stripe-notification/banner.server'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
@@ -95,6 +96,7 @@ export const importMap = {
   "/src/collections/Bookings/components/payment-status-cell#default": default_049ad5e0576217a99c5961cf9d7382d1,
   "/src/collections/Bookings/components/booking-payment-details#default": default_8556e17e99ca8aa5da5599518d1b88af,
   "/src/collections/Bookings/components/booking-checkout-button#default": default_e5f4f349574e17574c3408c104498af8,
+  "/src/collections/Bookings/components/email-description#default": default_66bd98b1df7532c0c59400e9da781e1a,
   "/src/collections/Emails/components/editor#default": default_f541f473daeb0e67b33f5ca920ba12c9,
   "/src/components/stripe-notification/banner.server#default": default_6a45e4f5620d40cdf60c9fd3da134521,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,

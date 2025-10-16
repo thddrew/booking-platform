@@ -11,7 +11,7 @@ import { JSONFieldClientComponent } from "payload";
 import { ErrorBoundary } from "react-error-boundary";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
-import { getVariables } from "./variables";
+import { getVariables } from "../utils/variables";
 
 type EditorType = Parameters<NonNullable<EditorProps["onCreate"]>>[0];
 

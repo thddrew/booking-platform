@@ -1,5 +1,6 @@
 import { extractID } from "@/utilities/extractID";
 import { CollectionConfig } from "payload";
+import { emailTypes } from "./utils/email-types";
 
 export const Emails: CollectionConfig<"emails"> = {
   slug: "emails",
@@ -74,6 +75,14 @@ export const Emails: CollectionConfig<"emails"> = {
           fields: [],
         },
       ],
+    },
+    {
+      type: "select",
+      admin: {
+        position: "sidebar",
+      },
+      name: "emailType",
+      options: emailTypes,
     },
   ],
 };

@@ -1,0 +1,108 @@
+import { Booking, Customer, Event } from "@/payload-types";
+import { Variable } from "@thddrew/maily-core/extensions";
+import { z } from "zod/v3";
+
+const customerVariablesSchema = z.object({
+  ["customer-name"]: z.string().nullish(),
+});
+
+const bookingVariablesSchema = z.object({
+  ["event-name"]: z.string().nullish(),
+  ["booking-id"]: z.string().nullish(),
+  ["booking-start-date"]: z.string().nullish(),
+  ["booking-end-date"]: z.string().nullish(),
+});
+
+const mapVariableNameToCustomerField = {
+  "customer-name": "firstName",
+} satisfies Record<
+  keyof typeof customerVariablesSchema.shape,
+  keyof Customer | ((customer: Customer) => string)
+>;
+
+const mapVariableNameToBookingField = {
+  "event-name": (booking) => (booking.eventSnapshot as unknown as Event)?.title,
+  "booking-id": "id",
+  "booking-start-date": "dtstart",
+  "booking-end-date": "dtend",
+} satisfies Record<
+  keyof typeof bookingVariablesSchema.shape,
+  keyof Booking | ((booking: Booking) => string)
+>;
+
+export const contextSchema = z.object({
+  bookingId: z.string().nullish(),
+  customerId: z.string().nullish(),
+});
+
+export const getVariables = (): Variable[] => {
+  const keys = Object.keys([
+    ...Object.keys(customerVariablesSchema.shape),
+    ...Object.keys(bookingVariablesSchema.shape),
+  ]);
+
+  return keys.map((key) => ({
+    name: key,
+    label: key
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase()),
+  }));
+};
+
+const isSchemaType = <T extends z.ZodRawShape>(
+  schema: T,
+  schemaKey: string
+): schemaKey is keyof T & string => {
+  return schemaKey in schema.shape;
+};
+
+/**
+ * Returns the data for the variables.
+ *
+ * Typically, this function is called before rendering the email html to hydrate the variables.
+ * eg.
+ * > const maily = new Maily(...)
+ * > getVariablesData({ variables, context })
+ * > maily.setVariables(...)
+ * > html = await maily.render()
+ * > trigger workflow
+ */
+export const getVariablesData = async ({
+  variables,
+  context,
+}: {
+  variables: Variable[];
+  context: {
+    booking?: Booking | null;
+    customer?: Customer | null;
+  };
+}) => {
+  const variablesData = variables.map((variable) => {
+    const schemaKey = variable.name;
+
+    // Customer variables
+    if (isSchemaType(customerVariablesSchema.shape, schemaKey)) {
+      if (!context.customer) return [schemaKey, null] as const;
+
+      const mapping = mapVariableNameToCustomerField[schemaKey];
+      return [schemaKey, context.customer[mapping] ?? null] as const;
+    }
+
+    // Booking variables
+    if (isSchemaType(bookingVariablesSchema.shape, schemaKey)) {
+      if (!context.booking) return [schemaKey, null] as const;
+
+      const mapping = mapVariableNameToBookingField[schemaKey];
+      return [
+        schemaKey,
+        (typeof mapping === "function"
+          ? mapping(context.booking)
+          : context.booking[mapping]) ?? null,
+      ] as const;
+    }
+
+    return [schemaKey, null] as const;
+  });
+
+  return variablesData;
+};
