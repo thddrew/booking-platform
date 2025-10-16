@@ -8,8 +8,8 @@ export type UTCDateString = string;
  * Types the `data` prop of a custom field component
  */
 export type TypedFieldComponent<
-	TComponent extends Record<string, any> & { data?: any },
-	TData extends Config["collections"][CollectionSlug],
+  TComponent extends Record<string, any> & { data?: any },
+  TData extends Config["collections"][CollectionSlug],
 > = React.ComponentType<TComponent & { data: TData }>;
 
 /**
@@ -28,5 +28,5 @@ export type TypedFieldComponent<
  *   // Invalid: { foo: "hello", bar: 42 }
  */
 export type XOR<T, U> =
-	| (T & { [K in keyof U]?: never })
-	| (U & { [K in keyof T]?: never });
+  | (T & { [K in keyof U]?: never })
+  | (U & { [K in keyof T]?: never });

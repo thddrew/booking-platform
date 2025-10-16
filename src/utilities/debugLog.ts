@@ -1,5 +1,5 @@
-export const debugLog = (...args: any[]) => {
-	if (process.env.PAYLOAD_DEBUG === "true") {
-		console.log(...args);
-	}
+export const debugLog = (...args: unknown[]) => {
+  if (process.env.PAYLOAD_DEBUG === "true") {
+    console.log(...args);
+  }
 };
