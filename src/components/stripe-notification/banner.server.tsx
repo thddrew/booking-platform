@@ -9,21 +9,21 @@ import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultCo
 import { StripeNotificationBannerClient } from "./banner.client";
 
 const StripeNotificationBannerServer = async (args: ServerProps) => {
-  const account = await getTenantDefaultConnectedAccount();
+	const account = await getTenantDefaultConnectedAccount();
 
-  if (!account || !args.user) return null;
+	if (!account || !args.user) return null;
 
-  const tenantId = extractID(account);
+	const tenantId = extractID(account);
 
-  if (account?.stripeAccountId && tenantId) {
-    return (
-      <StripeNotificationBannerClient
-        account={account.stripeAccountId}
-        tenant={tenantId}
-        user={args.user}
-      />
-    );
-  }
+	if (account?.stripeAccountId && tenantId) {
+		return (
+			<StripeNotificationBannerClient
+				account={account.stripeAccountId}
+				tenant={tenantId}
+				user={args.user}
+			/>
+		);
+	}
 };
 
 export default StripeNotificationBannerServer;

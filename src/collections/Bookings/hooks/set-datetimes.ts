@@ -7,24 +7,24 @@ import { getDateString } from "../../../components/calendar/utils/is-date";
  * Sets the datetimes of the booking from the selected schedule instance.
  */
 export const setDatetimes: CollectionBeforeValidateHook<Booking> = async ({
-  data,
-  context,
+	data,
+	context,
 }) => {
-  if (!context.triggerAfterChange) return data;
+	if (!context.triggerAfterChange) return data;
 
-  if (!data) return data;
+	if (!data) return data;
 
-  // This hook receives the dates as strings
-  try {
-    const selectedTime = CalendarEventSchema.parse(
-      data.selectedScheduleInstanceData
-    );
+	// This hook receives the dates as strings
+	try {
+		const selectedTime = CalendarEventSchema.parse(
+			data.selectedScheduleInstanceData,
+		);
 
-    data.dtstart = getDateString(selectedTime.dtstart);
-    data.dtend = getDateString(selectedTime.dtend);
-  } catch (err) {
-    console.error(err);
-  }
+		data.dtstart = getDateString(selectedTime.dtstart);
+		data.dtend = getDateString(selectedTime.dtend);
+	} catch (err) {
+		console.error(err);
+	}
 
-  return data;
+	return data;
 };

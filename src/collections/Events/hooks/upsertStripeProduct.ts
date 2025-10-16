@@ -8,8 +8,8 @@ import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe/client";
 import type { Event } from "@/payload-types";
 import type {
-  StripePriceMetadata,
-  StripeProductMetadata,
+	StripePriceMetadata,
+	StripeProductMetadata,
 } from "@/types/stripe-metadata";
 import { debugLog } from "@/utilities/debugLog";
 import { extractID } from "@/utilities/extractID";
@@ -18,259 +18,259 @@ import { convertDollarsToCents } from "../utils/convertDollarsToCents";
 
 // TODO: consider sending this to a Job
 export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
-  doc,
-  context,
-  req,
-  previousDoc,
+	doc,
+	context,
+	req,
+	previousDoc,
 }) => {
-  try {
-    if (context?.triggerAfterChange === false) {
-      debugLog(
-        "Skipping upsertStripeProduct because triggerAfterChange is false"
-      );
-      return;
-    }
+	try {
+		if (context?.triggerAfterChange === false) {
+			debugLog(
+				"Skipping upsertStripeProduct because triggerAfterChange is false",
+			);
+			return;
+		}
 
-    if (doc._status === "draft") {
-      debugLog("Skipping upsertStripeProduct because doc is a draft");
-      return;
-    }
+		if (doc._status === "draft") {
+			debugLog("Skipping upsertStripeProduct because doc is a draft");
+			return;
+		}
 
-    const defaultConnectedAccount = await getTenantDefaultConnectedAccount();
-    const stripeAccountId =
-      defaultConnectedAccount?.stripeAccountId ?? undefined;
-    const docTenantId = doc.tenant ? extractID(doc.tenant) : null;
+		const defaultConnectedAccount = await getTenantDefaultConnectedAccount();
+		const stripeAccountId =
+			defaultConnectedAccount?.stripeAccountId ?? undefined;
+		const docTenantId = doc.tenant ? extractID(doc.tenant) : null;
 
-    if (!defaultConnectedAccount) {
-      console.log(
-        "No default connected account found for user when upserting stripe product",
-        req.user?.id,
-        req.user?.email
-      );
+		if (!defaultConnectedAccount) {
+			console.log(
+				"No default connected account found for user when upserting stripe product",
+				req.user?.id,
+				req.user?.email,
+			);
 
-      return;
-    }
+			return;
+		}
 
-    // Upsert Stripe Product
-    let stripeProductId = doc.stripeProductId;
+		// Upsert Stripe Product
+		let stripeProductId = doc.stripeProductId;
 
-    if (stripeProductId) {
-      debugLog("Updating stripe product", stripeProductId);
-      // update stripe product
-      await stripe.products.update(
-        stripeProductId,
-        {
-          name: doc.title ?? defaultConnectedAccount?.name ?? "N/A",
-          active: doc.isActive ?? false,
-        },
-        {
-          stripeAccount: stripeAccountId,
-        }
-      );
-      debugLog("Stripe product updated", stripeProductId);
-    } else {
-      debugLog("Creating new stripe product");
-      // create a new stripe product
-      const product = await stripe.products.create(
-        {
-          name: doc.title ?? defaultConnectedAccount?.name ?? "N/A",
-          active: doc.isActive ?? false,
-          metadata: {
-            eventId: doc.id,
-            tenantId: docTenantId,
-          } satisfies StripeProductMetadata,
-        },
-        {
-          stripeAccount: stripeAccountId,
-        }
-      );
+		if (stripeProductId) {
+			debugLog("Updating stripe product", stripeProductId);
+			// update stripe product
+			await stripe.products.update(
+				stripeProductId,
+				{
+					name: doc.title ?? defaultConnectedAccount?.name ?? "N/A",
+					active: doc.isActive ?? false,
+				},
+				{
+					stripeAccount: stripeAccountId,
+				},
+			);
+			debugLog("Stripe product updated", stripeProductId);
+		} else {
+			debugLog("Creating new stripe product");
+			// create a new stripe product
+			const product = await stripe.products.create(
+				{
+					name: doc.title ?? defaultConnectedAccount?.name ?? "N/A",
+					active: doc.isActive ?? false,
+					metadata: {
+						eventId: doc.id,
+						tenantId: docTenantId,
+					} satisfies StripeProductMetadata,
+				},
+				{
+					stripeAccount: stripeAccountId,
+				},
+			);
 
-      debugLog("New stripe product created", product.id);
+			debugLog("New stripe product created", product.id);
 
-      stripeProductId = product.id;
+			stripeProductId = product.id;
 
-      try {
-        debugLog("Updating event with new stripe product id", stripeProductId);
+			try {
+				debugLog("Updating event with new stripe product id", stripeProductId);
 
-        // https://www.reddit.com/r/PayloadCMS/comments/1bngu3a/comment/n9ld7uw/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
-        // Local API requires req to be passed in, otherwise it hangs
-        await req.payload.update({
-          req,
-          id: doc.id,
-          collection: "events",
-          data: {
-            stripeProductId,
-          },
-          context: {
-            triggerAfterChange: false,
-          },
-        });
-        debugLog("Event updated with new stripe product id", stripeProductId);
-      } catch (err) {
-        // TODO: Log this error to Sentry
-        console.error(
-          "An error occurred when calling the Stripe API to upsert a product:",
-          err
-        );
-      }
-    }
+				// https://www.reddit.com/r/PayloadCMS/comments/1bngu3a/comment/n9ld7uw/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+				// Local API requires req to be passed in, otherwise it hangs
+				await req.payload.update({
+					req,
+					id: doc.id,
+					collection: "events",
+					data: {
+						stripeProductId,
+					},
+					context: {
+						triggerAfterChange: false,
+					},
+				});
+				debugLog("Event updated with new stripe product id", stripeProductId);
+			} catch (err) {
+				// TODO: Log this error to Sentry
+				console.error(
+					"An error occurred when calling the Stripe API to upsert a product:",
+					err,
+				);
+			}
+		}
 
-    const previousPricesMap = new Map(
-      previousDoc?.prices?.map((price) => [price.id, price])
-    );
+		const previousPricesMap = new Map(
+			previousDoc?.prices?.map((price) => [price.id, price]),
+		);
 
-    debugLog("Creating stripe price promises");
-    // Upsert Stripe Prices
-    const pricePromises =
-      doc.prices?.flatMap((price) => {
-        if (price.stripePriceId) {
-          // Check if the price has changed
-          const previousPrice = previousPricesMap.get(price.id);
+		debugLog("Creating stripe price promises");
+		// Upsert Stripe Prices
+		const pricePromises =
+			doc.prices?.flatMap((price) => {
+				if (price.stripePriceId) {
+					// Check if the price has changed
+					const previousPrice = previousPricesMap.get(price.id);
 
-          const promises: Promise<Stripe.Response<Stripe.Price>>[] = [];
-          debugLog("Comparing price amounts", previousPrice, price.amount);
-          if (previousPrice && previousPrice?.amount !== price.amount) {
-            debugLog(
-              "Price amounts are different",
-              previousPrice?.amount,
-              price.amount
-            );
-            // deactive the previous price and create a new one
-            debugLog("Deactivating previous price", price.stripePriceId);
-            promises.push(
-              stripe.prices.update(
-                price.stripePriceId,
-                {
-                  active: false,
-                },
-                {
-                  stripeAccount: stripeAccountId,
-                }
-              )
-            );
+					const promises: Promise<Stripe.Response<Stripe.Price>>[] = [];
+					debugLog("Comparing price amounts", previousPrice, price.amount);
+					if (previousPrice && previousPrice?.amount !== price.amount) {
+						debugLog(
+							"Price amounts are different",
+							previousPrice?.amount,
+							price.amount,
+						);
+						// deactive the previous price and create a new one
+						debugLog("Deactivating previous price", price.stripePriceId);
+						promises.push(
+							stripe.prices.update(
+								price.stripePriceId,
+								{
+									active: false,
+								},
+								{
+									stripeAccount: stripeAccountId,
+								},
+							),
+						);
 
-            debugLog("Creating new price", price.stripePriceId);
-            promises.push(
-              stripe.prices.create(
-                {
-                  product: stripeProductId,
-                  currency: "cad", // TODO: make this dynamic
-                  active: price.isActive ?? false,
-                  unit_amount: convertDollarsToCents(price.amount),
-                  nickname: price.label,
-                  metadata: {
-                    eventId: doc.id,
-                    priceId: price.id ?? "",
-                    tenantId: docTenantId,
-                  } satisfies StripePriceMetadata,
-                },
-                {
-                  stripeAccount: stripeAccountId,
-                }
-              )
-            );
-          } else if (
-            price.isActive !== previousPrice?.isActive ||
-            price.label !== previousPrice?.label
-          ) {
-            debugLog("Price amounts are the same", previousPrice, price.amount);
-            // update price data excluding the unit_amount
-            debugLog("Updating price metadata", price.stripePriceId);
-            promises.push(
-              stripe.prices.update(
-                price.stripePriceId,
-                {
-                  active: price.isActive ?? false,
-                  nickname: price.label,
-                },
-                {
-                  stripeAccount: stripeAccountId,
-                }
-              )
-            );
-          } else {
-            debugLog("No changes to price", price.id);
-          }
+						debugLog("Creating new price", price.stripePriceId);
+						promises.push(
+							stripe.prices.create(
+								{
+									product: stripeProductId,
+									currency: "cad", // TODO: make this dynamic
+									active: price.isActive ?? false,
+									unit_amount: convertDollarsToCents(price.amount),
+									nickname: price.label,
+									metadata: {
+										eventId: doc.id,
+										priceId: price.id ?? "",
+										tenantId: docTenantId,
+									} satisfies StripePriceMetadata,
+								},
+								{
+									stripeAccount: stripeAccountId,
+								},
+							),
+						);
+					} else if (
+						price.isActive !== previousPrice?.isActive ||
+						price.label !== previousPrice?.label
+					) {
+						debugLog("Price amounts are the same", previousPrice, price.amount);
+						// update price data excluding the unit_amount
+						debugLog("Updating price metadata", price.stripePriceId);
+						promises.push(
+							stripe.prices.update(
+								price.stripePriceId,
+								{
+									active: price.isActive ?? false,
+									nickname: price.label,
+								},
+								{
+									stripeAccount: stripeAccountId,
+								},
+							),
+						);
+					} else {
+						debugLog("No changes to price", price.id);
+					}
 
-          return promises;
-        } else {
-          // this is a new Price object
-          debugLog("Creating new price", price.id, price.amount * 100);
-          return [
-            stripe.prices.create(
-              {
-                product: stripeProductId,
-                currency: "cad", // TODO: make this dynamic
-                active: price.isActive ?? false,
-                unit_amount: convertDollarsToCents(price.amount),
-                nickname: price.label,
-                metadata: {
-                  eventId: doc.id,
-                  priceId: price.id ?? null,
-                  tenantId: docTenantId,
-                } satisfies StripePriceMetadata,
-              },
-              {
-                stripeAccount: stripeAccountId,
-              }
-            ),
-          ];
-        }
-      }) ?? [];
+					return promises;
+				} else {
+					// this is a new Price object
+					debugLog("Creating new price", price.id, price.amount * 100);
+					return [
+						stripe.prices.create(
+							{
+								product: stripeProductId,
+								currency: "cad", // TODO: make this dynamic
+								active: price.isActive ?? false,
+								unit_amount: convertDollarsToCents(price.amount),
+								nickname: price.label,
+								metadata: {
+									eventId: doc.id,
+									priceId: price.id ?? null,
+									tenantId: docTenantId,
+								} satisfies StripePriceMetadata,
+							},
+							{
+								stripeAccount: stripeAccountId,
+							},
+						),
+					];
+				}
+			}) ?? [];
 
-    debugLog("Created stripe price promises", pricePromises.length);
+		debugLog("Created stripe price promises", pricePromises.length);
 
-    debugLog("Creating removed prices promises");
+		debugLog("Creating removed prices promises");
 
-    const removedPrices = previousDoc?.prices?.filter(
-      (price) => !doc.prices?.some((p) => p.id === price.id)
-    );
+		const removedPrices = previousDoc?.prices?.filter(
+			(price) => !doc.prices?.some((p) => p.id === price.id),
+		);
 
-    removedPrices?.forEach(async (price) => {
-      if (price.stripePriceId) {
-        pricePromises.push(
-          stripe.prices.update(
-            price.stripePriceId,
-            {
-              active: false,
-            },
-            { stripeAccount: stripeAccountId }
-          )
-        );
-      }
-    });
+		removedPrices?.forEach(async (price) => {
+			if (price.stripePriceId) {
+				pricePromises.push(
+					stripe.prices.update(
+						price.stripePriceId,
+						{
+							active: false,
+						},
+						{ stripeAccount: stripeAccountId },
+					),
+				);
+			}
+		});
 
-    debugLog("Created removed prices promises", removedPrices?.length);
+		debugLog("Created removed prices promises", removedPrices?.length);
 
-    debugLog("Updating Stripe prices");
-    const updatedPrices = await Promise.all(pricePromises);
-    debugLog("Updated Stripe prices", updatedPrices.length);
+		debugLog("Updating Stripe prices");
+		const updatedPrices = await Promise.all(pricePromises);
+		debugLog("Updated Stripe prices", updatedPrices.length);
 
-    const updatedPricesMap = new Map(
-      updatedPrices.map((price) => [price.metadata.priceId, price.id])
-    );
+		const updatedPricesMap = new Map(
+			updatedPrices.map((price) => [price.metadata.priceId, price.id]),
+		);
 
-    const updatedEventPrices = doc.prices?.map((price) => {
-      return {
-        ...price,
-        stripePriceId: price.id ? updatedPricesMap.get(price.id) : undefined,
-      };
-    });
+		const updatedEventPrices = doc.prices?.map((price) => {
+			return {
+				...price,
+				stripePriceId: price.id ? updatedPricesMap.get(price.id) : undefined,
+			};
+		});
 
-    debugLog("Updating event with updated prices");
-    await req.payload.update({
-      req,
-      id: doc.id,
-      collection: "events",
-      data: {
-        prices: updatedEventPrices,
-      },
-      context: {
-        triggerAfterChange: false,
-      },
-    });
-  } catch (err) {
-    console.error("An error occurred when upserting Stripe product", err);
-    // TODO: handle retry logic
-  }
+		debugLog("Updating event with updated prices");
+		await req.payload.update({
+			req,
+			id: doc.id,
+			collection: "events",
+			data: {
+				prices: updatedEventPrices,
+			},
+			context: {
+				triggerAfterChange: false,
+			},
+		});
+	} catch (err) {
+		console.error("An error occurred when upserting Stripe product", err);
+		// TODO: handle retry logic
+	}
 };

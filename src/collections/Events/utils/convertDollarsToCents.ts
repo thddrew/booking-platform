@@ -1,10 +1,10 @@
 export const convertDollarsToCents = (
-  value?: number | null,
-  defaultValue = 0
+	value?: number | null,
+	defaultValue = 0,
 ) => {
-  if (typeof value === "number") {
-    return value * 100;
-  }
+	if (typeof value === "number") {
+		return value * 100;
+	}
 
-  return defaultValue;
+	return defaultValue;
 };

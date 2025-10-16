@@ -1,33 +1,33 @@
+import type { CollectionAfterChangeHook } from "payload";
 import { novu } from "@/lib/novu/client";
-import { Campaign } from "@/payload-types";
+import type { Campaign } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";
-import { CollectionAfterChangeHook } from "payload";
 
 export const createCampaign: CollectionAfterChangeHook<Campaign> = async ({
-  context,
-  operation,
-  doc,
+	context,
+	operation,
+	doc,
 }) => {
-  if (context?.triggerAfterChange === false) {
-    return;
-  }
+	if (context?.triggerAfterChange === false) {
+		return;
+	}
 
-  if (operation === "create") {
-    if (!doc.id) {
-      console.error("Campaign ID is required. Novu Topic creation failed.");
-      return;
-    }
+	if (operation === "create") {
+		if (!doc.id) {
+			console.error("Campaign ID is required. Novu Topic creation failed.");
+			return;
+		}
 
-    const tenantId = doc.tenant ? extractID(doc.tenant) : null;
+		const tenantId = doc.tenant ? extractID(doc.tenant) : null;
 
-    await novu.topics.subscriptions.create(
-      {
-        subscriberIds:
-          doc.subscribers?.map((subscriber) =>
-            [tenantId, extractID(subscriber)].join(":")
-          ) ?? [],
-      },
-      doc.id
-    );
-  }
+		await novu.topics.subscriptions.create(
+			{
+				subscriberIds:
+					doc.subscribers?.map((subscriber) =>
+						[tenantId, extractID(subscriber)].join(":"),
+					) ?? [],
+			},
+			doc.id,
+		);
+	}
 };

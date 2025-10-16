@@ -7,22 +7,22 @@ import { isSuperAdmin } from "./isSuperAdmin";
  * Tenant admins and super admins can will be allowed access
  */
 export const isSuperAdminOrTenantAdmin = (
-  user: ClientUser | User | null,
-  requestedTenant: string | null
+	user: ClientUser | User | null,
+	requestedTenant: string | null,
 ) => {
-  if (!user) {
-    return false;
-  }
+	if (!user) {
+		return false;
+	}
 
-  if (isSuperAdmin(user)) {
-    return true;
-  }
+	if (isSuperAdmin(user)) {
+		return true;
+	}
 
-  const adminTenantAccessIDs = getUserTenantIDs(user, "tenant-admin");
+	const adminTenantAccessIDs = getUserTenantIDs(user, "tenant-admin");
 
-  if (requestedTenant && adminTenantAccessIDs.includes(requestedTenant)) {
-    return true;
-  }
+	if (requestedTenant && adminTenantAccessIDs.includes(requestedTenant)) {
+		return true;
+	}
 
-  return false;
+	return false;
 };

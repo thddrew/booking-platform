@@ -1,15 +1,15 @@
 import { Login } from "../../../../components/Login/client.page";
 
 type RouteParams = {
-  tenant: string;
+	tenant: string;
 };
 
 export default async function Page({
-  params: paramsPromise,
+	params: paramsPromise,
 }: {
-  params: Promise<RouteParams>;
+	params: Promise<RouteParams>;
 }) {
-  const params = await paramsPromise;
+	const params = await paramsPromise;
 
-  return <Login tenantDomain={params.tenant} />;
+	return <Login tenantDomain={params.tenant} />;
 }

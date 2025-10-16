@@ -8,30 +8,30 @@ import { extractID } from "@/utilities/extractID";
 import { OnboardingView } from "./client";
 
 export const OnboardingLoader = async (args: DocumentViewServerProps) => {
-  const doc = args.doc as ConnectedAccount;
+	const doc = args.doc as ConnectedAccount;
 
-  if (!args.user) {
-    redirect("/login");
-  }
+	if (!args.user) {
+		redirect("/login");
+	}
 
-  const tenant = extractID(doc);
+	const tenant = extractID(doc);
 
-  if (!doc.id || !doc.stripeAccountId || !tenant) {
-    return <Gutter>No connected account found</Gutter>;
-  }
+	if (!doc.id || !doc.stripeAccountId || !tenant) {
+		return <Gutter>No connected account found</Gutter>;
+	}
 
-  return (
-    <Gutter>
-      <div className="py-10">
-        <OnboardingView
-          docId={doc.id}
-          user={args.user}
-          accountId={doc.stripeAccountId}
-          tenant={tenant}
-        />
-      </div>
-    </Gutter>
-  );
+	return (
+		<Gutter>
+			<div className="py-10">
+				<OnboardingView
+					docId={doc.id}
+					user={args.user}
+					accountId={doc.stripeAccountId}
+					tenant={tenant}
+				/>
+			</div>
+		</Gutter>
+	);
 };
 
 export default OnboardingLoader;

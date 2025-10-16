@@ -4,16 +4,15 @@
  */
 "use server";
 
-import { ServerProps } from "payload";
 import { DeveloperToolsClient } from "./developer-tools.client";
 
 const DeveloperToolsServer = async () => {
-  // Only show in development mode
-  if (process.env.NODE_ENV !== "development") {
-    return null;
-  }
+	// Only show in development mode
+	if (process.env.NODE_ENV !== "development") {
+		return null;
+	}
 
-  return <DeveloperToolsClient />;
+	return <DeveloperToolsClient />;
 };
 
 export default DeveloperToolsServer;

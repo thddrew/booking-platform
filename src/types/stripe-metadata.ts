@@ -1,23 +1,23 @@
 import z from "zod";
 
 const baseMetadata = z.object({
-  tenantId: z.string().nullish(),
-  accountId: z.string().nullish(),
+	tenantId: z.string().nullish(),
+	accountId: z.string().nullish(),
 });
 
 export const stripeProductMetadata = baseMetadata.extend({
-  eventId: z.string().nullish(),
+	eventId: z.string().nullish(),
 });
 
 export const stripePriceMetadata = baseMetadata.extend({
-  eventId: z.string().nullish(),
-  priceId: z.string().nullish(),
+	eventId: z.string().nullish(),
+	priceId: z.string().nullish(),
 });
 
 export const stripeCustomerMetadata = baseMetadata.extend({});
 
 export const stripeCheckoutSessionMetadata = baseMetadata.extend({
-  bookingId: z.string().nullish(),
+	bookingId: z.string().nullish(),
 });
 
 /**
@@ -47,5 +47,5 @@ export type StripeCustomerMetadata = z.infer<typeof stripeCustomerMetadata>;
  * @param bookingId - The id of a booking
  */
 export type StripeCheckoutSessionMetadata = z.infer<
-  typeof stripeCheckoutSessionMetadata
+	typeof stripeCheckoutSessionMetadata
 >;

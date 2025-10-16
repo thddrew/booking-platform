@@ -1,59 +1,59 @@
-import { Booking, Customer, Event } from "@/payload-types";
-import { Variable } from "@thddrew/maily-core/extensions";
+import type { Variable } from "@thddrew/maily-core/extensions";
 import { z } from "zod/v3";
+import type { Booking, Customer, Event } from "@/payload-types";
 
 const customerVariablesSchema = z.object({
-  ["customer-name"]: z.string().nullish(),
+	"customer-name": z.string().nullish(),
 });
 
 const bookingVariablesSchema = z.object({
-  ["event-name"]: z.string().nullish(),
-  ["booking-id"]: z.string().nullish(),
-  ["booking-start-date"]: z.string().nullish(),
-  ["booking-end-date"]: z.string().nullish(),
+	"event-name": z.string().nullish(),
+	"booking-id": z.string().nullish(),
+	"booking-start-date": z.string().nullish(),
+	"booking-end-date": z.string().nullish(),
 });
 
 const mapVariableNameToCustomerField = {
-  "customer-name": "firstName",
+	"customer-name": "firstName",
 } satisfies Record<
-  keyof typeof customerVariablesSchema.shape,
-  keyof Customer | ((customer: Customer) => string)
+	keyof typeof customerVariablesSchema.shape,
+	keyof Customer | ((customer: Customer) => string)
 >;
 
 const mapVariableNameToBookingField = {
-  "event-name": (booking) => (booking.eventSnapshot as unknown as Event)?.title,
-  "booking-id": "id",
-  "booking-start-date": "dtstart",
-  "booking-end-date": "dtend",
+	"event-name": (booking) => (booking.eventSnapshot as unknown as Event)?.title,
+	"booking-id": "id",
+	"booking-start-date": "dtstart",
+	"booking-end-date": "dtend",
 } satisfies Record<
-  keyof typeof bookingVariablesSchema.shape,
-  keyof Booking | ((booking: Booking) => string)
+	keyof typeof bookingVariablesSchema.shape,
+	keyof Booking | ((booking: Booking) => string)
 >;
 
 export const contextSchema = z.object({
-  bookingId: z.string().nullish(),
-  customerId: z.string().nullish(),
+	bookingId: z.string().nullish(),
+	customerId: z.string().nullish(),
 });
 
 export const getVariables = (): Variable[] => {
-  const keys = Object.keys([
-    ...Object.keys(customerVariablesSchema.shape),
-    ...Object.keys(bookingVariablesSchema.shape),
-  ]);
+	const keys = Object.keys([
+		...Object.keys(customerVariablesSchema.shape),
+		...Object.keys(bookingVariablesSchema.shape),
+	]);
 
-  return keys.map((key) => ({
-    name: key,
-    label: key
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase()),
-  }));
+	return keys.map((key) => ({
+		name: key,
+		label: key
+			.replace(/-/g, " ")
+			.replace(/\b\w/g, (char) => char.toUpperCase()),
+	}));
 };
 
 const isSchemaType = <T extends z.ZodRawShape>(
-  schema: T,
-  schemaKey: string
+	schema: T,
+	schemaKey: string,
 ): schemaKey is keyof T & string => {
-  return schemaKey in schema.shape;
+	return schemaKey in schema.shape;
 };
 
 /**
@@ -68,41 +68,41 @@ const isSchemaType = <T extends z.ZodRawShape>(
  * > trigger workflow
  */
 export const getVariablesData = async ({
-  variables,
-  context,
+	variables,
+	context,
 }: {
-  variables: Variable[];
-  context: {
-    booking?: Booking | null;
-    customer?: Customer | null;
-  };
+	variables: Variable[];
+	context: {
+		booking?: Booking | null;
+		customer?: Customer | null;
+	};
 }) => {
-  const variablesData = variables.map((variable) => {
-    const schemaKey = variable.name;
+	const variablesData = variables.map((variable) => {
+		const schemaKey = variable.name;
 
-    // Customer variables
-    if (isSchemaType(customerVariablesSchema.shape, schemaKey)) {
-      if (!context.customer) return [schemaKey, null] as const;
+		// Customer variables
+		if (isSchemaType(customerVariablesSchema.shape, schemaKey)) {
+			if (!context.customer) return [schemaKey, null] as const;
 
-      const mapping = mapVariableNameToCustomerField[schemaKey];
-      return [schemaKey, context.customer[mapping] ?? null] as const;
-    }
+			const mapping = mapVariableNameToCustomerField[schemaKey];
+			return [schemaKey, context.customer[mapping] ?? null] as const;
+		}
 
-    // Booking variables
-    if (isSchemaType(bookingVariablesSchema.shape, schemaKey)) {
-      if (!context.booking) return [schemaKey, null] as const;
+		// Booking variables
+		if (isSchemaType(bookingVariablesSchema.shape, schemaKey)) {
+			if (!context.booking) return [schemaKey, null] as const;
 
-      const mapping = mapVariableNameToBookingField[schemaKey];
-      return [
-        schemaKey,
-        (typeof mapping === "function"
-          ? mapping(context.booking)
-          : context.booking[mapping]) ?? null,
-      ] as const;
-    }
+			const mapping = mapVariableNameToBookingField[schemaKey];
+			return [
+				schemaKey,
+				(typeof mapping === "function"
+					? mapping(context.booking)
+					: context.booking[mapping]) ?? null,
+			] as const;
+		}
 
-    return [schemaKey, null] as const;
-  });
+		return [schemaKey, null] as const;
+	});
 
-  return variablesData;
+	return variablesData;
 };

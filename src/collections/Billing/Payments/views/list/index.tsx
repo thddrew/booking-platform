@@ -10,40 +10,37 @@ import { paymentIntentsSearchParams } from "./params";
 import { PaymentsTable } from "./payments-table.client";
 
 export const ListView = async (
-  args: ListViewServerProps & {
-    searchParams: Promise<SearchParams>;
-  }
+	args: ListViewServerProps & {
+		searchParams: Promise<SearchParams>;
+	},
 ) => {
-  if (!args.user) {
-    redirect("/login");
-  }
+	if (!args.user) {
+		redirect("/login");
+	}
 
-  const { limit, after } = await paymentIntentsSearchParams.parse(
-    args.searchParams
-  );
+	const { limit, after } = await paymentIntentsSearchParams.parse(
+		args.searchParams,
+	);
 
-  const defaultConnectedAccount = await getTenantDefaultConnectedAccount();
-  const accountStripe = await getDefaultAccountStripeClient();
+	const defaultConnectedAccount = await getTenantDefaultConnectedAccount();
+	const accountStripe = await getDefaultAccountStripeClient();
 
-  const checkouts = await accountStripe.checkout.sessions.list({
-    limit,
-    starting_after: after ?? undefined,
-    expand: [
-      "data.customer",
-      "data.line_items",
-      "data.payment_intent.latest_charge",
-    ],
-  });
+	const checkouts = await accountStripe.checkout.sessions.list({
+		limit,
+		starting_after: after ?? undefined,
+		expand: [
+			"data.customer",
+			"data.line_items",
+			"data.payment_intent.latest_charge",
+		],
+	});
 
-  return (
-    <Gutter>
-      <SetStepNav nav={[{ label: "Payments" }]} />
-      <PaymentsTable
-        data={checkouts.data}
-        account={defaultConnectedAccount}
-      />
-    </Gutter>
-  );
+	return (
+		<Gutter>
+			<SetStepNav nav={[{ label: "Payments" }]} />
+			<PaymentsTable data={checkouts.data} account={defaultConnectedAccount} />
+		</Gutter>
+	);
 };
 
 export default ListView;

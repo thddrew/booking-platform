@@ -1,9 +1,9 @@
 import {
-  QueryKey,
-  UseMutationOptions,
-  type UseQueryOptions,
-  useMutation,
-  useQuery,
+	type QueryKey,
+	type UseMutationOptions,
+	type UseQueryOptions,
+	useMutation,
+	useQuery,
 } from "@tanstack/react-query";
 import type { Where } from "payload";
 import { stringify } from "qs-esm";
@@ -17,61 +17,61 @@ import { stringify } from "qs-esm";
  * Then if we want to clear the cache for a specific event, we can clear the cache for the "api", "events", "123"
  */
 export const constructQueryKeys = (api: string, query?: Where) => {
-  const splitApi = api.split(/\/|\?/);
+	const splitApi = api.split(/\/|\?/);
 
-  return [...splitApi, query];
+	return [...splitApi, query];
 };
 
 /**
  * Wraps the Payload REST API with RQ for caching
  */
 export const _usePayloadQuery = <Value>({
-  api,
-  query,
-  options,
+	api,
+	query,
+	options,
 }: {
-  api: string;
-  query?: Where;
-  // TODO: add depth, limit, select, pagination api
-  options?: Omit<UseQueryOptions<Value>, "queryKey" | "queryFn">;
+	api: string;
+	query?: Where;
+	// TODO: add depth, limit, select, pagination api
+	options?: Omit<UseQueryOptions<Value>, "queryKey" | "queryFn">;
 }) =>
-  useQuery<Value>({
-    queryKey: constructQueryKeys(api, query),
-    queryFn: async () => {
-      const data = await fetch(
-        `${api}?${stringify({ where: query }, { addQueryPrefix: true })}`,
-        {
-          credentials: "include",
-        }
-      );
-      return data.json();
-    },
-    ...options,
-  });
+	useQuery<Value>({
+		queryKey: constructQueryKeys(api, query),
+		queryFn: async () => {
+			const data = await fetch(
+				`${api}?${stringify({ where: query }, { addQueryPrefix: true })}`,
+				{
+					credentials: "include",
+				},
+			);
+			return data.json();
+		},
+		...options,
+	});
 
 /**
  * Wraps the Payload SDK with RQ for caching
  */
 export const usePayloadQuery = <Value>({
-  queryKey,
-  queryFn,
-  ...options
+	queryKey,
+	queryFn,
+	...options
 }: {
-  queryKey: QueryKey;
-  queryFn: () => Promise<Value>;
+	queryKey: QueryKey;
+	queryFn: () => Promise<Value>;
 } & Omit<UseQueryOptions<Value>, "queryKey" | "queryFn">) =>
-  useQuery<Value>({
-    queryKey,
-    queryFn,
-    ...options,
-  });
+	useQuery<Value>({
+		queryKey,
+		queryFn,
+		...options,
+	});
 
 export const usePayloadMutation = <TData, TVariables = void, TError = Error>(
-  mutationFn: (variables: TVariables) => Promise<TData>,
-  options?: Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">
+	mutationFn: (variables: TVariables) => Promise<TData>,
+	options?: Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">,
 ) =>
-  useMutation<TData, TError, TVariables>({
-    mutationKey: options?.mutationKey,
-    mutationFn,
-    ...options,
-  });
+	useMutation<TData, TError, TVariables>({
+		mutationKey: options?.mutationKey,
+		mutationFn,
+		...options,
+	});

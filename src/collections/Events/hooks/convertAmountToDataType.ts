@@ -2,11 +2,11 @@ import type { FieldHook } from "payload";
 import type { Event } from "@/payload-types";
 
 export const convertAmountToDataType: FieldHook<Event, number> = ({
-  value,
+	value,
 }) => {
-  if (typeof value === "number") {
-    return value * 100;
-  }
+	if (typeof value === "number") {
+		return value * 100;
+	}
 
-  return 0;
+	return 0;
 };

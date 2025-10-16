@@ -7,33 +7,33 @@ import { createStripeDashboardSession } from "@/lib/stripe/create-account-sessio
 import type { User } from "@/payload-types";
 
 export const PaymentMethods = ({
-  accountId,
-  tenant,
-  user,
+	accountId,
+	tenant,
+	user,
 }: {
-  user: User;
-  accountId: string;
-  tenant: string;
+	user: User;
+	accountId: string;
+	tenant: string;
 }) => {
-  return (
-    <StripeConnect
-      fetchClientSecret={async () => {
-        const res = await createStripeDashboardSession(user, {
-          account: accountId,
-          tenant,
-        });
+	return (
+		<StripeConnect
+			fetchClientSecret={async () => {
+				const res = await createStripeDashboardSession(user, {
+					account: accountId,
+					tenant,
+				});
 
-        return res.clientSecret;
-      }}
-    >
-      <ConnectPayments
-        onLoadError={(e) => {
-          console.error(e);
-          toast.error("Failed to load Stripe payments");
-        }}
-      />
-    </StripeConnect>
-  );
+				return res.clientSecret;
+			}}
+		>
+			<ConnectPayments
+				onLoadError={(e) => {
+					console.error(e);
+					toast.error("Failed to load Stripe payments");
+				}}
+			/>
+		</StripeConnect>
+	);
 };
 
 export default PaymentMethods;

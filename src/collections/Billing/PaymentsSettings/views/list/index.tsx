@@ -8,35 +8,35 @@ import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultCo
 import PaymentMethods from "./payment-methods";
 
 export const ListView = async (args: ListViewServerProps) => {
-  const account = await getTenantDefaultConnectedAccount();
+	const account = await getTenantDefaultConnectedAccount();
 
-  if (!account) {
-    return <Gutter>No connected accounts</Gutter>;
-  }
+	if (!account) {
+		return <Gutter>No connected accounts</Gutter>;
+	}
 
-  const tenantId = extractID(account);
+	const tenantId = extractID(account);
 
-  if (!args.user) {
-    redirect("/login");
-  }
+	if (!args.user) {
+		redirect("/login");
+	}
 
-  if (!tenantId) {
-    return <Gutter>No tenant selected</Gutter>;
-  }
+	if (!tenantId) {
+		return <Gutter>No tenant selected</Gutter>;
+	}
 
-  if (!account.stripeAccountId) {
-    return <Gutter>No stripe account ID</Gutter>;
-  }
+	if (!account.stripeAccountId) {
+		return <Gutter>No stripe account ID</Gutter>;
+	}
 
-  return (
-    <Gutter>
-      <PaymentMethods
-        user={args.user}
-        accountId={account.stripeAccountId}
-        tenant={tenantId}
-      />
-    </Gutter>
-  );
+	return (
+		<Gutter>
+			<PaymentMethods
+				user={args.user}
+				accountId={account.stripeAccountId}
+				tenant={tenantId}
+			/>
+		</Gutter>
+	);
 };
 
 export default ListView;

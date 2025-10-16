@@ -1,43 +1,43 @@
-import { Button, Gutter, Link, Banner } from "@payloadcms/ui";
-import { CheckCircle2Icon, LoaderCircleIcon } from "lucide-react";
+import { Banner, Button, Link } from "@payloadcms/ui";
+import { CheckCircle2Icon } from "lucide-react";
 import type { UIFieldServerProps } from "payload";
 import { Suspense } from "react";
-import { stripe } from "@/lib/stripe/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { stripe } from "@/lib/stripe/client";
 
 const OnboardStripeAccountLink = (args: UIFieldServerProps) => {
-  return (
-    <Link
-      href={`/admin/collections/connectedAccounts/${args.id}/onboard-stripe`}
-    >
-      <Button>Onboard Stripe Account</Button>
-    </Link>
-  );
+	return (
+		<Link
+			href={`/admin/collections/connectedAccounts/${args.id}/onboard-stripe`}
+		>
+			<Button>Onboard Stripe Account</Button>
+		</Link>
+	);
 };
 
 const OnboardStripeAccountData = async (args: UIFieldServerProps) => {
-  const account = await stripe.accounts.retrieve(args.data.stripeAccountId);
+	const account = await stripe.accounts.retrieve(args.data.stripeAccountId);
 
-  // TODO: need to handle errors during the processing step
-  const isOnboarded =
-    account.payouts_enabled === true && account.charges_enabled === true;
+	// TODO: need to handle errors during the processing step
+	const isOnboarded =
+		account.payouts_enabled === true && account.charges_enabled === true;
 
-  return (
-    <Suspense fallback={<Skeleton className="h-8 w-full" />}>
-      {isOnboarded ? (
-        <Banner
-          alignIcon="left"
-          icon={<CheckCircle2Icon size={16} />}
-          type="success"
-          className="items-center gap-1"
-        >
-          Your account is onboarded and ready to receive payments!
-        </Banner>
-      ) : (
-        <OnboardStripeAccountLink {...args} />
-      )}
-    </Suspense>
-  );
+	return (
+		<Suspense fallback={<Skeleton className="h-8 w-full" />}>
+			{isOnboarded ? (
+				<Banner
+					alignIcon="left"
+					icon={<CheckCircle2Icon size={16} />}
+					type="success"
+					className="items-center gap-1"
+				>
+					Your account is onboarded and ready to receive payments!
+				</Banner>
+			) : (
+				<OnboardStripeAccountLink {...args} />
+			)}
+		</Suspense>
+	);
 };
 
 export default OnboardStripeAccountData;

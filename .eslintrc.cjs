@@ -1,5 +1,5 @@
 module.exports = {
-  root: true,
-  extends: ["@payloadcms"],
-  plugins: ["@tanstack/query"],
+	root: true,
+	extends: ["@payloadcms"],
+	plugins: ["@tanstack/query"],
 };

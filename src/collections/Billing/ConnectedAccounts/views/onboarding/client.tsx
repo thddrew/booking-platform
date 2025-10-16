@@ -8,37 +8,37 @@ import { createStripeOnboardingSession } from "@/lib/stripe/create-account-sessi
 import type { User } from "@/payload-types";
 
 export const OnboardingView = ({
-  docId,
-  user,
-  accountId,
-  tenant,
+	docId,
+	user,
+	accountId,
+	tenant,
 }: {
-  docId: string;
-  user: User;
-  accountId: string;
-  tenant: string;
+	docId: string;
+	user: User;
+	accountId: string;
+	tenant: string;
 }) => {
-  const router = useRouter();
+	const router = useRouter();
 
-  return (
-    <StripeConnect
-      fetchClientSecret={async () => {
-        const res = await createStripeOnboardingSession(user, {
-          account: accountId,
-          tenant,
-        });
+	return (
+		<StripeConnect
+			fetchClientSecret={async () => {
+				const res = await createStripeOnboardingSession(user, {
+					account: accountId,
+					tenant,
+				});
 
-        return res.clientSecret;
-      }}
-    >
-      <ConnectAccountOnboarding
-        onExit={() => {
-          toast.success("Stripe account onboarding completed", {
-            description: "Your account is now pending approval",
-          });
-          router.push(`/admin/collections/connectedAccounts/${docId}`);
-        }}
-      />
-    </StripeConnect>
-  );
+				return res.clientSecret;
+			}}
+		>
+			<ConnectAccountOnboarding
+				onExit={() => {
+					toast.success("Stripe account onboarding completed", {
+						description: "Your account is now pending approval",
+					});
+					router.push(`/admin/collections/connectedAccounts/${docId}`);
+				}}
+			/>
+		</StripeConnect>
+	);
 };

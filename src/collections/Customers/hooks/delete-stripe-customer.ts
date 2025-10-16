@@ -1,27 +1,27 @@
+import type { CollectionAfterDeleteHook } from "payload";
 import { getDefaultAccountStripeClient } from "@/lib/stripe/get-account-stripe";
-import { Customer } from "@/payload-types";
-import { CollectionAfterDeleteHook } from "payload";
+import type { Customer } from "@/payload-types";
 
 export const deleteStripeCustomer: CollectionAfterDeleteHook<
-  Customer
+	Customer
 > = async ({ doc }) => {
-  const stripe = await getDefaultAccountStripeClient();
+	const stripe = await getDefaultAccountStripeClient();
 
-  if (!doc.stripeCustomerId) {
-    console.error(
-      "No stripe customer id found during delete, DEVELOPER PLEASE HANDLE THIS CASE",
-      doc.id
-    );
+	if (!doc.stripeCustomerId) {
+		console.error(
+			"No stripe customer id found during delete, DEVELOPER PLEASE HANDLE THIS CASE",
+			doc.id,
+		);
 
-    return;
-  }
+		return;
+	}
 
-  try {
-    await stripe.customers.del(doc.stripeCustomerId);
-  } catch (err) {
-    console.error(
-      "An error occurred when calling the Stripe API to update a customer:",
-      err
-    );
-  }
+	try {
+		await stripe.customers.del(doc.stripeCustomerId);
+	} catch (err) {
+		console.error(
+			"An error occurred when calling the Stripe API to update a customer:",
+			err,
+		);
+	}
 };

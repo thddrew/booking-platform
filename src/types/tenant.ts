@@ -1,18 +1,18 @@
 // WIP
 
-import { Tenant } from "@/payload-types";
 import { z } from "zod";
+import type { Tenant } from "@/payload-types";
 
 const schema = {
-  id: z.string(),
-  name: z.string(),
-  domain: z.string().nullish(),
-  slug: z.string(),
-  allowPublicRead: z.boolean(),
-  updatedAt: z.string(),
-  createdAt: z.string(),
+	id: z.string(),
+	name: z.string(),
+	domain: z.string().nullish(),
+	slug: z.string(),
+	allowPublicRead: z.boolean(),
+	updatedAt: z.string(),
+	createdAt: z.string(),
 } satisfies {
-  [key in keyof Tenant]: z.ZodType<Tenant[key]>;
+	[key in keyof Tenant]: z.ZodType<Tenant[key]>;
 };
 
 export const TenantSchema = z.object(schema);

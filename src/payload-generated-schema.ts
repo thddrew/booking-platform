@@ -7,1595 +7,1595 @@
  */
 
 import type {} from "@payloadcms/db-postgres";
+import { relations, sql } from "@payloadcms/db-postgres/drizzle";
 import {
-  pgTable,
-  index,
-  uniqueIndex,
-  foreignKey,
-  uuid,
-  varchar,
-  timestamp,
-  integer,
-  numeric,
-  boolean,
-  jsonb,
-  serial,
-  pgEnum,
+	boolean,
+	foreignKey,
+	index,
+	integer,
+	jsonb,
+	numeric,
+	pgEnum,
+	pgTable,
+	serial,
+	timestamp,
+	uniqueIndex,
+	uuid,
+	varchar,
 } from "@payloadcms/db-postgres/drizzle/pg-core";
-import { sql, relations } from "@payloadcms/db-postgres/drizzle";
 export const enum_users_roles = pgEnum("enum_users_roles", [
-  "super-admin",
-  "user",
+	"super-admin",
+	"user",
 ]);
 export const enum_users_tenants_roles = pgEnum("enum_users_tenants_roles", [
-  "tenant-admin",
-  "tenant-viewer",
+	"tenant-admin",
+	"tenant-viewer",
 ]);
 export const enum_events_status = pgEnum("enum_events_status", [
-  "draft",
-  "published",
+	"draft",
+	"published",
 ]);
 export const enum__events_v_version_status = pgEnum(
-  "enum__events_v_version_status",
-  ["draft", "published"],
+	"enum__events_v_version_status",
+	["draft", "published"],
 );
 export const enum_bookings_payment_method = pgEnum(
-  "enum_bookings_payment_method",
-  ["payNow", "payLater"],
+	"enum_bookings_payment_method",
+	["payNow", "payLater"],
 );
 export const enum__bookings_v_version_payment_method = pgEnum(
-  "enum__bookings_v_version_payment_method",
-  ["payNow", "payLater"],
+	"enum__bookings_v_version_payment_method",
+	["payNow", "payLater"],
 );
 export const enum_payload_jobs_log_task_slug = pgEnum(
-  "enum_payload_jobs_log_task_slug",
-  ["inline", "schedulePublish"],
+	"enum_payload_jobs_log_task_slug",
+	["inline", "schedulePublish"],
 );
 export const enum_payload_jobs_log_state = pgEnum(
-  "enum_payload_jobs_log_state",
-  ["failed", "succeeded"],
+	"enum_payload_jobs_log_state",
+	["failed", "succeeded"],
 );
 export const enum_payload_jobs_task_slug = pgEnum(
-  "enum_payload_jobs_task_slug",
-  ["inline", "schedulePublish"],
+	"enum_payload_jobs_task_slug",
+	["inline", "schedulePublish"],
 );
 
 export const pages = pgTable(
-  "pages",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenant: uuid("tenant_id").references(() => tenants.id, {
-      onDelete: "set null",
-    }),
-    title: varchar("title"),
-    slug: varchar("slug").default("home"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    pages_tenant_idx: index("pages_tenant_idx").on(columns.tenant),
-    pages_slug_idx: index("pages_slug_idx").on(columns.slug),
-    pages_updated_at_idx: index("pages_updated_at_idx").on(columns.updatedAt),
-    pages_created_at_idx: index("pages_created_at_idx").on(columns.createdAt),
-  }),
+	"pages",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		tenant: uuid("tenant_id").references(() => tenants.id, {
+			onDelete: "set null",
+		}),
+		title: varchar("title"),
+		slug: varchar("slug").default("home"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		pages_tenant_idx: index("pages_tenant_idx").on(columns.tenant),
+		pages_slug_idx: index("pages_slug_idx").on(columns.slug),
+		pages_updated_at_idx: index("pages_updated_at_idx").on(columns.updatedAt),
+		pages_created_at_idx: index("pages_created_at_idx").on(columns.createdAt),
+	}),
 );
 
 export const users_roles = pgTable(
-  "users_roles",
-  {
-    order: integer("order").notNull(),
-    parent: uuid("parent_id").notNull(),
-    value: enum_users_roles("value"),
-    id: uuid("id").defaultRandom().primaryKey(),
-  },
-  (columns) => ({
-    orderIdx: index("users_roles_order_idx").on(columns.order),
-    parentIdx: index("users_roles_parent_idx").on(columns.parent),
-    parentFk: foreignKey({
-      columns: [columns["parent"]],
-      foreignColumns: [users.id],
-      name: "users_roles_parent_fk",
-    }).onDelete("cascade"),
-  }),
+	"users_roles",
+	{
+		order: integer("order").notNull(),
+		parent: uuid("parent_id").notNull(),
+		value: enum_users_roles("value"),
+		id: uuid("id").defaultRandom().primaryKey(),
+	},
+	(columns) => ({
+		orderIdx: index("users_roles_order_idx").on(columns.order),
+		parentIdx: index("users_roles_parent_idx").on(columns.parent),
+		parentFk: foreignKey({
+			columns: [columns.parent],
+			foreignColumns: [users.id],
+			name: "users_roles_parent_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const users_tenants_roles = pgTable(
-  "users_tenants_roles",
-  {
-    order: integer("order").notNull(),
-    parent: varchar("parent_id").notNull(),
-    value: enum_users_tenants_roles("value"),
-    id: uuid("id").defaultRandom().primaryKey(),
-  },
-  (columns) => ({
-    orderIdx: index("users_tenants_roles_order_idx").on(columns.order),
-    parentIdx: index("users_tenants_roles_parent_idx").on(columns.parent),
-    parentFk: foreignKey({
-      columns: [columns["parent"]],
-      foreignColumns: [users_tenants.id],
-      name: "users_tenants_roles_parent_fk",
-    }).onDelete("cascade"),
-  }),
+	"users_tenants_roles",
+	{
+		order: integer("order").notNull(),
+		parent: varchar("parent_id").notNull(),
+		value: enum_users_tenants_roles("value"),
+		id: uuid("id").defaultRandom().primaryKey(),
+	},
+	(columns) => ({
+		orderIdx: index("users_tenants_roles_order_idx").on(columns.order),
+		parentIdx: index("users_tenants_roles_parent_idx").on(columns.parent),
+		parentFk: foreignKey({
+			columns: [columns.parent],
+			foreignColumns: [users_tenants.id],
+			name: "users_tenants_roles_parent_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const users_tenants = pgTable(
-  "users_tenants",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: uuid("_parent_id").notNull(),
-    id: varchar("id").primaryKey(),
-    tenant: uuid("tenant_id")
-      .notNull()
-      .references(() => tenants.id, {
-        onDelete: "set null",
-      }),
-  },
-  (columns) => ({
-    _orderIdx: index("users_tenants_order_idx").on(columns._order),
-    _parentIDIdx: index("users_tenants_parent_id_idx").on(columns._parentID),
-    users_tenants_tenant_idx: index("users_tenants_tenant_idx").on(
-      columns.tenant,
-    ),
-    _parentIDFk: foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [users.id],
-      name: "users_tenants_parent_id_fk",
-    }).onDelete("cascade"),
-  }),
+	"users_tenants",
+	{
+		_order: integer("_order").notNull(),
+		_parentID: uuid("_parent_id").notNull(),
+		id: varchar("id").primaryKey(),
+		tenant: uuid("tenant_id")
+			.notNull()
+			.references(() => tenants.id, {
+				onDelete: "set null",
+			}),
+	},
+	(columns) => ({
+		_orderIdx: index("users_tenants_order_idx").on(columns._order),
+		_parentIDIdx: index("users_tenants_parent_id_idx").on(columns._parentID),
+		users_tenants_tenant_idx: index("users_tenants_tenant_idx").on(
+			columns.tenant,
+		),
+		_parentIDFk: foreignKey({
+			columns: [columns._parentID],
+			foreignColumns: [users.id],
+			name: "users_tenants_parent_id_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const users_sessions = pgTable(
-  "users_sessions",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: uuid("_parent_id").notNull(),
-    id: varchar("id").primaryKey(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    expiresAt: timestamp("expires_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }).notNull(),
-  },
-  (columns) => ({
-    _orderIdx: index("users_sessions_order_idx").on(columns._order),
-    _parentIDIdx: index("users_sessions_parent_id_idx").on(columns._parentID),
-    _parentIDFk: foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [users.id],
-      name: "users_sessions_parent_id_fk",
-    }).onDelete("cascade"),
-  }),
+	"users_sessions",
+	{
+		_order: integer("_order").notNull(),
+		_parentID: uuid("_parent_id").notNull(),
+		id: varchar("id").primaryKey(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		expiresAt: timestamp("expires_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}).notNull(),
+	},
+	(columns) => ({
+		_orderIdx: index("users_sessions_order_idx").on(columns._order),
+		_parentIDIdx: index("users_sessions_parent_id_idx").on(columns._parentID),
+		_parentIDFk: foreignKey({
+			columns: [columns._parentID],
+			foreignColumns: [users.id],
+			name: "users_sessions_parent_id_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const users = pgTable(
-  "users",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    username: varchar("username"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    email: varchar("email").notNull(),
-    resetPasswordToken: varchar("reset_password_token"),
-    resetPasswordExpiration: timestamp("reset_password_expiration", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    salt: varchar("salt"),
-    hash: varchar("hash"),
-    loginAttempts: numeric("login_attempts").default("0"),
-    lockUntil: timestamp("lock_until", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-  },
-  (columns) => ({
-    users_username_idx: index("users_username_idx").on(columns.username),
-    users_updated_at_idx: index("users_updated_at_idx").on(columns.updatedAt),
-    users_created_at_idx: index("users_created_at_idx").on(columns.createdAt),
-    users_email_idx: uniqueIndex("users_email_idx").on(columns.email),
-  }),
+	"users",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		username: varchar("username"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		email: varchar("email").notNull(),
+		resetPasswordToken: varchar("reset_password_token"),
+		resetPasswordExpiration: timestamp("reset_password_expiration", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		salt: varchar("salt"),
+		hash: varchar("hash"),
+		loginAttempts: numeric("login_attempts").default("0"),
+		lockUntil: timestamp("lock_until", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+	},
+	(columns) => ({
+		users_username_idx: index("users_username_idx").on(columns.username),
+		users_updated_at_idx: index("users_updated_at_idx").on(columns.updatedAt),
+		users_created_at_idx: index("users_created_at_idx").on(columns.createdAt),
+		users_email_idx: uniqueIndex("users_email_idx").on(columns.email),
+	}),
 );
 
 export const tenants = pgTable(
-  "tenants",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    name: varchar("name").notNull(),
-    domain: varchar("domain"),
-    slug: varchar("slug").notNull(),
-    allowPublicRead: boolean("allow_public_read").default(false),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    tenants_name_idx: uniqueIndex("tenants_name_idx").on(columns.name),
-    tenants_slug_idx: uniqueIndex("tenants_slug_idx").on(columns.slug),
-    tenants_allow_public_read_idx: index("tenants_allow_public_read_idx").on(
-      columns.allowPublicRead,
-    ),
-    tenants_updated_at_idx: index("tenants_updated_at_idx").on(
-      columns.updatedAt,
-    ),
-    tenants_created_at_idx: index("tenants_created_at_idx").on(
-      columns.createdAt,
-    ),
-  }),
+	"tenants",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		name: varchar("name").notNull(),
+		domain: varchar("domain"),
+		slug: varchar("slug").notNull(),
+		allowPublicRead: boolean("allow_public_read").default(false),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		tenants_name_idx: uniqueIndex("tenants_name_idx").on(columns.name),
+		tenants_slug_idx: uniqueIndex("tenants_slug_idx").on(columns.slug),
+		tenants_allow_public_read_idx: index("tenants_allow_public_read_idx").on(
+			columns.allowPublicRead,
+		),
+		tenants_updated_at_idx: index("tenants_updated_at_idx").on(
+			columns.updatedAt,
+		),
+		tenants_created_at_idx: index("tenants_created_at_idx").on(
+			columns.createdAt,
+		),
+	}),
 );
 
 export const customers = pgTable(
-  "customers",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenant: uuid("tenant_id").references(() => tenants.id, {
-      onDelete: "set null",
-    }),
-    name: varchar("name"),
-    email: varchar("email"),
-    phone: varchar("phone"),
-    stripeCustomerId: varchar("stripe_customer_id"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp("deleted_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-  },
-  (columns) => ({
-    customers_tenant_idx: index("customers_tenant_idx").on(columns.tenant),
-    customers_updated_at_idx: index("customers_updated_at_idx").on(
-      columns.updatedAt,
-    ),
-    customers_created_at_idx: index("customers_created_at_idx").on(
-      columns.createdAt,
-    ),
-    customers_deleted_at_idx: index("customers_deleted_at_idx").on(
-      columns.deletedAt,
-    ),
-  }),
+	"customers",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		tenant: uuid("tenant_id").references(() => tenants.id, {
+			onDelete: "set null",
+		}),
+		name: varchar("name"),
+		email: varchar("email"),
+		phone: varchar("phone"),
+		stripeCustomerId: varchar("stripe_customer_id"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		deletedAt: timestamp("deleted_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+	},
+	(columns) => ({
+		customers_tenant_idx: index("customers_tenant_idx").on(columns.tenant),
+		customers_updated_at_idx: index("customers_updated_at_idx").on(
+			columns.updatedAt,
+		),
+		customers_created_at_idx: index("customers_created_at_idx").on(
+			columns.createdAt,
+		),
+		customers_deleted_at_idx: index("customers_deleted_at_idx").on(
+			columns.deletedAt,
+		),
+	}),
 );
 
 export const connected_accounts = pgTable(
-  "connected_accounts",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenant: uuid("tenant_id").references(() => tenants.id, {
-      onDelete: "set null",
-    }),
-    default: boolean("default").default(false),
-    name: varchar("name"),
-    stripeAccountId: varchar("stripe_account_id"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    connected_accounts_tenant_idx: index("connected_accounts_tenant_idx").on(
-      columns.tenant,
-    ),
-    connected_accounts_updated_at_idx: index(
-      "connected_accounts_updated_at_idx",
-    ).on(columns.updatedAt),
-    connected_accounts_created_at_idx: index(
-      "connected_accounts_created_at_idx",
-    ).on(columns.createdAt),
-  }),
+	"connected_accounts",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		tenant: uuid("tenant_id").references(() => tenants.id, {
+			onDelete: "set null",
+		}),
+		default: boolean("default").default(false),
+		name: varchar("name"),
+		stripeAccountId: varchar("stripe_account_id"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		connected_accounts_tenant_idx: index("connected_accounts_tenant_idx").on(
+			columns.tenant,
+		),
+		connected_accounts_updated_at_idx: index(
+			"connected_accounts_updated_at_idx",
+		).on(columns.updatedAt),
+		connected_accounts_created_at_idx: index(
+			"connected_accounts_created_at_idx",
+		).on(columns.createdAt),
+	}),
 );
 
 export const payments = pgTable(
-  "payments",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenant: uuid("tenant_id").references(() => tenants.id, {
-      onDelete: "set null",
-    }),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    payments_tenant_idx: index("payments_tenant_idx").on(columns.tenant),
-    payments_updated_at_idx: index("payments_updated_at_idx").on(
-      columns.updatedAt,
-    ),
-    payments_created_at_idx: index("payments_created_at_idx").on(
-      columns.createdAt,
-    ),
-  }),
+	"payments",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		tenant: uuid("tenant_id").references(() => tenants.id, {
+			onDelete: "set null",
+		}),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		payments_tenant_idx: index("payments_tenant_idx").on(columns.tenant),
+		payments_updated_at_idx: index("payments_updated_at_idx").on(
+			columns.updatedAt,
+		),
+		payments_created_at_idx: index("payments_created_at_idx").on(
+			columns.createdAt,
+		),
+	}),
 );
 
 export const payments_settings = pgTable(
-  "payments_settings",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    payments_settings_updated_at_idx: index(
-      "payments_settings_updated_at_idx",
-    ).on(columns.updatedAt),
-    payments_settings_created_at_idx: index(
-      "payments_settings_created_at_idx",
-    ).on(columns.createdAt),
-  }),
+	"payments_settings",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		payments_settings_updated_at_idx: index(
+			"payments_settings_updated_at_idx",
+		).on(columns.updatedAt),
+		payments_settings_created_at_idx: index(
+			"payments_settings_created_at_idx",
+		).on(columns.createdAt),
+	}),
 );
 
 export const logs = pgTable(
-  "logs",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    user: uuid("user_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    logs_user_idx: index("logs_user_idx").on(columns.user),
-    logs_updated_at_idx: index("logs_updated_at_idx").on(columns.updatedAt),
-    logs_created_at_idx: index("logs_created_at_idx").on(columns.createdAt),
-  }),
+	"logs",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		user: uuid("user_id")
+			.notNull()
+			.references(() => users.id, {
+				onDelete: "set null",
+			}),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		logs_user_idx: index("logs_user_idx").on(columns.user),
+		logs_updated_at_idx: index("logs_updated_at_idx").on(columns.updatedAt),
+		logs_created_at_idx: index("logs_created_at_idx").on(columns.createdAt),
+	}),
 );
 
 export const events_schedules_schedule = pgTable(
-  "events_schedules_schedule",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: uuid("_parent_id").notNull(),
-    id: varchar("id").primaryKey(),
-    isActive: boolean("is_active").default(true),
-    scheduleName: varchar("schedule_name"),
-    dtstart: timestamp("dtstart", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    dtend: timestamp("dtend", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    isRecurring: boolean("is_recurring").default(true),
-    rrulestring: varchar("rrulestring"),
-  },
-  (columns) => ({
-    _orderIdx: index("events_schedules_schedule_order_idx").on(columns._order),
-    _parentIDIdx: index("events_schedules_schedule_parent_id_idx").on(
-      columns._parentID,
-    ),
-    _parentIDFk: foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [events.id],
-      name: "events_schedules_schedule_parent_id_fk",
-    }).onDelete("cascade"),
-  }),
+	"events_schedules_schedule",
+	{
+		_order: integer("_order").notNull(),
+		_parentID: uuid("_parent_id").notNull(),
+		id: varchar("id").primaryKey(),
+		isActive: boolean("is_active").default(true),
+		scheduleName: varchar("schedule_name"),
+		dtstart: timestamp("dtstart", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		dtend: timestamp("dtend", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		isRecurring: boolean("is_recurring").default(true),
+		rrulestring: varchar("rrulestring"),
+	},
+	(columns) => ({
+		_orderIdx: index("events_schedules_schedule_order_idx").on(columns._order),
+		_parentIDIdx: index("events_schedules_schedule_parent_id_idx").on(
+			columns._parentID,
+		),
+		_parentIDFk: foreignKey({
+			columns: [columns._parentID],
+			foreignColumns: [events.id],
+			name: "events_schedules_schedule_parent_id_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const events_prices = pgTable(
-  "events_prices",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: uuid("_parent_id").notNull(),
-    id: varchar("id").primaryKey(),
-    stripePriceId: varchar("stripe_price_id"),
-    isActive: boolean("is_active").default(true),
-    label: varchar("label"),
-    description: varchar("description"),
-    amount: numeric("amount").default("0"),
-    quantityUnit: numeric("quantity_unit").default("1"),
-    quantity: numeric("quantity").default("0"),
-  },
-  (columns) => ({
-    _orderIdx: index("events_prices_order_idx").on(columns._order),
-    _parentIDIdx: index("events_prices_parent_id_idx").on(columns._parentID),
-    _parentIDFk: foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [events.id],
-      name: "events_prices_parent_id_fk",
-    }).onDelete("cascade"),
-  }),
+	"events_prices",
+	{
+		_order: integer("_order").notNull(),
+		_parentID: uuid("_parent_id").notNull(),
+		id: varchar("id").primaryKey(),
+		stripePriceId: varchar("stripe_price_id"),
+		isActive: boolean("is_active").default(true),
+		label: varchar("label"),
+		description: varchar("description"),
+		amount: numeric("amount").default("0"),
+		quantityUnit: numeric("quantity_unit").default("1"),
+		quantity: numeric("quantity").default("0"),
+	},
+	(columns) => ({
+		_orderIdx: index("events_prices_order_idx").on(columns._order),
+		_parentIDIdx: index("events_prices_parent_id_idx").on(columns._parentID),
+		_parentIDFk: foreignKey({
+			columns: [columns._parentID],
+			foreignColumns: [events.id],
+			name: "events_prices_parent_id_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const events = pgTable(
-  "events",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenant: uuid("tenant_id").references(() => tenants.id, {
-      onDelete: "set null",
-    }),
-    isActive: boolean("is_active").default(true),
-    stripeProductId: varchar("stripe_product_id"),
-    title: varchar("title"),
-    description: jsonb("description"),
-    maxQuantity: numeric("max_quantity").default("4"),
-    minQuantity: numeric("min_quantity").default("1"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp("deleted_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    _status: enum_events_status("_status").default("draft"),
-  },
-  (columns) => ({
-    events_tenant_idx: index("events_tenant_idx").on(columns.tenant),
-    events_updated_at_idx: index("events_updated_at_idx").on(columns.updatedAt),
-    events_created_at_idx: index("events_created_at_idx").on(columns.createdAt),
-    events_deleted_at_idx: index("events_deleted_at_idx").on(columns.deletedAt),
-    events__status_idx: index("events__status_idx").on(columns._status),
-  }),
+	"events",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		tenant: uuid("tenant_id").references(() => tenants.id, {
+			onDelete: "set null",
+		}),
+		isActive: boolean("is_active").default(true),
+		stripeProductId: varchar("stripe_product_id"),
+		title: varchar("title"),
+		description: jsonb("description"),
+		maxQuantity: numeric("max_quantity").default("4"),
+		minQuantity: numeric("min_quantity").default("1"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		deletedAt: timestamp("deleted_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		_status: enum_events_status("_status").default("draft"),
+	},
+	(columns) => ({
+		events_tenant_idx: index("events_tenant_idx").on(columns.tenant),
+		events_updated_at_idx: index("events_updated_at_idx").on(columns.updatedAt),
+		events_created_at_idx: index("events_created_at_idx").on(columns.createdAt),
+		events_deleted_at_idx: index("events_deleted_at_idx").on(columns.deletedAt),
+		events__status_idx: index("events__status_idx").on(columns._status),
+	}),
 );
 
 export const _events_v_version_schedules_schedule = pgTable(
-  "_events_v_version_schedules_schedule",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: uuid("_parent_id").notNull(),
-    id: uuid("id").defaultRandom().primaryKey(),
-    isActive: boolean("is_active").default(true),
-    scheduleName: varchar("schedule_name"),
-    dtstart: timestamp("dtstart", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    dtend: timestamp("dtend", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    isRecurring: boolean("is_recurring").default(true),
-    rrulestring: varchar("rrulestring"),
-    _uuid: varchar("_uuid"),
-  },
-  (columns) => ({
-    _orderIdx: index("_events_v_version_schedules_schedule_order_idx").on(
-      columns._order,
-    ),
-    _parentIDIdx: index(
-      "_events_v_version_schedules_schedule_parent_id_idx",
-    ).on(columns._parentID),
-    _parentIDFk: foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [_events_v.id],
-      name: "_events_v_version_schedules_schedule_parent_id_fk",
-    }).onDelete("cascade"),
-  }),
+	"_events_v_version_schedules_schedule",
+	{
+		_order: integer("_order").notNull(),
+		_parentID: uuid("_parent_id").notNull(),
+		id: uuid("id").defaultRandom().primaryKey(),
+		isActive: boolean("is_active").default(true),
+		scheduleName: varchar("schedule_name"),
+		dtstart: timestamp("dtstart", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		dtend: timestamp("dtend", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		isRecurring: boolean("is_recurring").default(true),
+		rrulestring: varchar("rrulestring"),
+		_uuid: varchar("_uuid"),
+	},
+	(columns) => ({
+		_orderIdx: index("_events_v_version_schedules_schedule_order_idx").on(
+			columns._order,
+		),
+		_parentIDIdx: index(
+			"_events_v_version_schedules_schedule_parent_id_idx",
+		).on(columns._parentID),
+		_parentIDFk: foreignKey({
+			columns: [columns._parentID],
+			foreignColumns: [_events_v.id],
+			name: "_events_v_version_schedules_schedule_parent_id_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const _events_v_version_prices = pgTable(
-  "_events_v_version_prices",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: uuid("_parent_id").notNull(),
-    id: uuid("id").defaultRandom().primaryKey(),
-    stripePriceId: varchar("stripe_price_id"),
-    isActive: boolean("is_active").default(true),
-    label: varchar("label"),
-    description: varchar("description"),
-    amount: numeric("amount").default("0"),
-    quantityUnit: numeric("quantity_unit").default("1"),
-    quantity: numeric("quantity").default("0"),
-    _uuid: varchar("_uuid"),
-  },
-  (columns) => ({
-    _orderIdx: index("_events_v_version_prices_order_idx").on(columns._order),
-    _parentIDIdx: index("_events_v_version_prices_parent_id_idx").on(
-      columns._parentID,
-    ),
-    _parentIDFk: foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [_events_v.id],
-      name: "_events_v_version_prices_parent_id_fk",
-    }).onDelete("cascade"),
-  }),
+	"_events_v_version_prices",
+	{
+		_order: integer("_order").notNull(),
+		_parentID: uuid("_parent_id").notNull(),
+		id: uuid("id").defaultRandom().primaryKey(),
+		stripePriceId: varchar("stripe_price_id"),
+		isActive: boolean("is_active").default(true),
+		label: varchar("label"),
+		description: varchar("description"),
+		amount: numeric("amount").default("0"),
+		quantityUnit: numeric("quantity_unit").default("1"),
+		quantity: numeric("quantity").default("0"),
+		_uuid: varchar("_uuid"),
+	},
+	(columns) => ({
+		_orderIdx: index("_events_v_version_prices_order_idx").on(columns._order),
+		_parentIDIdx: index("_events_v_version_prices_parent_id_idx").on(
+			columns._parentID,
+		),
+		_parentIDFk: foreignKey({
+			columns: [columns._parentID],
+			foreignColumns: [_events_v.id],
+			name: "_events_v_version_prices_parent_id_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const _events_v = pgTable(
-  "_events_v",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    parent: uuid("parent_id").references(() => events.id, {
-      onDelete: "set null",
-    }),
-    version_tenant: uuid("version_tenant_id").references(() => tenants.id, {
-      onDelete: "set null",
-    }),
-    version_isActive: boolean("version_is_active").default(true),
-    version_stripeProductId: varchar("version_stripe_product_id"),
-    version_title: varchar("version_title"),
-    version_description: jsonb("version_description"),
-    version_maxQuantity: numeric("version_max_quantity").default("4"),
-    version_minQuantity: numeric("version_min_quantity").default("1"),
-    version_updatedAt: timestamp("version_updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    version_createdAt: timestamp("version_created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    version_deletedAt: timestamp("version_deleted_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    version__status:
-      enum__events_v_version_status("version__status").default("draft"),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    latest: boolean("latest"),
-    autosave: boolean("autosave"),
-  },
-  (columns) => ({
-    _events_v_parent_idx: index("_events_v_parent_idx").on(columns.parent),
-    _events_v_version_version_tenant_idx: index(
-      "_events_v_version_version_tenant_idx",
-    ).on(columns.version_tenant),
-    _events_v_version_version_updated_at_idx: index(
-      "_events_v_version_version_updated_at_idx",
-    ).on(columns.version_updatedAt),
-    _events_v_version_version_created_at_idx: index(
-      "_events_v_version_version_created_at_idx",
-    ).on(columns.version_createdAt),
-    _events_v_version_version_deleted_at_idx: index(
-      "_events_v_version_version_deleted_at_idx",
-    ).on(columns.version_deletedAt),
-    _events_v_version_version__status_idx: index(
-      "_events_v_version_version__status_idx",
-    ).on(columns.version__status),
-    _events_v_created_at_idx: index("_events_v_created_at_idx").on(
-      columns.createdAt,
-    ),
-    _events_v_updated_at_idx: index("_events_v_updated_at_idx").on(
-      columns.updatedAt,
-    ),
-    _events_v_latest_idx: index("_events_v_latest_idx").on(columns.latest),
-    _events_v_autosave_idx: index("_events_v_autosave_idx").on(
-      columns.autosave,
-    ),
-  }),
+	"_events_v",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		parent: uuid("parent_id").references(() => events.id, {
+			onDelete: "set null",
+		}),
+		version_tenant: uuid("version_tenant_id").references(() => tenants.id, {
+			onDelete: "set null",
+		}),
+		version_isActive: boolean("version_is_active").default(true),
+		version_stripeProductId: varchar("version_stripe_product_id"),
+		version_title: varchar("version_title"),
+		version_description: jsonb("version_description"),
+		version_maxQuantity: numeric("version_max_quantity").default("4"),
+		version_minQuantity: numeric("version_min_quantity").default("1"),
+		version_updatedAt: timestamp("version_updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		version_createdAt: timestamp("version_created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		version_deletedAt: timestamp("version_deleted_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		version__status:
+			enum__events_v_version_status("version__status").default("draft"),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		latest: boolean("latest"),
+		autosave: boolean("autosave"),
+	},
+	(columns) => ({
+		_events_v_parent_idx: index("_events_v_parent_idx").on(columns.parent),
+		_events_v_version_version_tenant_idx: index(
+			"_events_v_version_version_tenant_idx",
+		).on(columns.version_tenant),
+		_events_v_version_version_updated_at_idx: index(
+			"_events_v_version_version_updated_at_idx",
+		).on(columns.version_updatedAt),
+		_events_v_version_version_created_at_idx: index(
+			"_events_v_version_version_created_at_idx",
+		).on(columns.version_createdAt),
+		_events_v_version_version_deleted_at_idx: index(
+			"_events_v_version_version_deleted_at_idx",
+		).on(columns.version_deletedAt),
+		_events_v_version_version__status_idx: index(
+			"_events_v_version_version__status_idx",
+		).on(columns.version__status),
+		_events_v_created_at_idx: index("_events_v_created_at_idx").on(
+			columns.createdAt,
+		),
+		_events_v_updated_at_idx: index("_events_v_updated_at_idx").on(
+			columns.updatedAt,
+		),
+		_events_v_latest_idx: index("_events_v_latest_idx").on(columns.latest),
+		_events_v_autosave_idx: index("_events_v_autosave_idx").on(
+			columns.autosave,
+		),
+	}),
 );
 
 export const bookings = pgTable(
-  "bookings",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenant: uuid("tenant_id").references(() => tenants.id, {
-      onDelete: "set null",
-    }),
-    eventRelation: uuid("event_relation_id").references(() => events.id, {
-      onDelete: "set null",
-    }),
-    selectedScheduleInstanceData: jsonb("selected_schedule_instance_data"),
-    dtstart: timestamp("dtstart", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }).notNull(),
-    dtend: timestamp("dtend", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }).notNull(),
-    customerRelation: uuid("customer_relation_id").references(
-      () => customers.id,
-      {
-        onDelete: "set null",
-      },
-    ),
-    overrideMaxQuantity: boolean("override_max_quantity"),
-    eventSnapshot: jsonb("event_snapshot").default(sql`'{}'::jsonb`),
-    customerSnapshot: jsonb("customer_snapshot").default(sql`'{}'::jsonb`),
-    pricingSnapshot: jsonb("pricing_snapshot").default(sql`'{}'::jsonb`),
-    rrulestring: varchar("rrulestring"),
-    stripeCheckoutSessionId: varchar("stripe_checkout_session_id"),
-    paymentStatus: varchar("payment_status"),
-    paymentMethod: enum_bookings_payment_method("payment_method"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    bookings_tenant_idx: index("bookings_tenant_idx").on(columns.tenant),
-    bookings_event_relation_idx: index("bookings_event_relation_idx").on(
-      columns.eventRelation,
-    ),
-    bookings_customer_relation_idx: index("bookings_customer_relation_idx").on(
-      columns.customerRelation,
-    ),
-    bookings_updated_at_idx: index("bookings_updated_at_idx").on(
-      columns.updatedAt,
-    ),
-    bookings_created_at_idx: index("bookings_created_at_idx").on(
-      columns.createdAt,
-    ),
-  }),
+	"bookings",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		tenant: uuid("tenant_id").references(() => tenants.id, {
+			onDelete: "set null",
+		}),
+		eventRelation: uuid("event_relation_id").references(() => events.id, {
+			onDelete: "set null",
+		}),
+		selectedScheduleInstanceData: jsonb("selected_schedule_instance_data"),
+		dtstart: timestamp("dtstart", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}).notNull(),
+		dtend: timestamp("dtend", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}).notNull(),
+		customerRelation: uuid("customer_relation_id").references(
+			() => customers.id,
+			{
+				onDelete: "set null",
+			},
+		),
+		overrideMaxQuantity: boolean("override_max_quantity"),
+		eventSnapshot: jsonb("event_snapshot").default(sql`'{}'::jsonb`),
+		customerSnapshot: jsonb("customer_snapshot").default(sql`'{}'::jsonb`),
+		pricingSnapshot: jsonb("pricing_snapshot").default(sql`'{}'::jsonb`),
+		rrulestring: varchar("rrulestring"),
+		stripeCheckoutSessionId: varchar("stripe_checkout_session_id"),
+		paymentStatus: varchar("payment_status"),
+		paymentMethod: enum_bookings_payment_method("payment_method"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		bookings_tenant_idx: index("bookings_tenant_idx").on(columns.tenant),
+		bookings_event_relation_idx: index("bookings_event_relation_idx").on(
+			columns.eventRelation,
+		),
+		bookings_customer_relation_idx: index("bookings_customer_relation_idx").on(
+			columns.customerRelation,
+		),
+		bookings_updated_at_idx: index("bookings_updated_at_idx").on(
+			columns.updatedAt,
+		),
+		bookings_created_at_idx: index("bookings_created_at_idx").on(
+			columns.createdAt,
+		),
+	}),
 );
 
 export const _bookings_v = pgTable(
-  "_bookings_v",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    parent: uuid("parent_id").references(() => bookings.id, {
-      onDelete: "set null",
-    }),
-    version_tenant: uuid("version_tenant_id").references(() => tenants.id, {
-      onDelete: "set null",
-    }),
-    version_eventRelation: uuid("version_event_relation_id").references(
-      () => events.id,
-      {
-        onDelete: "set null",
-      },
-    ),
-    version_selectedScheduleInstanceData: jsonb(
-      "version_selected_schedule_instance_data",
-    ),
-    version_dtstart: timestamp("version_dtstart", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }).notNull(),
-    version_dtend: timestamp("version_dtend", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }).notNull(),
-    version_customerRelation: uuid("version_customer_relation_id").references(
-      () => customers.id,
-      {
-        onDelete: "set null",
-      },
-    ),
-    version_overrideMaxQuantity: boolean("version_override_max_quantity"),
-    version_eventSnapshot: jsonb("version_event_snapshot").default(
-      sql`'{}'::jsonb`,
-    ),
-    version_customerSnapshot: jsonb("version_customer_snapshot").default(
-      sql`'{}'::jsonb`,
-    ),
-    version_pricingSnapshot: jsonb("version_pricing_snapshot").default(
-      sql`'{}'::jsonb`,
-    ),
-    version_rrulestring: varchar("version_rrulestring"),
-    version_stripeCheckoutSessionId: varchar(
-      "version_stripe_checkout_session_id",
-    ),
-    version_paymentStatus: varchar("version_payment_status"),
-    version_paymentMethod: enum__bookings_v_version_payment_method(
-      "version_payment_method",
-    ),
-    version_updatedAt: timestamp("version_updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    version_createdAt: timestamp("version_created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    _bookings_v_parent_idx: index("_bookings_v_parent_idx").on(columns.parent),
-    _bookings_v_version_version_tenant_idx: index(
-      "_bookings_v_version_version_tenant_idx",
-    ).on(columns.version_tenant),
-    _bookings_v_version_version_event_relation_idx: index(
-      "_bookings_v_version_version_event_relation_idx",
-    ).on(columns.version_eventRelation),
-    _bookings_v_version_version_customer_relation_idx: index(
-      "_bookings_v_version_version_customer_relation_idx",
-    ).on(columns.version_customerRelation),
-    _bookings_v_version_version_updated_at_idx: index(
-      "_bookings_v_version_version_updated_at_idx",
-    ).on(columns.version_updatedAt),
-    _bookings_v_version_version_created_at_idx: index(
-      "_bookings_v_version_version_created_at_idx",
-    ).on(columns.version_createdAt),
-    _bookings_v_created_at_idx: index("_bookings_v_created_at_idx").on(
-      columns.createdAt,
-    ),
-    _bookings_v_updated_at_idx: index("_bookings_v_updated_at_idx").on(
-      columns.updatedAt,
-    ),
-  }),
+	"_bookings_v",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		parent: uuid("parent_id").references(() => bookings.id, {
+			onDelete: "set null",
+		}),
+		version_tenant: uuid("version_tenant_id").references(() => tenants.id, {
+			onDelete: "set null",
+		}),
+		version_eventRelation: uuid("version_event_relation_id").references(
+			() => events.id,
+			{
+				onDelete: "set null",
+			},
+		),
+		version_selectedScheduleInstanceData: jsonb(
+			"version_selected_schedule_instance_data",
+		),
+		version_dtstart: timestamp("version_dtstart", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}).notNull(),
+		version_dtend: timestamp("version_dtend", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}).notNull(),
+		version_customerRelation: uuid("version_customer_relation_id").references(
+			() => customers.id,
+			{
+				onDelete: "set null",
+			},
+		),
+		version_overrideMaxQuantity: boolean("version_override_max_quantity"),
+		version_eventSnapshot: jsonb("version_event_snapshot").default(
+			sql`'{}'::jsonb`,
+		),
+		version_customerSnapshot: jsonb("version_customer_snapshot").default(
+			sql`'{}'::jsonb`,
+		),
+		version_pricingSnapshot: jsonb("version_pricing_snapshot").default(
+			sql`'{}'::jsonb`,
+		),
+		version_rrulestring: varchar("version_rrulestring"),
+		version_stripeCheckoutSessionId: varchar(
+			"version_stripe_checkout_session_id",
+		),
+		version_paymentStatus: varchar("version_payment_status"),
+		version_paymentMethod: enum__bookings_v_version_payment_method(
+			"version_payment_method",
+		),
+		version_updatedAt: timestamp("version_updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		version_createdAt: timestamp("version_created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		_bookings_v_parent_idx: index("_bookings_v_parent_idx").on(columns.parent),
+		_bookings_v_version_version_tenant_idx: index(
+			"_bookings_v_version_version_tenant_idx",
+		).on(columns.version_tenant),
+		_bookings_v_version_version_event_relation_idx: index(
+			"_bookings_v_version_version_event_relation_idx",
+		).on(columns.version_eventRelation),
+		_bookings_v_version_version_customer_relation_idx: index(
+			"_bookings_v_version_version_customer_relation_idx",
+		).on(columns.version_customerRelation),
+		_bookings_v_version_version_updated_at_idx: index(
+			"_bookings_v_version_version_updated_at_idx",
+		).on(columns.version_updatedAt),
+		_bookings_v_version_version_created_at_idx: index(
+			"_bookings_v_version_version_created_at_idx",
+		).on(columns.version_createdAt),
+		_bookings_v_created_at_idx: index("_bookings_v_created_at_idx").on(
+			columns.createdAt,
+		),
+		_bookings_v_updated_at_idx: index("_bookings_v_updated_at_idx").on(
+			columns.updatedAt,
+		),
+	}),
 );
 
 export const payload_jobs_log = pgTable(
-  "payload_jobs_log",
-  {
-    _order: integer("_order").notNull(),
-    _parentID: uuid("_parent_id").notNull(),
-    id: varchar("id").primaryKey(),
-    executedAt: timestamp("executed_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }).notNull(),
-    completedAt: timestamp("completed_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }).notNull(),
-    taskSlug: enum_payload_jobs_log_task_slug("task_slug").notNull(),
-    taskID: varchar("task_i_d").notNull(),
-    input: jsonb("input"),
-    output: jsonb("output"),
-    state: enum_payload_jobs_log_state("state").notNull(),
-    error: jsonb("error"),
-  },
-  (columns) => ({
-    _orderIdx: index("payload_jobs_log_order_idx").on(columns._order),
-    _parentIDIdx: index("payload_jobs_log_parent_id_idx").on(columns._parentID),
-    _parentIDFk: foreignKey({
-      columns: [columns["_parentID"]],
-      foreignColumns: [payload_jobs.id],
-      name: "payload_jobs_log_parent_id_fk",
-    }).onDelete("cascade"),
-  }),
+	"payload_jobs_log",
+	{
+		_order: integer("_order").notNull(),
+		_parentID: uuid("_parent_id").notNull(),
+		id: varchar("id").primaryKey(),
+		executedAt: timestamp("executed_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}).notNull(),
+		completedAt: timestamp("completed_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}).notNull(),
+		taskSlug: enum_payload_jobs_log_task_slug("task_slug").notNull(),
+		taskID: varchar("task_i_d").notNull(),
+		input: jsonb("input"),
+		output: jsonb("output"),
+		state: enum_payload_jobs_log_state("state").notNull(),
+		error: jsonb("error"),
+	},
+	(columns) => ({
+		_orderIdx: index("payload_jobs_log_order_idx").on(columns._order),
+		_parentIDIdx: index("payload_jobs_log_parent_id_idx").on(columns._parentID),
+		_parentIDFk: foreignKey({
+			columns: [columns._parentID],
+			foreignColumns: [payload_jobs.id],
+			name: "payload_jobs_log_parent_id_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const payload_jobs = pgTable(
-  "payload_jobs",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    input: jsonb("input"),
-    completedAt: timestamp("completed_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    totalTried: numeric("total_tried").default("0"),
-    hasError: boolean("has_error").default(false),
-    error: jsonb("error"),
-    taskSlug: enum_payload_jobs_task_slug("task_slug"),
-    queue: varchar("queue").default("default"),
-    waitUntil: timestamp("wait_until", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    processing: boolean("processing").default(false),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    payload_jobs_completed_at_idx: index("payload_jobs_completed_at_idx").on(
-      columns.completedAt,
-    ),
-    payload_jobs_total_tried_idx: index("payload_jobs_total_tried_idx").on(
-      columns.totalTried,
-    ),
-    payload_jobs_has_error_idx: index("payload_jobs_has_error_idx").on(
-      columns.hasError,
-    ),
-    payload_jobs_task_slug_idx: index("payload_jobs_task_slug_idx").on(
-      columns.taskSlug,
-    ),
-    payload_jobs_queue_idx: index("payload_jobs_queue_idx").on(columns.queue),
-    payload_jobs_wait_until_idx: index("payload_jobs_wait_until_idx").on(
-      columns.waitUntil,
-    ),
-    payload_jobs_processing_idx: index("payload_jobs_processing_idx").on(
-      columns.processing,
-    ),
-    payload_jobs_updated_at_idx: index("payload_jobs_updated_at_idx").on(
-      columns.updatedAt,
-    ),
-    payload_jobs_created_at_idx: index("payload_jobs_created_at_idx").on(
-      columns.createdAt,
-    ),
-  }),
+	"payload_jobs",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		input: jsonb("input"),
+		completedAt: timestamp("completed_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		totalTried: numeric("total_tried").default("0"),
+		hasError: boolean("has_error").default(false),
+		error: jsonb("error"),
+		taskSlug: enum_payload_jobs_task_slug("task_slug"),
+		queue: varchar("queue").default("default"),
+		waitUntil: timestamp("wait_until", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		}),
+		processing: boolean("processing").default(false),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		payload_jobs_completed_at_idx: index("payload_jobs_completed_at_idx").on(
+			columns.completedAt,
+		),
+		payload_jobs_total_tried_idx: index("payload_jobs_total_tried_idx").on(
+			columns.totalTried,
+		),
+		payload_jobs_has_error_idx: index("payload_jobs_has_error_idx").on(
+			columns.hasError,
+		),
+		payload_jobs_task_slug_idx: index("payload_jobs_task_slug_idx").on(
+			columns.taskSlug,
+		),
+		payload_jobs_queue_idx: index("payload_jobs_queue_idx").on(columns.queue),
+		payload_jobs_wait_until_idx: index("payload_jobs_wait_until_idx").on(
+			columns.waitUntil,
+		),
+		payload_jobs_processing_idx: index("payload_jobs_processing_idx").on(
+			columns.processing,
+		),
+		payload_jobs_updated_at_idx: index("payload_jobs_updated_at_idx").on(
+			columns.updatedAt,
+		),
+		payload_jobs_created_at_idx: index("payload_jobs_created_at_idx").on(
+			columns.createdAt,
+		),
+	}),
 );
 
 export const payload_locked_documents = pgTable(
-  "payload_locked_documents",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    globalSlug: varchar("global_slug"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    payload_locked_documents_global_slug_idx: index(
-      "payload_locked_documents_global_slug_idx",
-    ).on(columns.globalSlug),
-    payload_locked_documents_updated_at_idx: index(
-      "payload_locked_documents_updated_at_idx",
-    ).on(columns.updatedAt),
-    payload_locked_documents_created_at_idx: index(
-      "payload_locked_documents_created_at_idx",
-    ).on(columns.createdAt),
-  }),
+	"payload_locked_documents",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		globalSlug: varchar("global_slug"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		payload_locked_documents_global_slug_idx: index(
+			"payload_locked_documents_global_slug_idx",
+		).on(columns.globalSlug),
+		payload_locked_documents_updated_at_idx: index(
+			"payload_locked_documents_updated_at_idx",
+		).on(columns.updatedAt),
+		payload_locked_documents_created_at_idx: index(
+			"payload_locked_documents_created_at_idx",
+		).on(columns.createdAt),
+	}),
 );
 
 export const payload_locked_documents_rels = pgTable(
-  "payload_locked_documents_rels",
-  {
-    id: serial("id").primaryKey(),
-    order: integer("order"),
-    parent: uuid("parent_id").notNull(),
-    path: varchar("path").notNull(),
-    pagesID: uuid("pages_id"),
-    usersID: uuid("users_id"),
-    tenantsID: uuid("tenants_id"),
-    customersID: uuid("customers_id"),
-    connectedAccountsID: uuid("connected_accounts_id"),
-    paymentsID: uuid("payments_id"),
-    paymentsSettingsID: uuid("payments_settings_id"),
-    logsID: uuid("logs_id"),
-    eventsID: uuid("events_id"),
-    bookingsID: uuid("bookings_id"),
-    "payload-jobsID": uuid("payload_jobs_id"),
-  },
-  (columns) => ({
-    order: index("payload_locked_documents_rels_order_idx").on(columns.order),
-    parentIdx: index("payload_locked_documents_rels_parent_idx").on(
-      columns.parent,
-    ),
-    pathIdx: index("payload_locked_documents_rels_path_idx").on(columns.path),
-    payload_locked_documents_rels_pages_id_idx: index(
-      "payload_locked_documents_rels_pages_id_idx",
-    ).on(columns.pagesID),
-    payload_locked_documents_rels_users_id_idx: index(
-      "payload_locked_documents_rels_users_id_idx",
-    ).on(columns.usersID),
-    payload_locked_documents_rels_tenants_id_idx: index(
-      "payload_locked_documents_rels_tenants_id_idx",
-    ).on(columns.tenantsID),
-    payload_locked_documents_rels_customers_id_idx: index(
-      "payload_locked_documents_rels_customers_id_idx",
-    ).on(columns.customersID),
-    payload_locked_documents_rels_connected_accounts_id_idx: index(
-      "payload_locked_documents_rels_connected_accounts_id_idx",
-    ).on(columns.connectedAccountsID),
-    payload_locked_documents_rels_payments_id_idx: index(
-      "payload_locked_documents_rels_payments_id_idx",
-    ).on(columns.paymentsID),
-    payload_locked_documents_rels_payments_settings_id_idx: index(
-      "payload_locked_documents_rels_payments_settings_id_idx",
-    ).on(columns.paymentsSettingsID),
-    payload_locked_documents_rels_logs_id_idx: index(
-      "payload_locked_documents_rels_logs_id_idx",
-    ).on(columns.logsID),
-    payload_locked_documents_rels_events_id_idx: index(
-      "payload_locked_documents_rels_events_id_idx",
-    ).on(columns.eventsID),
-    payload_locked_documents_rels_bookings_id_idx: index(
-      "payload_locked_documents_rels_bookings_id_idx",
-    ).on(columns.bookingsID),
-    payload_locked_documents_rels_payload_jobs_id_idx: index(
-      "payload_locked_documents_rels_payload_jobs_id_idx",
-    ).on(columns["payload-jobsID"]),
-    parentFk: foreignKey({
-      columns: [columns["parent"]],
-      foreignColumns: [payload_locked_documents.id],
-      name: "payload_locked_documents_rels_parent_fk",
-    }).onDelete("cascade"),
-    pagesIdFk: foreignKey({
-      columns: [columns["pagesID"]],
-      foreignColumns: [pages.id],
-      name: "payload_locked_documents_rels_pages_fk",
-    }).onDelete("cascade"),
-    usersIdFk: foreignKey({
-      columns: [columns["usersID"]],
-      foreignColumns: [users.id],
-      name: "payload_locked_documents_rels_users_fk",
-    }).onDelete("cascade"),
-    tenantsIdFk: foreignKey({
-      columns: [columns["tenantsID"]],
-      foreignColumns: [tenants.id],
-      name: "payload_locked_documents_rels_tenants_fk",
-    }).onDelete("cascade"),
-    customersIdFk: foreignKey({
-      columns: [columns["customersID"]],
-      foreignColumns: [customers.id],
-      name: "payload_locked_documents_rels_customers_fk",
-    }).onDelete("cascade"),
-    connectedAccountsIdFk: foreignKey({
-      columns: [columns["connectedAccountsID"]],
-      foreignColumns: [connected_accounts.id],
-      name: "payload_locked_documents_rels_connected_accounts_fk",
-    }).onDelete("cascade"),
-    paymentsIdFk: foreignKey({
-      columns: [columns["paymentsID"]],
-      foreignColumns: [payments.id],
-      name: "payload_locked_documents_rels_payments_fk",
-    }).onDelete("cascade"),
-    paymentsSettingsIdFk: foreignKey({
-      columns: [columns["paymentsSettingsID"]],
-      foreignColumns: [payments_settings.id],
-      name: "payload_locked_documents_rels_payments_settings_fk",
-    }).onDelete("cascade"),
-    logsIdFk: foreignKey({
-      columns: [columns["logsID"]],
-      foreignColumns: [logs.id],
-      name: "payload_locked_documents_rels_logs_fk",
-    }).onDelete("cascade"),
-    eventsIdFk: foreignKey({
-      columns: [columns["eventsID"]],
-      foreignColumns: [events.id],
-      name: "payload_locked_documents_rels_events_fk",
-    }).onDelete("cascade"),
-    bookingsIdFk: foreignKey({
-      columns: [columns["bookingsID"]],
-      foreignColumns: [bookings.id],
-      name: "payload_locked_documents_rels_bookings_fk",
-    }).onDelete("cascade"),
-    "payload-jobsIdFk": foreignKey({
-      columns: [columns["payload-jobsID"]],
-      foreignColumns: [payload_jobs.id],
-      name: "payload_locked_documents_rels_payload_jobs_fk",
-    }).onDelete("cascade"),
-  }),
+	"payload_locked_documents_rels",
+	{
+		id: serial("id").primaryKey(),
+		order: integer("order"),
+		parent: uuid("parent_id").notNull(),
+		path: varchar("path").notNull(),
+		pagesID: uuid("pages_id"),
+		usersID: uuid("users_id"),
+		tenantsID: uuid("tenants_id"),
+		customersID: uuid("customers_id"),
+		connectedAccountsID: uuid("connected_accounts_id"),
+		paymentsID: uuid("payments_id"),
+		paymentsSettingsID: uuid("payments_settings_id"),
+		logsID: uuid("logs_id"),
+		eventsID: uuid("events_id"),
+		bookingsID: uuid("bookings_id"),
+		"payload-jobsID": uuid("payload_jobs_id"),
+	},
+	(columns) => ({
+		order: index("payload_locked_documents_rels_order_idx").on(columns.order),
+		parentIdx: index("payload_locked_documents_rels_parent_idx").on(
+			columns.parent,
+		),
+		pathIdx: index("payload_locked_documents_rels_path_idx").on(columns.path),
+		payload_locked_documents_rels_pages_id_idx: index(
+			"payload_locked_documents_rels_pages_id_idx",
+		).on(columns.pagesID),
+		payload_locked_documents_rels_users_id_idx: index(
+			"payload_locked_documents_rels_users_id_idx",
+		).on(columns.usersID),
+		payload_locked_documents_rels_tenants_id_idx: index(
+			"payload_locked_documents_rels_tenants_id_idx",
+		).on(columns.tenantsID),
+		payload_locked_documents_rels_customers_id_idx: index(
+			"payload_locked_documents_rels_customers_id_idx",
+		).on(columns.customersID),
+		payload_locked_documents_rels_connected_accounts_id_idx: index(
+			"payload_locked_documents_rels_connected_accounts_id_idx",
+		).on(columns.connectedAccountsID),
+		payload_locked_documents_rels_payments_id_idx: index(
+			"payload_locked_documents_rels_payments_id_idx",
+		).on(columns.paymentsID),
+		payload_locked_documents_rels_payments_settings_id_idx: index(
+			"payload_locked_documents_rels_payments_settings_id_idx",
+		).on(columns.paymentsSettingsID),
+		payload_locked_documents_rels_logs_id_idx: index(
+			"payload_locked_documents_rels_logs_id_idx",
+		).on(columns.logsID),
+		payload_locked_documents_rels_events_id_idx: index(
+			"payload_locked_documents_rels_events_id_idx",
+		).on(columns.eventsID),
+		payload_locked_documents_rels_bookings_id_idx: index(
+			"payload_locked_documents_rels_bookings_id_idx",
+		).on(columns.bookingsID),
+		payload_locked_documents_rels_payload_jobs_id_idx: index(
+			"payload_locked_documents_rels_payload_jobs_id_idx",
+		).on(columns["payload-jobsID"]),
+		parentFk: foreignKey({
+			columns: [columns.parent],
+			foreignColumns: [payload_locked_documents.id],
+			name: "payload_locked_documents_rels_parent_fk",
+		}).onDelete("cascade"),
+		pagesIdFk: foreignKey({
+			columns: [columns.pagesID],
+			foreignColumns: [pages.id],
+			name: "payload_locked_documents_rels_pages_fk",
+		}).onDelete("cascade"),
+		usersIdFk: foreignKey({
+			columns: [columns.usersID],
+			foreignColumns: [users.id],
+			name: "payload_locked_documents_rels_users_fk",
+		}).onDelete("cascade"),
+		tenantsIdFk: foreignKey({
+			columns: [columns.tenantsID],
+			foreignColumns: [tenants.id],
+			name: "payload_locked_documents_rels_tenants_fk",
+		}).onDelete("cascade"),
+		customersIdFk: foreignKey({
+			columns: [columns.customersID],
+			foreignColumns: [customers.id],
+			name: "payload_locked_documents_rels_customers_fk",
+		}).onDelete("cascade"),
+		connectedAccountsIdFk: foreignKey({
+			columns: [columns.connectedAccountsID],
+			foreignColumns: [connected_accounts.id],
+			name: "payload_locked_documents_rels_connected_accounts_fk",
+		}).onDelete("cascade"),
+		paymentsIdFk: foreignKey({
+			columns: [columns.paymentsID],
+			foreignColumns: [payments.id],
+			name: "payload_locked_documents_rels_payments_fk",
+		}).onDelete("cascade"),
+		paymentsSettingsIdFk: foreignKey({
+			columns: [columns.paymentsSettingsID],
+			foreignColumns: [payments_settings.id],
+			name: "payload_locked_documents_rels_payments_settings_fk",
+		}).onDelete("cascade"),
+		logsIdFk: foreignKey({
+			columns: [columns.logsID],
+			foreignColumns: [logs.id],
+			name: "payload_locked_documents_rels_logs_fk",
+		}).onDelete("cascade"),
+		eventsIdFk: foreignKey({
+			columns: [columns.eventsID],
+			foreignColumns: [events.id],
+			name: "payload_locked_documents_rels_events_fk",
+		}).onDelete("cascade"),
+		bookingsIdFk: foreignKey({
+			columns: [columns.bookingsID],
+			foreignColumns: [bookings.id],
+			name: "payload_locked_documents_rels_bookings_fk",
+		}).onDelete("cascade"),
+		"payload-jobsIdFk": foreignKey({
+			columns: [columns["payload-jobsID"]],
+			foreignColumns: [payload_jobs.id],
+			name: "payload_locked_documents_rels_payload_jobs_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const payload_preferences = pgTable(
-  "payload_preferences",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    key: varchar("key"),
-    value: jsonb("value"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    payload_preferences_key_idx: index("payload_preferences_key_idx").on(
-      columns.key,
-    ),
-    payload_preferences_updated_at_idx: index(
-      "payload_preferences_updated_at_idx",
-    ).on(columns.updatedAt),
-    payload_preferences_created_at_idx: index(
-      "payload_preferences_created_at_idx",
-    ).on(columns.createdAt),
-  }),
+	"payload_preferences",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		key: varchar("key"),
+		value: jsonb("value"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		payload_preferences_key_idx: index("payload_preferences_key_idx").on(
+			columns.key,
+		),
+		payload_preferences_updated_at_idx: index(
+			"payload_preferences_updated_at_idx",
+		).on(columns.updatedAt),
+		payload_preferences_created_at_idx: index(
+			"payload_preferences_created_at_idx",
+		).on(columns.createdAt),
+	}),
 );
 
 export const payload_preferences_rels = pgTable(
-  "payload_preferences_rels",
-  {
-    id: serial("id").primaryKey(),
-    order: integer("order"),
-    parent: uuid("parent_id").notNull(),
-    path: varchar("path").notNull(),
-    usersID: uuid("users_id"),
-  },
-  (columns) => ({
-    order: index("payload_preferences_rels_order_idx").on(columns.order),
-    parentIdx: index("payload_preferences_rels_parent_idx").on(columns.parent),
-    pathIdx: index("payload_preferences_rels_path_idx").on(columns.path),
-    payload_preferences_rels_users_id_idx: index(
-      "payload_preferences_rels_users_id_idx",
-    ).on(columns.usersID),
-    parentFk: foreignKey({
-      columns: [columns["parent"]],
-      foreignColumns: [payload_preferences.id],
-      name: "payload_preferences_rels_parent_fk",
-    }).onDelete("cascade"),
-    usersIdFk: foreignKey({
-      columns: [columns["usersID"]],
-      foreignColumns: [users.id],
-      name: "payload_preferences_rels_users_fk",
-    }).onDelete("cascade"),
-  }),
+	"payload_preferences_rels",
+	{
+		id: serial("id").primaryKey(),
+		order: integer("order"),
+		parent: uuid("parent_id").notNull(),
+		path: varchar("path").notNull(),
+		usersID: uuid("users_id"),
+	},
+	(columns) => ({
+		order: index("payload_preferences_rels_order_idx").on(columns.order),
+		parentIdx: index("payload_preferences_rels_parent_idx").on(columns.parent),
+		pathIdx: index("payload_preferences_rels_path_idx").on(columns.path),
+		payload_preferences_rels_users_id_idx: index(
+			"payload_preferences_rels_users_id_idx",
+		).on(columns.usersID),
+		parentFk: foreignKey({
+			columns: [columns.parent],
+			foreignColumns: [payload_preferences.id],
+			name: "payload_preferences_rels_parent_fk",
+		}).onDelete("cascade"),
+		usersIdFk: foreignKey({
+			columns: [columns.usersID],
+			foreignColumns: [users.id],
+			name: "payload_preferences_rels_users_fk",
+		}).onDelete("cascade"),
+	}),
 );
 
 export const payload_migrations = pgTable(
-  "payload_migrations",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    name: varchar("name"),
-    batch: numeric("batch"),
-    updatedAt: timestamp("updated_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    })
-      .defaultNow()
-      .notNull(),
-  },
-  (columns) => ({
-    payload_migrations_updated_at_idx: index(
-      "payload_migrations_updated_at_idx",
-    ).on(columns.updatedAt),
-    payload_migrations_created_at_idx: index(
-      "payload_migrations_created_at_idx",
-    ).on(columns.createdAt),
-  }),
+	"payload_migrations",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		name: varchar("name"),
+		batch: numeric("batch"),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+			precision: 3,
+		})
+			.defaultNow()
+			.notNull(),
+	},
+	(columns) => ({
+		payload_migrations_updated_at_idx: index(
+			"payload_migrations_updated_at_idx",
+		).on(columns.updatedAt),
+		payload_migrations_created_at_idx: index(
+			"payload_migrations_created_at_idx",
+		).on(columns.createdAt),
+	}),
 );
 
 export const relations_pages = relations(pages, ({ one }) => ({
-  tenant: one(tenants, {
-    fields: [pages.tenant],
-    references: [tenants.id],
-    relationName: "tenant",
-  }),
+	tenant: one(tenants, {
+		fields: [pages.tenant],
+		references: [tenants.id],
+		relationName: "tenant",
+	}),
 }));
 export const relations_users_roles = relations(users_roles, ({ one }) => ({
-  parent: one(users, {
-    fields: [users_roles.parent],
-    references: [users.id],
-    relationName: "roles",
-  }),
+	parent: one(users, {
+		fields: [users_roles.parent],
+		references: [users.id],
+		relationName: "roles",
+	}),
 }));
 export const relations_users_tenants_roles = relations(
-  users_tenants_roles,
-  ({ one }) => ({
-    parent: one(users_tenants, {
-      fields: [users_tenants_roles.parent],
-      references: [users_tenants.id],
-      relationName: "roles",
-    }),
-  }),
+	users_tenants_roles,
+	({ one }) => ({
+		parent: one(users_tenants, {
+			fields: [users_tenants_roles.parent],
+			references: [users_tenants.id],
+			relationName: "roles",
+		}),
+	}),
 );
 export const relations_users_tenants = relations(
-  users_tenants,
-  ({ one, many }) => ({
-    _parentID: one(users, {
-      fields: [users_tenants._parentID],
-      references: [users.id],
-      relationName: "tenants",
-    }),
-    tenant: one(tenants, {
-      fields: [users_tenants.tenant],
-      references: [tenants.id],
-      relationName: "tenant",
-    }),
-    roles: many(users_tenants_roles, {
-      relationName: "roles",
-    }),
-  }),
+	users_tenants,
+	({ one, many }) => ({
+		_parentID: one(users, {
+			fields: [users_tenants._parentID],
+			references: [users.id],
+			relationName: "tenants",
+		}),
+		tenant: one(tenants, {
+			fields: [users_tenants.tenant],
+			references: [tenants.id],
+			relationName: "tenant",
+		}),
+		roles: many(users_tenants_roles, {
+			relationName: "roles",
+		}),
+	}),
 );
 export const relations_users_sessions = relations(
-  users_sessions,
-  ({ one }) => ({
-    _parentID: one(users, {
-      fields: [users_sessions._parentID],
-      references: [users.id],
-      relationName: "sessions",
-    }),
-  }),
+	users_sessions,
+	({ one }) => ({
+		_parentID: one(users, {
+			fields: [users_sessions._parentID],
+			references: [users.id],
+			relationName: "sessions",
+		}),
+	}),
 );
 export const relations_users = relations(users, ({ many }) => ({
-  roles: many(users_roles, {
-    relationName: "roles",
-  }),
-  tenants: many(users_tenants, {
-    relationName: "tenants",
-  }),
-  sessions: many(users_sessions, {
-    relationName: "sessions",
-  }),
+	roles: many(users_roles, {
+		relationName: "roles",
+	}),
+	tenants: many(users_tenants, {
+		relationName: "tenants",
+	}),
+	sessions: many(users_sessions, {
+		relationName: "sessions",
+	}),
 }));
 export const relations_tenants = relations(tenants, () => ({}));
 export const relations_customers = relations(customers, ({ one }) => ({
-  tenant: one(tenants, {
-    fields: [customers.tenant],
-    references: [tenants.id],
-    relationName: "tenant",
-  }),
+	tenant: one(tenants, {
+		fields: [customers.tenant],
+		references: [tenants.id],
+		relationName: "tenant",
+	}),
 }));
 export const relations_connected_accounts = relations(
-  connected_accounts,
-  ({ one }) => ({
-    tenant: one(tenants, {
-      fields: [connected_accounts.tenant],
-      references: [tenants.id],
-      relationName: "tenant",
-    }),
-  }),
+	connected_accounts,
+	({ one }) => ({
+		tenant: one(tenants, {
+			fields: [connected_accounts.tenant],
+			references: [tenants.id],
+			relationName: "tenant",
+		}),
+	}),
 );
 export const relations_payments = relations(payments, ({ one }) => ({
-  tenant: one(tenants, {
-    fields: [payments.tenant],
-    references: [tenants.id],
-    relationName: "tenant",
-  }),
+	tenant: one(tenants, {
+		fields: [payments.tenant],
+		references: [tenants.id],
+		relationName: "tenant",
+	}),
 }));
 export const relations_payments_settings = relations(
-  payments_settings,
-  () => ({}),
+	payments_settings,
+	() => ({}),
 );
 export const relations_logs = relations(logs, ({ one }) => ({
-  user: one(users, {
-    fields: [logs.user],
-    references: [users.id],
-    relationName: "user",
-  }),
+	user: one(users, {
+		fields: [logs.user],
+		references: [users.id],
+		relationName: "user",
+	}),
 }));
 export const relations_events_schedules_schedule = relations(
-  events_schedules_schedule,
-  ({ one }) => ({
-    _parentID: one(events, {
-      fields: [events_schedules_schedule._parentID],
-      references: [events.id],
-      relationName: "schedules_schedule",
-    }),
-  }),
+	events_schedules_schedule,
+	({ one }) => ({
+		_parentID: one(events, {
+			fields: [events_schedules_schedule._parentID],
+			references: [events.id],
+			relationName: "schedules_schedule",
+		}),
+	}),
 );
 export const relations_events_prices = relations(events_prices, ({ one }) => ({
-  _parentID: one(events, {
-    fields: [events_prices._parentID],
-    references: [events.id],
-    relationName: "prices",
-  }),
+	_parentID: one(events, {
+		fields: [events_prices._parentID],
+		references: [events.id],
+		relationName: "prices",
+	}),
 }));
 export const relations_events = relations(events, ({ one, many }) => ({
-  tenant: one(tenants, {
-    fields: [events.tenant],
-    references: [tenants.id],
-    relationName: "tenant",
-  }),
-  schedules_schedule: many(events_schedules_schedule, {
-    relationName: "schedules_schedule",
-  }),
-  prices: many(events_prices, {
-    relationName: "prices",
-  }),
+	tenant: one(tenants, {
+		fields: [events.tenant],
+		references: [tenants.id],
+		relationName: "tenant",
+	}),
+	schedules_schedule: many(events_schedules_schedule, {
+		relationName: "schedules_schedule",
+	}),
+	prices: many(events_prices, {
+		relationName: "prices",
+	}),
 }));
 export const relations__events_v_version_schedules_schedule = relations(
-  _events_v_version_schedules_schedule,
-  ({ one }) => ({
-    _parentID: one(_events_v, {
-      fields: [_events_v_version_schedules_schedule._parentID],
-      references: [_events_v.id],
-      relationName: "version_schedules_schedule",
-    }),
-  }),
+	_events_v_version_schedules_schedule,
+	({ one }) => ({
+		_parentID: one(_events_v, {
+			fields: [_events_v_version_schedules_schedule._parentID],
+			references: [_events_v.id],
+			relationName: "version_schedules_schedule",
+		}),
+	}),
 );
 export const relations__events_v_version_prices = relations(
-  _events_v_version_prices,
-  ({ one }) => ({
-    _parentID: one(_events_v, {
-      fields: [_events_v_version_prices._parentID],
-      references: [_events_v.id],
-      relationName: "version_prices",
-    }),
-  }),
+	_events_v_version_prices,
+	({ one }) => ({
+		_parentID: one(_events_v, {
+			fields: [_events_v_version_prices._parentID],
+			references: [_events_v.id],
+			relationName: "version_prices",
+		}),
+	}),
 );
 export const relations__events_v = relations(_events_v, ({ one, many }) => ({
-  parent: one(events, {
-    fields: [_events_v.parent],
-    references: [events.id],
-    relationName: "parent",
-  }),
-  version_tenant: one(tenants, {
-    fields: [_events_v.version_tenant],
-    references: [tenants.id],
-    relationName: "version_tenant",
-  }),
-  version_schedules_schedule: many(_events_v_version_schedules_schedule, {
-    relationName: "version_schedules_schedule",
-  }),
-  version_prices: many(_events_v_version_prices, {
-    relationName: "version_prices",
-  }),
+	parent: one(events, {
+		fields: [_events_v.parent],
+		references: [events.id],
+		relationName: "parent",
+	}),
+	version_tenant: one(tenants, {
+		fields: [_events_v.version_tenant],
+		references: [tenants.id],
+		relationName: "version_tenant",
+	}),
+	version_schedules_schedule: many(_events_v_version_schedules_schedule, {
+		relationName: "version_schedules_schedule",
+	}),
+	version_prices: many(_events_v_version_prices, {
+		relationName: "version_prices",
+	}),
 }));
 export const relations_bookings = relations(bookings, ({ one }) => ({
-  tenant: one(tenants, {
-    fields: [bookings.tenant],
-    references: [tenants.id],
-    relationName: "tenant",
-  }),
-  eventRelation: one(events, {
-    fields: [bookings.eventRelation],
-    references: [events.id],
-    relationName: "eventRelation",
-  }),
-  customerRelation: one(customers, {
-    fields: [bookings.customerRelation],
-    references: [customers.id],
-    relationName: "customerRelation",
-  }),
+	tenant: one(tenants, {
+		fields: [bookings.tenant],
+		references: [tenants.id],
+		relationName: "tenant",
+	}),
+	eventRelation: one(events, {
+		fields: [bookings.eventRelation],
+		references: [events.id],
+		relationName: "eventRelation",
+	}),
+	customerRelation: one(customers, {
+		fields: [bookings.customerRelation],
+		references: [customers.id],
+		relationName: "customerRelation",
+	}),
 }));
 export const relations__bookings_v = relations(_bookings_v, ({ one }) => ({
-  parent: one(bookings, {
-    fields: [_bookings_v.parent],
-    references: [bookings.id],
-    relationName: "parent",
-  }),
-  version_tenant: one(tenants, {
-    fields: [_bookings_v.version_tenant],
-    references: [tenants.id],
-    relationName: "version_tenant",
-  }),
-  version_eventRelation: one(events, {
-    fields: [_bookings_v.version_eventRelation],
-    references: [events.id],
-    relationName: "version_eventRelation",
-  }),
-  version_customerRelation: one(customers, {
-    fields: [_bookings_v.version_customerRelation],
-    references: [customers.id],
-    relationName: "version_customerRelation",
-  }),
+	parent: one(bookings, {
+		fields: [_bookings_v.parent],
+		references: [bookings.id],
+		relationName: "parent",
+	}),
+	version_tenant: one(tenants, {
+		fields: [_bookings_v.version_tenant],
+		references: [tenants.id],
+		relationName: "version_tenant",
+	}),
+	version_eventRelation: one(events, {
+		fields: [_bookings_v.version_eventRelation],
+		references: [events.id],
+		relationName: "version_eventRelation",
+	}),
+	version_customerRelation: one(customers, {
+		fields: [_bookings_v.version_customerRelation],
+		references: [customers.id],
+		relationName: "version_customerRelation",
+	}),
 }));
 export const relations_payload_jobs_log = relations(
-  payload_jobs_log,
-  ({ one }) => ({
-    _parentID: one(payload_jobs, {
-      fields: [payload_jobs_log._parentID],
-      references: [payload_jobs.id],
-      relationName: "log",
-    }),
-  }),
+	payload_jobs_log,
+	({ one }) => ({
+		_parentID: one(payload_jobs, {
+			fields: [payload_jobs_log._parentID],
+			references: [payload_jobs.id],
+			relationName: "log",
+		}),
+	}),
 );
 export const relations_payload_jobs = relations(payload_jobs, ({ many }) => ({
-  log: many(payload_jobs_log, {
-    relationName: "log",
-  }),
+	log: many(payload_jobs_log, {
+		relationName: "log",
+	}),
 }));
 export const relations_payload_locked_documents_rels = relations(
-  payload_locked_documents_rels,
-  ({ one }) => ({
-    parent: one(payload_locked_documents, {
-      fields: [payload_locked_documents_rels.parent],
-      references: [payload_locked_documents.id],
-      relationName: "_rels",
-    }),
-    pagesID: one(pages, {
-      fields: [payload_locked_documents_rels.pagesID],
-      references: [pages.id],
-      relationName: "pages",
-    }),
-    usersID: one(users, {
-      fields: [payload_locked_documents_rels.usersID],
-      references: [users.id],
-      relationName: "users",
-    }),
-    tenantsID: one(tenants, {
-      fields: [payload_locked_documents_rels.tenantsID],
-      references: [tenants.id],
-      relationName: "tenants",
-    }),
-    customersID: one(customers, {
-      fields: [payload_locked_documents_rels.customersID],
-      references: [customers.id],
-      relationName: "customers",
-    }),
-    connectedAccountsID: one(connected_accounts, {
-      fields: [payload_locked_documents_rels.connectedAccountsID],
-      references: [connected_accounts.id],
-      relationName: "connectedAccounts",
-    }),
-    paymentsID: one(payments, {
-      fields: [payload_locked_documents_rels.paymentsID],
-      references: [payments.id],
-      relationName: "payments",
-    }),
-    paymentsSettingsID: one(payments_settings, {
-      fields: [payload_locked_documents_rels.paymentsSettingsID],
-      references: [payments_settings.id],
-      relationName: "paymentsSettings",
-    }),
-    logsID: one(logs, {
-      fields: [payload_locked_documents_rels.logsID],
-      references: [logs.id],
-      relationName: "logs",
-    }),
-    eventsID: one(events, {
-      fields: [payload_locked_documents_rels.eventsID],
-      references: [events.id],
-      relationName: "events",
-    }),
-    bookingsID: one(bookings, {
-      fields: [payload_locked_documents_rels.bookingsID],
-      references: [bookings.id],
-      relationName: "bookings",
-    }),
-    "payload-jobsID": one(payload_jobs, {
-      fields: [payload_locked_documents_rels["payload-jobsID"]],
-      references: [payload_jobs.id],
-      relationName: "payload-jobs",
-    }),
-  }),
+	payload_locked_documents_rels,
+	({ one }) => ({
+		parent: one(payload_locked_documents, {
+			fields: [payload_locked_documents_rels.parent],
+			references: [payload_locked_documents.id],
+			relationName: "_rels",
+		}),
+		pagesID: one(pages, {
+			fields: [payload_locked_documents_rels.pagesID],
+			references: [pages.id],
+			relationName: "pages",
+		}),
+		usersID: one(users, {
+			fields: [payload_locked_documents_rels.usersID],
+			references: [users.id],
+			relationName: "users",
+		}),
+		tenantsID: one(tenants, {
+			fields: [payload_locked_documents_rels.tenantsID],
+			references: [tenants.id],
+			relationName: "tenants",
+		}),
+		customersID: one(customers, {
+			fields: [payload_locked_documents_rels.customersID],
+			references: [customers.id],
+			relationName: "customers",
+		}),
+		connectedAccountsID: one(connected_accounts, {
+			fields: [payload_locked_documents_rels.connectedAccountsID],
+			references: [connected_accounts.id],
+			relationName: "connectedAccounts",
+		}),
+		paymentsID: one(payments, {
+			fields: [payload_locked_documents_rels.paymentsID],
+			references: [payments.id],
+			relationName: "payments",
+		}),
+		paymentsSettingsID: one(payments_settings, {
+			fields: [payload_locked_documents_rels.paymentsSettingsID],
+			references: [payments_settings.id],
+			relationName: "paymentsSettings",
+		}),
+		logsID: one(logs, {
+			fields: [payload_locked_documents_rels.logsID],
+			references: [logs.id],
+			relationName: "logs",
+		}),
+		eventsID: one(events, {
+			fields: [payload_locked_documents_rels.eventsID],
+			references: [events.id],
+			relationName: "events",
+		}),
+		bookingsID: one(bookings, {
+			fields: [payload_locked_documents_rels.bookingsID],
+			references: [bookings.id],
+			relationName: "bookings",
+		}),
+		"payload-jobsID": one(payload_jobs, {
+			fields: [payload_locked_documents_rels["payload-jobsID"]],
+			references: [payload_jobs.id],
+			relationName: "payload-jobs",
+		}),
+	}),
 );
 export const relations_payload_locked_documents = relations(
-  payload_locked_documents,
-  ({ many }) => ({
-    _rels: many(payload_locked_documents_rels, {
-      relationName: "_rels",
-    }),
-  }),
+	payload_locked_documents,
+	({ many }) => ({
+		_rels: many(payload_locked_documents_rels, {
+			relationName: "_rels",
+		}),
+	}),
 );
 export const relations_payload_preferences_rels = relations(
-  payload_preferences_rels,
-  ({ one }) => ({
-    parent: one(payload_preferences, {
-      fields: [payload_preferences_rels.parent],
-      references: [payload_preferences.id],
-      relationName: "_rels",
-    }),
-    usersID: one(users, {
-      fields: [payload_preferences_rels.usersID],
-      references: [users.id],
-      relationName: "users",
-    }),
-  }),
+	payload_preferences_rels,
+	({ one }) => ({
+		parent: one(payload_preferences, {
+			fields: [payload_preferences_rels.parent],
+			references: [payload_preferences.id],
+			relationName: "_rels",
+		}),
+		usersID: one(users, {
+			fields: [payload_preferences_rels.usersID],
+			references: [users.id],
+			relationName: "users",
+		}),
+	}),
 );
 export const relations_payload_preferences = relations(
-  payload_preferences,
-  ({ many }) => ({
-    _rels: many(payload_preferences_rels, {
-      relationName: "_rels",
-    }),
-  }),
+	payload_preferences,
+	({ many }) => ({
+		_rels: many(payload_preferences_rels, {
+			relationName: "_rels",
+		}),
+	}),
 );
 export const relations_payload_migrations = relations(
-  payload_migrations,
-  () => ({}),
+	payload_migrations,
+	() => ({}),
 );
 
 type DatabaseSchema = {
-  enum_users_roles: typeof enum_users_roles;
-  enum_users_tenants_roles: typeof enum_users_tenants_roles;
-  enum_events_status: typeof enum_events_status;
-  enum__events_v_version_status: typeof enum__events_v_version_status;
-  enum_bookings_payment_method: typeof enum_bookings_payment_method;
-  enum__bookings_v_version_payment_method: typeof enum__bookings_v_version_payment_method;
-  enum_payload_jobs_log_task_slug: typeof enum_payload_jobs_log_task_slug;
-  enum_payload_jobs_log_state: typeof enum_payload_jobs_log_state;
-  enum_payload_jobs_task_slug: typeof enum_payload_jobs_task_slug;
-  pages: typeof pages;
-  users_roles: typeof users_roles;
-  users_tenants_roles: typeof users_tenants_roles;
-  users_tenants: typeof users_tenants;
-  users_sessions: typeof users_sessions;
-  users: typeof users;
-  tenants: typeof tenants;
-  customers: typeof customers;
-  connected_accounts: typeof connected_accounts;
-  payments: typeof payments;
-  payments_settings: typeof payments_settings;
-  logs: typeof logs;
-  events_schedules_schedule: typeof events_schedules_schedule;
-  events_prices: typeof events_prices;
-  events: typeof events;
-  _events_v_version_schedules_schedule: typeof _events_v_version_schedules_schedule;
-  _events_v_version_prices: typeof _events_v_version_prices;
-  _events_v: typeof _events_v;
-  bookings: typeof bookings;
-  _bookings_v: typeof _bookings_v;
-  payload_jobs_log: typeof payload_jobs_log;
-  payload_jobs: typeof payload_jobs;
-  payload_locked_documents: typeof payload_locked_documents;
-  payload_locked_documents_rels: typeof payload_locked_documents_rels;
-  payload_preferences: typeof payload_preferences;
-  payload_preferences_rels: typeof payload_preferences_rels;
-  payload_migrations: typeof payload_migrations;
-  relations_pages: typeof relations_pages;
-  relations_users_roles: typeof relations_users_roles;
-  relations_users_tenants_roles: typeof relations_users_tenants_roles;
-  relations_users_tenants: typeof relations_users_tenants;
-  relations_users_sessions: typeof relations_users_sessions;
-  relations_users: typeof relations_users;
-  relations_tenants: typeof relations_tenants;
-  relations_customers: typeof relations_customers;
-  relations_connected_accounts: typeof relations_connected_accounts;
-  relations_payments: typeof relations_payments;
-  relations_payments_settings: typeof relations_payments_settings;
-  relations_logs: typeof relations_logs;
-  relations_events_schedules_schedule: typeof relations_events_schedules_schedule;
-  relations_events_prices: typeof relations_events_prices;
-  relations_events: typeof relations_events;
-  relations__events_v_version_schedules_schedule: typeof relations__events_v_version_schedules_schedule;
-  relations__events_v_version_prices: typeof relations__events_v_version_prices;
-  relations__events_v: typeof relations__events_v;
-  relations_bookings: typeof relations_bookings;
-  relations__bookings_v: typeof relations__bookings_v;
-  relations_payload_jobs_log: typeof relations_payload_jobs_log;
-  relations_payload_jobs: typeof relations_payload_jobs;
-  relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels;
-  relations_payload_locked_documents: typeof relations_payload_locked_documents;
-  relations_payload_preferences_rels: typeof relations_payload_preferences_rels;
-  relations_payload_preferences: typeof relations_payload_preferences;
-  relations_payload_migrations: typeof relations_payload_migrations;
+	enum_users_roles: typeof enum_users_roles;
+	enum_users_tenants_roles: typeof enum_users_tenants_roles;
+	enum_events_status: typeof enum_events_status;
+	enum__events_v_version_status: typeof enum__events_v_version_status;
+	enum_bookings_payment_method: typeof enum_bookings_payment_method;
+	enum__bookings_v_version_payment_method: typeof enum__bookings_v_version_payment_method;
+	enum_payload_jobs_log_task_slug: typeof enum_payload_jobs_log_task_slug;
+	enum_payload_jobs_log_state: typeof enum_payload_jobs_log_state;
+	enum_payload_jobs_task_slug: typeof enum_payload_jobs_task_slug;
+	pages: typeof pages;
+	users_roles: typeof users_roles;
+	users_tenants_roles: typeof users_tenants_roles;
+	users_tenants: typeof users_tenants;
+	users_sessions: typeof users_sessions;
+	users: typeof users;
+	tenants: typeof tenants;
+	customers: typeof customers;
+	connected_accounts: typeof connected_accounts;
+	payments: typeof payments;
+	payments_settings: typeof payments_settings;
+	logs: typeof logs;
+	events_schedules_schedule: typeof events_schedules_schedule;
+	events_prices: typeof events_prices;
+	events: typeof events;
+	_events_v_version_schedules_schedule: typeof _events_v_version_schedules_schedule;
+	_events_v_version_prices: typeof _events_v_version_prices;
+	_events_v: typeof _events_v;
+	bookings: typeof bookings;
+	_bookings_v: typeof _bookings_v;
+	payload_jobs_log: typeof payload_jobs_log;
+	payload_jobs: typeof payload_jobs;
+	payload_locked_documents: typeof payload_locked_documents;
+	payload_locked_documents_rels: typeof payload_locked_documents_rels;
+	payload_preferences: typeof payload_preferences;
+	payload_preferences_rels: typeof payload_preferences_rels;
+	payload_migrations: typeof payload_migrations;
+	relations_pages: typeof relations_pages;
+	relations_users_roles: typeof relations_users_roles;
+	relations_users_tenants_roles: typeof relations_users_tenants_roles;
+	relations_users_tenants: typeof relations_users_tenants;
+	relations_users_sessions: typeof relations_users_sessions;
+	relations_users: typeof relations_users;
+	relations_tenants: typeof relations_tenants;
+	relations_customers: typeof relations_customers;
+	relations_connected_accounts: typeof relations_connected_accounts;
+	relations_payments: typeof relations_payments;
+	relations_payments_settings: typeof relations_payments_settings;
+	relations_logs: typeof relations_logs;
+	relations_events_schedules_schedule: typeof relations_events_schedules_schedule;
+	relations_events_prices: typeof relations_events_prices;
+	relations_events: typeof relations_events;
+	relations__events_v_version_schedules_schedule: typeof relations__events_v_version_schedules_schedule;
+	relations__events_v_version_prices: typeof relations__events_v_version_prices;
+	relations__events_v: typeof relations__events_v;
+	relations_bookings: typeof relations_bookings;
+	relations__bookings_v: typeof relations__bookings_v;
+	relations_payload_jobs_log: typeof relations_payload_jobs_log;
+	relations_payload_jobs: typeof relations_payload_jobs;
+	relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels;
+	relations_payload_locked_documents: typeof relations_payload_locked_documents;
+	relations_payload_preferences_rels: typeof relations_payload_preferences_rels;
+	relations_payload_preferences: typeof relations_payload_preferences;
+	relations_payload_migrations: typeof relations_payload_migrations;
 };
 
 declare module "@payloadcms/db-postgres" {
-  export interface GeneratedDatabaseSchema {
-    schema: DatabaseSchema;
-  }
+	export interface GeneratedDatabaseSchema {
+		schema: DatabaseSchema;
+	}
 }

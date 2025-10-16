@@ -1,14 +1,14 @@
+import type { CollectionAfterDeleteHook } from "payload";
 import { novu } from "@/lib/novu/client";
-import { Campaign } from "@/payload-types";
-import { CollectionAfterDeleteHook } from "payload";
+import type { Campaign } from "@/payload-types";
 
 export const deleteCampaign: CollectionAfterDeleteHook<Campaign> = async ({
-  doc,
+	doc,
 }) => {
-  if (!doc.id) {
-    console.error("Campaign ID is required. Novu Topic deletion failed.");
-    return;
-  }
+	if (!doc.id) {
+		console.error("Campaign ID is required. Novu Topic deletion failed.");
+		return;
+	}
 
-  await novu.topics.delete(doc.id);
+	await novu.topics.delete(doc.id);
 };

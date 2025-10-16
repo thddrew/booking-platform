@@ -2,11 +2,11 @@ import { Temporal } from "temporal-polyfill";
 import type { UTCDateString } from "@/types/custom";
 
 export const getEventDuration = (
-  dtstart: UTCDateString,
-  dtend: UTCDateString
+	dtstart: UTCDateString,
+	dtend: UTCDateString,
 ) => {
-  const startInstant = Temporal.Instant.from(dtstart);
-  const endInstant = Temporal.Instant.from(dtend);
+	const startInstant = Temporal.Instant.from(dtstart);
+	const endInstant = Temporal.Instant.from(dtend);
 
-  return startInstant.until(endInstant);
+	return startInstant.until(endInstant);
 };
