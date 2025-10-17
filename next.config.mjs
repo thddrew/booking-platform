@@ -2,11 +2,7 @@ import { withPayload } from "@payloadcms/next/withPayload";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactCompiler: true,
-  experimental: {
-    turbopackFileSystemCacheForDev: true,
-  },
-  serverExternalPackages: ["@payloadcms/db-postgres"],
+  // serverExternalPackages: ["@payloadcms/db-postgres"],
   async rewrites() {
     return [
       {

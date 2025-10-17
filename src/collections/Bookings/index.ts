@@ -19,6 +19,7 @@ import { setDatetimes } from "./hooks/set-datetimes";
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
   trash: true,
+  versions: true,
   access: {
     create: superAdminOrTenantAdminAccess,
     delete: superAdminOrTenantAdminAccess,
@@ -29,10 +30,9 @@ export const Bookings: CollectionConfig<"bookings"> = {
     defaultColumns: ["eventRelation", "dtstart", "dtend", "paymentStatus"],
   },
   hooks: {
-    beforeValidate: [saveSnapshots, setDatetimes],
+    beforeChange: [saveSnapshots, setDatetimes],
     afterChange: [newBookingEmail],
   },
-  versions: true,
   fields: [
     {
       type: "group",
@@ -177,7 +177,6 @@ export const Bookings: CollectionConfig<"bookings"> = {
     {
       type: "group",
       admin: {
-        readOnly: true,
         hidden: true,
       },
       fields: [

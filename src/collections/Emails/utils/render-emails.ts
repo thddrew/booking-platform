@@ -11,7 +11,7 @@ import type {
 import { getVariables, getVariablesData } from "./variables";
 
 /**
- * Generates the email body for a Booking
+ * Generates the email subject and body for a Booking
  */
 export const renderBookingEmail = async (
   emailType:

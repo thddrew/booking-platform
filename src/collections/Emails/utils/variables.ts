@@ -36,10 +36,10 @@ export const contextSchema = z.object({
 });
 
 export const getVariables = (): Variable[] => {
-  const keys = Object.keys([
+  const keys = [
     ...Object.keys(customerVariablesSchema.shape),
     ...Object.keys(bookingVariablesSchema.shape),
-  ]);
+  ];
 
   return keys.map((key) => ({
     name: key,
@@ -53,7 +53,7 @@ const isSchemaType = <T extends z.ZodRawShape>(
   schema: T,
   schemaKey: string
 ): schemaKey is keyof T & string => {
-  return schemaKey in schema.shape;
+  return Object.hasOwn(schema, schemaKey);
 };
 
 /**

@@ -490,7 +490,7 @@ export interface Email {
     | number
     | boolean
     | null;
-  emailType?: ('booking-confirmation' | 'booking-cancelled' | 'booking-updated') | null;
+  emailType?: ('bookingConfirmationEmail' | 'bookingCancelledEmail' | 'bookingUpdatedEmail') | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
