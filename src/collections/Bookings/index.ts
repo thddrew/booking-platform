@@ -12,9 +12,11 @@ import {
 } from "../Emails/utils/email-types";
 import { EventPricesRecordSchema } from "../Events/utils/schemas";
 import { updateAccess } from "./access/update-access";
+import { cancelBookingEmail } from "./hooks/cancel-booking-email";
 import { newBookingEmail } from "./hooks/new-booking-email";
 import { saveSnapshots } from "./hooks/save-snapshots";
 import { setDatetimes } from "./hooks/set-datetimes";
+import { updateBookingEmail } from "./hooks/update-booking-email";
 
 export const Bookings: CollectionConfig<"bookings"> = {
   slug: "bookings",
@@ -31,7 +33,8 @@ export const Bookings: CollectionConfig<"bookings"> = {
   },
   hooks: {
     beforeChange: [saveSnapshots, setDatetimes],
-    afterChange: [newBookingEmail],
+    afterChange: [newBookingEmail, updateBookingEmail],
+    afterDelete: [cancelBookingEmail],
   },
   fields: [
     {
@@ -294,22 +297,10 @@ export const Bookings: CollectionConfig<"bookings"> = {
                 path: "/src/collections/Bookings/components/email-description",
                 clientProps: {
                   errorMessage:
-                    "No email is selected. The user will not receive a confirmation email.",
+                    "No email is selected. The user will not receive an email when the booking is confirmed.",
                 },
               },
             },
-          },
-          defaultValue: async ({ req }) => {
-            const emails = await req.payload.find({
-              collection: "emails",
-              where: {
-                emailType: {
-                  equals: BOOKING_CONFIRMATION,
-                },
-              },
-            });
-
-            return emails.docs[0]?.id;
           },
         },
         {
@@ -322,22 +313,10 @@ export const Bookings: CollectionConfig<"bookings"> = {
                 path: "/src/collections/Bookings/components/email-description",
                 clientProps: {
                   errorMessage:
-                    "No email is selected. The user will not receive a cancellation email.",
+                    "No email is selected. The user will not receive an email when the booking is cancelled.",
                 },
               },
             },
-          },
-          defaultValue: async ({ req }) => {
-            const emails = await req.payload.find({
-              collection: "emails",
-              where: {
-                emailType: {
-                  equals: BOOKING_CANCELLED,
-                },
-              },
-            });
-
-            return emails.docs[0]?.id;
           },
         },
         {
@@ -350,22 +329,10 @@ export const Bookings: CollectionConfig<"bookings"> = {
                 path: "/src/collections/Bookings/components/email-description",
                 clientProps: {
                   errorMessage:
-                    "No email is selected. The user will not receive an updated email.",
+                    "No email is selected. The user will not receive an email when the booking is updated.",
                 },
               },
             },
-          },
-          defaultValue: async ({ req }) => {
-            const emails = await req.payload.find({
-              collection: "emails",
-              where: {
-                emailType: {
-                  equals: BOOKING_UPDATED,
-                },
-              },
-            });
-
-            return emails.docs[0]?.id;
           },
         },
       ],

@@ -2129,19 +2129,19 @@
 	}
 
 	.mly\:bg-rose-50 {
-		background-color: var(--destructive);
+		background-color: var(--mly-color-rose-50);
 	}
 
 	.mly\:bg-rose-100 {
-		background-color: var(--destructive);
+		background-color: var(--mly-color-rose-100);
 	}
 
 	.mly\:bg-rose-300 {
-		background-color: var(--destructive);
+		background-color: var(--mly-color-rose-300);
 	}
 
 	.mly\:bg-rose-500 {
-		background-color: var(--destructive);
+		background-color: var(--mly-color-rose-500);
 	}
 
 	.mly\:bg-soft-gray {
@@ -2220,6 +2220,10 @@
 		padding: calc(var(--mly-spacing) * 1);
 	}
 
+	.mly\:p-1\! {
+		padding: calc(var(--mly-spacing) * 1) !important;
+	}
+
 	.mly\:p-2 {
 		padding: calc(var(--mly-spacing) * 2);
 	}
@@ -2281,6 +2285,10 @@
 	}
 
 	.mly\:py-1 {
+		padding-block: calc(var(--mly-spacing) * 1);
+	}
+
+	.mly\:py-1\! {
 		padding-block: calc(var(--mly-spacing) * 1);
 	}
 
@@ -2745,7 +2753,7 @@
 	.mly\:hover\:bg-rose-100 {
 		&:hover {
 			@media (hover: hover) {
-				background-color: var(--destructive);
+				background-color: var(--mly-color-rose-100);
 			}
 		}
 	}
@@ -2966,7 +2974,7 @@
 
 	.mly\:data-\[state\=open\]\:bg-rose-100 {
 		&[data-state="open"] {
-			background-color: var(--destructive);
+			background-color: var(--mly-color-rose-100);
 		}
 	}
 

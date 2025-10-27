@@ -22,7 +22,8 @@ import {
 	spacer,
 	text,
 } from "@thddrew/maily-core/blocks";
-import { FootprintsIcon, Heading1 } from "lucide-react";
+import { FootprintsIcon, Heading1, ListChecksIcon } from "lucide-react";
+import { bookingUpdateCard } from "./booking-update-block";
 import {
 	footerCommunityFeedbackCta,
 	footerCompanySignature,
@@ -87,6 +88,14 @@ export const slashCommands: BlockGroupItem[] = [
 					footerCommunityFeedbackCta,
 					footerCompanySignature,
 				],
+			},
+			{
+				id: "booking",
+				title: "Booking",
+				description: "Add booking-related blocks",
+				searchTerms: ["booking", "update"],
+				icon: <ListChecksIcon className="mly:h-4 mly:w-4" />,
+				commands: [bookingUpdateCard],
 			},
 			// htmlCodeBlock,
 		],

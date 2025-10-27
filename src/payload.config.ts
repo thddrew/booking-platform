@@ -41,10 +41,15 @@ export default buildConfig({
 		autoLogin:
 			process.env.NODE_ENV === "development" &&
 			process.env.PAYLOAD_AUTOLOGIN === "true"
-				? { email: "demo@payloadcms.com", password: "demo" }
+				? { email: "thddrew@gmail.com", password: "demo" }
 				: undefined,
 		components: {
 			views: {
+				dashboard: {
+					Component: "/src/components/dashboard/dashboard-view",
+					exact: true,
+					path: "/",
+				},
 				checkout: {
 					exact: true,
 					Component: "/src/components/stripe-checkout/checkout-view",
@@ -118,6 +123,9 @@ export default buildConfig({
 				media: {},
 				campaigns: {},
 				emails: {},
+				users: {},
+				logs: {},
+				paymentsSettings: {},
 			},
 			tenantField: {
 				access: {

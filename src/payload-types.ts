@@ -191,6 +191,7 @@ export interface Tenant {
  */
 export interface User {
   id: string;
+  tenant?: (string | null) | Tenant;
   roles?: ('super-admin' | 'user')[] | null;
   username?: string | null;
   tenants?:
@@ -473,6 +474,7 @@ export interface Media {
 export interface Email {
   id: string;
   tenant?: (string | null) | Tenant;
+  testEmail?: string | null;
   subject: string;
   /**
    * The preview text is the snippet of text that is pulled into the inbox preview of an email client, usually right after the subject line.
@@ -490,7 +492,19 @@ export interface Email {
     | number
     | boolean
     | null;
-  emailType?: ('bookingConfirmationEmail' | 'bookingCancelledEmail' | 'bookingUpdatedEmail') | null;
+  pastEmails?:
+    | {
+        /**
+         * The date and time the email was requested to be sent. Not necessarily the date and time the email was received by the recipient.
+         */
+        createdAt: string;
+        workflowId: string;
+        transactionId?: string | null;
+        subscriberIds?: string[] | null;
+        campaigns?: (string | Campaign)[] | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -545,16 +559,19 @@ export interface Payment {
  */
 export interface PaymentsSetting {
   id: string;
+  tenant?: (string | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
 /**
+ * Recent activity logs eg. new booking, updated booking, etc.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "logs".
  */
 export interface Log {
   id: string;
-  user: string | User;
+  tenant?: (string | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -771,6 +788,7 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  tenant?: T;
   roles?: T;
   username?: T;
   tenants?:
@@ -853,6 +871,7 @@ export interface PaymentsSelect<T extends boolean = true> {
  * via the `definition` "paymentsSettings_select".
  */
 export interface PaymentsSettingsSelect<T extends boolean = true> {
+  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -861,7 +880,7 @@ export interface PaymentsSettingsSelect<T extends boolean = true> {
  * via the `definition` "logs_select".
  */
 export interface LogsSelect<T extends boolean = true> {
-  user?: T;
+  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1027,10 +1046,20 @@ export interface CampaignsSelect<T extends boolean = true> {
  */
 export interface EmailsSelect<T extends boolean = true> {
   tenant?: T;
+  testEmail?: T;
   subject?: T;
   preview?: T;
   emailContent?: T;
-  emailType?: T;
+  pastEmails?:
+    | T
+    | {
+        createdAt?: T;
+        workflowId?: T;
+        transactionId?: T;
+        subscriberIds?: T;
+        campaigns?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

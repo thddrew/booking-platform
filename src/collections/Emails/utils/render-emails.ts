@@ -1,52 +1,75 @@
 import { type JSONContent, Maily } from "@thddrew/maily-render";
 import { payloadSDK } from "@/lib/payload/payload-sdk";
-import type { Booking, Customer } from "@/payload-types";
+import type { Booking, Customer, Email } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";
 import { isTypedObject } from "@/utilities/isTypedObject";
 import type {
-  BOOKING_CANCELLED,
-  BOOKING_CONFIRMATION,
-  BOOKING_UPDATED,
+	BOOKING_CANCELLED,
+	BOOKING_CONFIRMATION,
+	BOOKING_UPDATED,
 } from "./email-types";
-import { getVariables, getVariablesData } from "./variables";
+import { getVariables, getVariablesData, type VariablesContext } from "./variables";
 
 /**
  * Generates the email subject and body for a Booking
  */
-export const renderBookingEmail = async (
-  emailType:
-    | typeof BOOKING_CONFIRMATION
-    | typeof BOOKING_CANCELLED
-    | typeof BOOKING_UPDATED,
-  context: {
-    booking: Booking;
-    customer: Customer;
-  }
-) => {
-  const connectedEmail = context.booking[emailType];
-  if (!connectedEmail) throw new Error(`Missing ${emailType} email on booking`);
+export const renderBookingEmail = async ({
+	emailType,
+	context,
+}: {
+	emailType:
+		| typeof BOOKING_CONFIRMATION
+		| typeof BOOKING_CANCELLED
+		| typeof BOOKING_UPDATED;
+	context: {
+		booking: Booking;
+		customer: Customer;
+		previousBooking?: Booking | null;
+	};
+}) => {
+	const connectedEmail = context.booking[emailType];
+	if (!connectedEmail) throw new Error(`Missing ${emailType} email on booking`);
 
-  const email = await payloadSDK.findByID({
-    collection: "emails",
-    id: extractID(connectedEmail),
-  });
-  if (!email) throw new Error(`Missing ${emailType} email`);
+	const email = await payloadSDK.findByID({
+		collection: "emails",
+		id: extractID(connectedEmail),
+		draft: true,
+	});
+	if (!email) throw new Error(`Missing ${emailType} email`);
 
-  const maily = isTypedObject<JSONContent>(email.emailContent)
-    ? new Maily(email.emailContent)
-    : null;
+	const renderedEmail = await renderEmail({ email, context });
 
-  if (!maily) throw new Error(`Invalid ${emailType} email content`);
+	return {
+		emailId: email.id,
+		renderedEmail,
+	};
+};
 
-  maily.setPreviewText(email.preview ?? undefined);
+/**
+ * Generates the email subject and body for an email
+ */
+export const renderEmail = async ({
+	email,
+	context,
+}: {
+	email: Email;
+	context: VariablesContext;
+}) => {
+	const maily = isTypedObject<JSONContent>(email.emailContent)
+		? new Maily(email.emailContent)
+		: null;
 
-  const variables = getVariables();
-  const variablesData = getVariablesData({ variables, context });
+	if (!maily) throw new Error(`Invalid email content`);
 
-  maily.setVariableValues(variablesData);
+	maily.setPreviewText(email.preview ?? undefined);
 
-  return {
-    subject: email.subject,
-    body: await maily.render(),
-  };
+	const variables = getVariables();
+	const variablesData = getVariablesData({ variables, context });
+
+	maily.setVariableValues(variablesData);
+
+	return {
+		subject: email.subject,
+		body: await maily.render(),
+	};
 };

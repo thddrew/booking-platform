@@ -1,6 +1,6 @@
 import { serve } from "@novu/framework/next";
-import { bookingEmailWorkflow } from "@/lib/novu/workflow/booking-email-workflow";
+import { emailWorkflow } from "@/lib/novu/workflow/email-workflow";
 
 export const { GET, OPTIONS, POST } = serve({
-  workflows: [bookingEmailWorkflow],
+	workflows: [emailWorkflow],
 });

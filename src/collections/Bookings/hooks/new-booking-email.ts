@@ -1,27 +1,25 @@
-"use server";
-
 import type { CollectionAfterChangeHook } from "payload";
 import { BOOKING_CONFIRMATION } from "@/collections/Emails/utils/email-types";
 import type { Booking } from "@/payload-types";
-import { triggerWorkflow } from "../utils/trigger-workflow";
+import { sendBookingEmail } from "../utils/send-booking-email";
 
 export const newBookingEmail: CollectionAfterChangeHook<Booking> = async ({
-  operation,
-  context,
-  doc,
+	operation,
+	context,
+	doc,
 }) => {
-  const isNewBooking =
-    operation === "create" && doc.paymentMethod === "payLater";
+	const isNewBooking =
+		operation === "create" && doc.paymentMethod === "payLater";
 
-  const isPaymentSessionCompleted =
-    operation === "update" &&
-    doc.paymentMethod === "payNow" &&
-    context?.isStripePaid;
+	const isNewPaidBooking =
+		operation === "update" &&
+		doc.paymentMethod === "payNow" &&
+		context?.isStripePaid;
 
-  if (isNewBooking || isPaymentSessionCompleted) {
-    await triggerWorkflow({
-      booking: doc,
-      emailType: BOOKING_CONFIRMATION,
-    });
-  }
+	if (isNewBooking || isNewPaidBooking) {
+		await sendBookingEmail({
+			booking: doc,
+			emailType: BOOKING_CONFIRMATION,
+		});
+	}
 };

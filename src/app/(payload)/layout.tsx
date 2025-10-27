@@ -10,6 +10,7 @@ import type React from "react";
 import { importMap } from "./admin/importMap.js";
 import "./custom.scss";
 import DeveloperToolsServer from "../../components/developer-tools/developer-tools.server";
+import { Toaster } from "../../components/ui/sonner";
 
 type Args = {
 	children: React.ReactNode;
@@ -32,6 +33,7 @@ const Layout = ({ children }: Args) => (
 	>
 		{children}
 		<DeveloperToolsServer />
+		<Toaster className="twp" />
 	</RootLayout>
 );
 

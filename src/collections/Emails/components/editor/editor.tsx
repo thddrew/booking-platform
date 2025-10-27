@@ -6,19 +6,25 @@ import { ImageUploadExtension } from "@thddrew/maily-core/extensions";
 import type { JSONContent } from "@tiptap/core";
 import { AlertCircleIcon } from "lucide-react";
 import type { JSONFieldClientComponent } from "payload";
-import { type Ref, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+	type RefObject,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getVariables } from "../utils/variables";
-import { slashCommands } from "./editor-blocks";
+import { getVariables } from "../../utils/variables";
+import { slashCommands } from "../editor-blocks";
 
 type EditorType = Parameters<NonNullable<EditorProps["onCreate"]>>[0];
 
 type AppProps = {
 	contentJson: JSONContent | undefined;
 	updateJson: (json: JSONContent) => void;
-	onMount: Ref<HTMLDivElement>;
+	onMount: RefObject<EditorType | null>;
 	portalContainer?: HTMLElement | null;
 };
 
@@ -31,38 +37,39 @@ function EditorContent(props: AppProps) {
 	}
 
 	return (
-		<div ref={props.onMount}>
-			<Editor
-				blocks={slashCommands}
-				contentJson={defaultContentJson}
-				portalContainer={props.portalContainer}
-				onCreate={(editor) => {
-					setEditor(editor);
-				}}
-				onUpdate={(editor) => {
-					setEditor(editor);
-					props.updateJson(editor.getJSON());
-				}}
-				config={{
-					hasMenuBar: false,
-					// Classes must be defined in public/maily-to.css
-					bodyClassName:
-						"mly:min-h-[300px] mly:mt-0 mly:bg-transparent mly:border-0 mly:p-0",
-					toolbarClassName: "mly:bg-muted",
-					contentClassName: `mly:px-10! mly:mx-auto`,
-				}}
-				extensions={[
-					ImageUploadExtension.configure({
-						onImageUpload: async (file) => {
-							console.log(file);
+		<Editor
+			blocks={slashCommands}
+			contentJson={defaultContentJson}
+			portalContainer={props.portalContainer}
+			onCreate={(editor) => {
+				setEditor(editor);
+				if (props.onMount) {
+					props.onMount.current = editor;
+				}
+			}}
+			onUpdate={(editor) => {
+				setEditor(editor);
+				props.updateJson(editor.getJSON());
+			}}
+			config={{
+				hasMenuBar: false,
+				// Classes must be defined in public/maily-to.css
+				bodyClassName:
+					"mly:min-h-[300px] mly:mt-0 mly:bg-transparent mly:border-0 mly:p-0 mly:py-3",
+				toolbarClassName: "mly:bg-muted",
+				contentClassName: `mly:px-10! mly:mx-auto`,
+			}}
+			extensions={[
+				ImageUploadExtension.configure({
+					onImageUpload: async (file) => {
+						console.log(file);
 
-							return "";
-						},
-					}),
-				]}
-				variables={getVariables()}
-			/>
-		</div>
+						return "";
+					},
+				}),
+			]}
+			variables={getVariables()}
+		/>
 	);
 }
 
@@ -70,11 +77,11 @@ const EditorShadowRoot: JSONFieldClientComponent = (props) => {
 	const { theme } = useTheme();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const shadowRootRef = useRef<ShadowRoot | null>(null);
-	const rootContainerRef = useRef<HTMLDivElement | null>(null);
+	const themeRootContainerRef = useRef<HTMLDivElement | null>(null);
 	const reactContainerRef = useRef<HTMLDivElement | null>(null);
 	const portalContainerRef = useRef<HTMLDivElement | null>(null);
 	const rootRef = useRef<ReturnType<typeof createRoot> | null>(null);
-	const editorRef = useRef<HTMLDivElement>(null);
+	const editorRef = useRef<EditorType | null>(null);
 	const field = useField();
 
 	useLayoutEffect(() => {
@@ -91,16 +98,22 @@ const EditorShadowRoot: JSONFieldClientComponent = (props) => {
 			style.href = "/maily-to.css";
 			shadowRoot.appendChild(style);
 
+			const reactColorfulCss = document.createElement("link");
+			reactColorfulCss.rel = "stylesheet";
+			reactColorfulCss.href = "/react-colorful.css";
+			shadowRoot.appendChild(reactColorfulCss);
+
 			// Root container for data-theme
-			const rootContainer = document.createElement("div");
-			rootContainer.setAttribute("data-theme", theme);
-			rootContainerRef.current = rootContainer;
-			shadowRoot.appendChild(rootContainer);
+			const themeRootCntr = document.createElement("div");
+			themeRootCntr.setAttribute("data-theme", theme);
+			themeRootCntr.style.width = "100%";
+			themeRootContainerRef.current = themeRootCntr;
+			shadowRoot.appendChild(themeRootCntr);
 
 			// Create container for React content
 			const reactContainer = document.createElement("div");
 			reactContainerRef.current = reactContainer;
-			rootContainer.appendChild(reactContainer);
+			themeRootCntr.appendChild(reactContainer);
 
 			// Create portal container (direct child of root container)
 			const portalContainer = document.createElement("div");
@@ -108,7 +121,7 @@ const EditorShadowRoot: JSONFieldClientComponent = (props) => {
 			portalContainer.style.position = "relative";
 			portalContainer.style.zIndex = "9999";
 			portalContainerRef.current = portalContainer;
-			rootContainer.appendChild(portalContainer);
+			themeRootCntr.appendChild(portalContainer);
 
 			// Create root only once
 			rootRef.current = createRoot(reactContainer);
@@ -129,8 +142,8 @@ const EditorShadowRoot: JSONFieldClientComponent = (props) => {
 	}, [field.value, field.setValue, theme]);
 
 	useEffect(() => {
-		if (rootContainerRef.current) {
-			rootContainerRef.current.setAttribute("data-theme", theme);
+		if (themeRootContainerRef.current) {
+			themeRootContainerRef.current.setAttribute("data-theme", theme);
 		}
 	}, [theme]);
 

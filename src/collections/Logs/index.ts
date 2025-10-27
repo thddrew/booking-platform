@@ -7,15 +7,7 @@ export const Logs: CollectionConfig<"logs"> = {
 		read: superAdminOrTenantAdminAccess,
 	},
 	admin: {
-		useAsTitle: "user",
+		description: "Recent activity logs eg. new booking, updated booking, etc.",
 	},
-	fields: [
-		{
-			name: "user",
-			relationTo: "users",
-			type: "relationship",
-			hasMany: false,
-			required: true,
-		},
-	],
+	fields: [],
 };

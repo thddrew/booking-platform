@@ -1,9 +1,12 @@
 import type { CollectionConfig } from "payload";
 import { extractID } from "@/utilities/extractID";
-import { emailTypes } from "./utils/email-types";
 
 export const Emails: CollectionConfig<"emails"> = {
 	slug: "emails",
+	labels: {
+		singular: "Email Template",
+		plural: "Email Templates",
+	},
 	versions: {
 		drafts: {
 			autosave: {
@@ -37,6 +40,26 @@ export const Emails: CollectionConfig<"emails"> = {
 	},
 	fields: [
 		{
+			type: "text",
+			name: "testEmail",
+			virtual: true,
+			admin: {
+				position: "sidebar",
+			},
+			defaultValue: ({ user }) => user?.email,
+		},
+		{
+			type: "ui",
+			name: "testAction",
+			admin: {
+				position: "sidebar",
+				components: {
+					Field:
+						"/src/collections/Emails/components/send-test-emails/form.server",
+				},
+			},
+		},
+		{
 			type: "tabs",
 			tabs: [
 				{
@@ -64,7 +87,8 @@ export const Emails: CollectionConfig<"emails"> = {
 								description:
 									"Any variables will be populated based on where the email is send from. For example, if the email is sent for a booking, the customer name and booking name will be populated.",
 								components: {
-									Field: "/src/collections/Emails/components/editor",
+									Field:
+										"/src/collections/Emails/components/editor/editor.dynamic",
 								},
 							},
 						},
@@ -72,17 +96,63 @@ export const Emails: CollectionConfig<"emails"> = {
 				},
 				{
 					label: "History",
-					fields: [],
+					fields: [
+						{
+							type: "array",
+							name: "pastEmails",
+							label: "Past emails",
+							admin: {
+								initCollapsed: true,
+								readOnly: true,
+								components: {
+									RowLabel:
+										"/src/collections/Emails/components/recipient-label",
+								},
+							},
+							fields: [
+								{
+									type: "date",
+									name: "createdAt",
+									required: true,
+									admin: {
+										hidden: true,
+										date: {
+											displayFormat: "EEEE, MMMM dd, yyyy hh:mm a",
+										},
+										description:
+											"The date and time the email was requested to be sent. Not necessarily the date and time the email was received by the recipient.",
+									},
+								},
+								{
+									type: "row",
+									fields: [
+										{
+											type: "text",
+											name: "workflowId",
+											required: true,
+										},
+										{
+											type: "text",
+											name: "transactionId",
+										},
+									],
+								},
+								{
+									type: "text",
+									name: "subscriberIds",
+									hasMany: true,
+								},
+								{
+									type: "relationship",
+									name: "campaigns",
+									relationTo: "campaigns",
+									hasMany: true,
+								},
+							],
+						},
+					],
 				},
 			],
-		},
-		{
-			type: "select",
-			admin: {
-				position: "sidebar",
-			},
-			name: "emailType",
-			options: emailTypes,
 		},
 	],
 };
