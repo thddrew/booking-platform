@@ -10,6 +10,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useCalendar } from "./calendar-provider";
 import { EventCard } from "./event/event-card";
+import { GroupedEventsCard } from "./event/grouped-events-card";
+import { groupEventsByStartHour, shouldCollapseEvents } from "./utils/group-events";
 import { shallowEqual } from "./utils/shallow-equal";
 
 interface ThreeDayViewProps {
@@ -68,37 +70,62 @@ export function ThreeDayView({
 
 	const getPositionedEventsForDate = (date: Date) => {
 		const positionedEvents: Array<{
-			event: CalendarEvent;
+			event?: CalendarEvent;
+			events?: CalendarEvent[];
 			top: number;
 			height: number;
+			isGrouped: boolean;
 		}> = [];
 
-		events.forEach((event) => {
+		// Filter events for this date
+		const dateEvents = events.filter((event) => {
 			const eventStart = new Date(event.dtstart);
-			const eventEnd = new Date(event.dtend);
 			const eventDate = new Date(eventStart);
 			eventDate.setHours(0, 0, 0, 0);
 
 			const targetDate = new Date(date);
 			targetDate.setHours(0, 0, 0, 0);
 
-			if (eventDate.getTime() !== targetDate.getTime()) return;
+			return eventDate.getTime() === targetDate.getTime();
+		});
 
-			const startHour = eventStart.getHours();
-			const startMinute = eventStart.getMinutes();
-			const endHour = eventEnd.getHours();
-			const endMinute = eventEnd.getMinutes();
+		// Group events by start hour
+		const hourGroups = groupEventsByStartHour(dateEvents);
+		const hourHeight = 60; // 4rem = 60px // TODO: Make this dynamic
 
-			const hourHeight = 60; // 4rem = 60px // TODO: Make this dynamic
-			const top = startHour * hourHeight + (startMinute / 60) * hourHeight;
-			const duration = endHour - startHour + (endMinute - startMinute) / 60;
-			const height = duration * hourHeight;
+		hourGroups.forEach((hourEvents, hour) => {
+			if (shouldCollapseEvents(hourEvents.length)) {
+				// Create grouped card for this hour
+				const top = hour * hourHeight;
+				positionedEvents.push({
+					events: hourEvents,
+					top,
+					height: hourHeight,
+					isGrouped: true,
+				});
+			} else {
+				// Position events individually
+				hourEvents.forEach((event) => {
+					const eventStart = new Date(event.dtstart);
+					const eventEnd = new Date(event.dtend);
+					const startHour = eventStart.getHours();
+					const startMinute = eventStart.getMinutes();
+					const endHour = eventEnd.getHours();
+					const endMinute = eventEnd.getMinutes();
 
-			positionedEvents.push({
-				event,
-				top,
-				height,
-			});
+					const top = startHour * hourHeight + (startMinute / 60) * hourHeight;
+					const duration =
+						endHour - startHour + (endMinute - startMinute) / 60;
+					const height = duration * hourHeight;
+
+					positionedEvents.push({
+						event,
+						top,
+						height,
+						isGrouped: false,
+					});
+				});
+			}
 		});
 
 		return positionedEvents;
@@ -192,20 +219,40 @@ export function ThreeDayView({
 
 						return (
 							<div key={date.toISOString()} className="border-r relative">
-								{positionedEvents.map(({ event, top, height }) => (
-									<div
-										key={`${event.type}-${event.dtstart}-${event.dtend}`}
-										className="absolute left-2 right-2 z-10"
-										style={{ top: `${top}px`, height: `${height}px` }}
-									>
-										<EventCard
-											event={event}
-											onClick={onEventClick}
-											className="h-full"
-											isSelected={shallowEqual(event, selectedEvent)}
-										/>
-									</div>
-								))}
+								{positionedEvents.map((item, index) => {
+									if (item.isGrouped && item.events) {
+										return (
+											<div
+												key={`grouped-${index}`}
+												className="absolute left-2 right-2 z-10"
+												style={{ top: `${item.top}px`, height: `${item.height}px` }}
+											>
+												<GroupedEventsCard
+													events={item.events}
+													onEventClick={onEventClick}
+													className="h-full"
+												/>
+											</div>
+										);
+									}
+									if (item.event) {
+										return (
+											<div
+												key={`${item.event.type}-${item.event.dtstart}-${item.event.dtend}`}
+												className="absolute left-2 right-2 z-10"
+												style={{ top: `${item.top}px`, height: `${item.height}px` }}
+											>
+												<EventCard
+													event={item.event}
+													onClick={onEventClick}
+													className="h-full"
+													isSelected={shallowEqual(item.event, selectedEvent)}
+												/>
+											</div>
+										);
+									}
+									return null;
+								})}
 
 								{/* Current time line */}
 								{currentTimePosition !== null && (
