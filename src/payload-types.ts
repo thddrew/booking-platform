@@ -356,7 +356,7 @@ export interface Event {
           dtend: string;
           isRecurring?: boolean | null;
           interval?: number | null;
-          frequency?: ('DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY') | null;
+          frequency?: ('HOURLY' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY') | null;
           SU?: boolean | null;
           MO?: boolean | null;
           TU?: boolean | null;

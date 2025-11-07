@@ -1,11 +1,19 @@
 "use client";
 
+import { Temporal } from "@js-temporal/polyfill";
 import { FieldLabel, useFormFields } from "@payloadcms/ui";
 import { AlertCircleIcon } from "lucide-react";
 import type { UIFieldClientComponent } from "payload";
+import { useMemo } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { toText } from "rrule-temporal/totext";
+import { formatDate } from "@/components/calendar/utils/format-date";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
 	generateRruleFromSchedule,
 	type Schedule,
@@ -32,16 +40,50 @@ export const RruleNaturalLang: UIFieldClientComponent = (props) => {
 
 	const rrule = generateRruleFromSchedule(form as Schedule);
 
+	const next5Occurrences = useMemo(() => {
+		let now = Temporal.Now.zonedDateTimeISO().withTimeZone("UTC");
+		const occurrences: Temporal.ZonedDateTime[] = [];
+
+		for (let i = 0; i < 5; i++) {
+			const occurrence = rrule?.next(now, true);
+			if (occurrence) {
+				occurrences.push(occurrence);
+				// Advance by 1 millisecond to ensure we get the next occurrence
+				now = occurrence.add({ milliseconds: 1 });
+			}
+		}
+
+		return occurrences;
+	}, [rrule]);
+
 	return (
 		<>
-			<FieldLabel label="Schedule repeats.." />
-
-			<div className="mb-4">
+			<p className="text-muted-foreground">Schedule repeats..</p>
+			<div className="mb-4 mt-1">
 				{rrule ? (
-					toText(rrule)
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<p className="font-mono px-2 py-1 bg-muted-foreground/10 rounded">
+								{toText(rrule)}
+							</p>
+						</TooltipTrigger>
+						<TooltipContent>
+							<span>{rrule.toString()}</span>
+						</TooltipContent>
+					</Tooltip>
 				) : (
 					<span className="text-stone-400">Missing start time</span>
 				)}
+			</div>
+			<div className="mb-3">
+				<p className="text-muted-foreground">Next 5 occurrences:</p>
+				<ul className="text-sm pl-4 text-slate-500">
+					{next5Occurrences?.map((occurrence) => (
+						<li key={occurrence.epochMilliseconds} className="text-primary">
+							{formatDate(new Date(occurrence.epochMilliseconds))}
+						</li>
+					))}
+				</ul>
 			</div>
 		</>
 	);

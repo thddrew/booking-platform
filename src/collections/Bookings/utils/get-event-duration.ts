@@ -1,4 +1,4 @@
-import { Temporal } from "temporal-polyfill";
+import { Temporal } from "@js-temporal/polyfill";
 import type { UTCDateString } from "@/types/custom";
 
 export const getEventDuration = (

@@ -9,6 +9,8 @@ import {
 	useForm,
 } from "react-hook-form";
 import z from "zod";
+import { expandSchedule } from "@/collections/Bookings/utils/expand-schedule";
+import { getEventDuration } from "@/collections/Bookings/utils/get-event-duration";
 import { sendBookingEmail } from "@/collections/Bookings/utils/send-booking-email";
 import {
 	BOOKING_CANCELLED,
@@ -16,8 +18,6 @@ import {
 	BOOKING_UPDATED,
 } from "@/collections/Emails/utils/email-types";
 import { usePayloadMutation, usePayloadQuery } from "@/hooks/use-payload-query";
-import { expandSchedule } from "@/lib/expand-schedule";
-import { getEventDuration } from "@/lib/get-event-duration";
 import { payloadSDK } from "@/lib/payload/payload-sdk";
 import { formatDateRange } from "../calendar/utils/format-date";
 import { Button } from "../ui/button";

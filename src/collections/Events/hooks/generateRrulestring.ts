@@ -63,6 +63,7 @@ export const generateRruleFromSchedule = (schedule: Schedule) => {
 		byMonthDay: monthDays ? convertStringToArray(monthDays, Number) : undefined,
 		byMonth: months ? convertStringToArray(months, Number) : undefined,
 		interval: interval ?? undefined,
+		tzid: "UTC",
 	};
 
 	if (!dtstart) return null;
@@ -82,6 +83,9 @@ export const generateRruleFromSchedule = (schedule: Schedule) => {
 	return new RRuleTemporal(temporalOptions);
 };
 
+/**
+ * Generates a rrule string from a schedule
+ */
 export const generateRrulestring: CollectionBeforeChangeHook<Event> = async ({
 	data,
 }) => {

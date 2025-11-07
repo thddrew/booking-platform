@@ -27,17 +27,7 @@ import type { Booking } from "@/payload-types";
 import type { TypedFieldComponent } from "@/types/custom";
 import { extractID } from "@/utilities/extractID";
 import { getTenantDefaultConnectedAccount } from "@/utilities/getTenantDefaultConnectedAccount";
-
-type Status = Stripe.Checkout.Session.Status | "refunded";
-
-const mapStatusToVariant: Partial<
-	Record<Status, Parameters<typeof Badge>[0]["variant"]>
-> = {
-	complete: "success",
-	expired: "destructive",
-	open: "warning",
-	refunded: "secondary",
-};
+import { mapStatusToVariant, type Status } from "../utils/payment-statuses";
 
 export const PaymentStatusBadge = ({ status }: { status: Status | null }) => {
 	const statusLabel = status?.replaceAll("_", " ").toLowerCase();

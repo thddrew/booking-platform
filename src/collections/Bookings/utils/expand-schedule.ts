@@ -1,8 +1,8 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { createId } from "@paralleldrive/cuid2";
 import { RRuleTemporal } from "rrule-temporal";
-import { Temporal } from "temporal-polyfill";
+import type { getEventDuration } from "@/collections/Bookings/utils/get-event-duration";
 import type { CalendarEvent } from "@/components/calendar/schemas";
-import type { getEventDuration } from "@/lib/get-event-duration";
 
 type ScheduleInstance = Extract<CalendarEvent, { type: "scheduleInstance" }>;
 

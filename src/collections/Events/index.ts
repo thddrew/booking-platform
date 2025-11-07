@@ -4,7 +4,18 @@ import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superA
 import { convertAmountToDataType } from "./hooks/convertAmountToDataType";
 import { convertAmountToDisplayType } from "./hooks/convertAmountToDisplayType";
 import { generateRrulestring } from "./hooks/generateRrulestring";
+import { populateVirtualRruleFields } from "./hooks/populate-virtual-rrule-fields";
 import { upsertStripeProduct } from "./hooks/upsertStripeProduct";
+
+const days = [
+	{ label: "Sun", value: "SU" },
+	{ label: "Mon", value: "MO" },
+	{ label: "Tue", value: "TU" },
+	{ label: "Wed", value: "WE" },
+	{ label: "Thu", value: "TH" },
+	{ label: "Fri", value: "FR" },
+	{ label: "Sat", value: "SA" },
+] as const;
 
 export const Events: CollectionConfig<"events"> = {
 	slug: "events",
@@ -142,6 +153,7 @@ export const Events: CollectionConfig<"events"> = {
 										},
 									],
 								},
+								// TODO: need to populate the virtual fields based on the rrule string
 								{
 									type: "checkbox",
 									name: "isRecurring",
@@ -160,6 +172,9 @@ export const Events: CollectionConfig<"events"> = {
 											name: "interval",
 											label: "Repeat every...",
 											defaultValue: 1,
+											hooks: {
+												afterRead: [populateVirtualRruleFields],
+											},
 											admin: {
 												step: 1,
 												width: "33%",
@@ -175,12 +190,16 @@ export const Events: CollectionConfig<"events"> = {
 												},
 												width: "33%",
 											},
+											hooks: {
+												afterRead: [populateVirtualRruleFields],
+											},
 											defaultValue: "WEEKLY",
 											options: [
-												{ label: "Day", value: "DAILY" },
-												{ label: "Week", value: "WEEKLY" },
-												{ label: "Month", value: "MONTHLY" },
-												{ label: "Year", value: "YEARLY" },
+												{ label: "Hourly", value: "HOURLY" },
+												{ label: "Daily", value: "DAILY" },
+												{ label: "Weekly", value: "WEEKLY" },
+												{ label: "Monthly", value: "MONTHLY" },
+												{ label: "Yearly", value: "YEARLY" },
 											],
 										},
 									],
@@ -193,50 +212,15 @@ export const Events: CollectionConfig<"events"> = {
 										className:
 											"[&>div.render-fields]:grid [&>div.render-fields]:grid-cols-7",
 									},
-									fields: [
-										{
-											type: "checkbox",
-											name: "SU",
-											label: "Sun",
-											virtual: true,
+									fields: days.map((day) => ({
+										type: "checkbox",
+										name: day.value,
+										label: day.label,
+										defaultValue: false,
+										hooks: {
+											afterRead: [populateVirtualRruleFields],
 										},
-										{
-											type: "checkbox",
-											name: "MO",
-											label: "Mon",
-											virtual: true,
-										},
-										{
-											type: "checkbox",
-											name: "TU",
-											label: "Tue",
-											virtual: true,
-										},
-										{
-											type: "checkbox",
-											name: "WE",
-											label: "Wed",
-											virtual: true,
-										},
-										{
-											type: "checkbox",
-											name: "TH",
-											label: "Thu",
-											virtual: true,
-										},
-										{
-											type: "checkbox",
-											name: "FR",
-											label: "Fri",
-											virtual: true,
-										},
-										{
-											type: "checkbox",
-											name: "SA",
-											label: "Sat",
-											virtual: true,
-										},
-									],
+									})),
 								},
 								{
 									type: "text",
@@ -244,6 +228,10 @@ export const Events: CollectionConfig<"events"> = {
 									label:
 										"Select the days of the month that the event will occur",
 									virtual: true,
+									defaultValue: "",
+									hooks: {
+										afterRead: [populateVirtualRruleFields],
+									},
 									admin: {
 										condition: (_, siblingData) =>
 											siblingData.frequency === "MONTHLY",
@@ -252,12 +240,15 @@ export const Events: CollectionConfig<"events"> = {
 												"/src/collections/Events/field-components/MonthDayPicker",
 										},
 									},
-									defaultValue: "",
 								},
 								{
 									type: "text",
 									name: "months",
 									virtual: true,
+									defaultValue: "",
+									hooks: {
+										afterRead: [populateVirtualRruleFields],
+									},
 									admin: {
 										condition: (_, siblingData) =>
 											siblingData.frequency === "YEARLY",
@@ -266,13 +257,15 @@ export const Events: CollectionConfig<"events"> = {
 												"/src/collections/Events/field-components/MonthPicker",
 										},
 									},
-									defaultValue: "",
 								},
 								{
 									type: "date",
 									name: "until",
 									label: "Repeat until...",
 									virtual: true,
+									hooks: {
+										afterRead: [populateVirtualRruleFields],
+									},
 									admin: {
 										description:
 											"The last date the event will occur. Leave blank to repeat indefinitely.",
@@ -288,6 +281,9 @@ export const Events: CollectionConfig<"events"> = {
 									name: "count",
 									label: "Total occurrences",
 									virtual: true,
+									hooks: {
+										afterRead: [populateVirtualRruleFields],
+									},
 									admin: {
 										description:
 											"Set a total number of occurrences for the event. Leave blank for no limit.",
