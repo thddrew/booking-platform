@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useCalendar } from "./calendar-provider";
 import { EventCard } from "./event/event-card";
+import { GroupedEventsCard } from "./event/grouped-events-card";
 import { shallowEqual } from "./utils/shallow-equal";
 
 interface MonthViewProps {
@@ -177,7 +178,7 @@ export function MonthView({
 
 									{/* Desktop view: event cards */}
 									<div className="hidden sm:block space-y-1">
-										{dayEvents.map((event) => (
+										{dayEvents.slice(0, 2).map((event) => (
 											<EventCard
 												key={`${event.type}-${event.dtstart}-${event.dtend}`}
 												event={event}
@@ -186,19 +187,13 @@ export function MonthView({
 												isSelected={shallowEqual(event, selectedEvent)}
 											/>
 										))}
-										{/* {activeBookings.slice(0, 2).map((event) => (
-                    <EventCard
-                      key={`${event.type}-${event.dtstart.toISOString()}-${event.dtend.toISOString()}`}
-                      event={event}
-                      onClick={onEventClick}
-                      compact
-                    />
-                  ))}
-                  {activeBookings.length > 2 && (
-                    <div className="text-xs text-foreground/70 px-1 font-medium">
-                      +{activeBookings.length - 2}
-                    </div>
-                  )} */}
+										{dayEvents.length > 2 && (
+											<GroupedEventsCard
+												events={dayEvents}
+												onEventClick={onEventClick}
+												compact
+											/>
+										)}
 									</div>
 								</div>
 							</div>
