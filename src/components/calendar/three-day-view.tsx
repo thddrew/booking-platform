@@ -11,7 +11,10 @@ import { cn } from "@/lib/utils";
 import { useCalendar } from "./calendar-provider";
 import { EventCard } from "./event/event-card";
 import { GroupedEventsCard } from "./event/grouped-events-card";
-import { groupEventsByStartHour, shouldCollapseEvents } from "./utils/group-events";
+import {
+	groupEventsByStartHour,
+	shouldCollapseEvents,
+} from "./utils/group-events";
 import { shallowEqual } from "./utils/shallow-equal";
 
 interface ThreeDayViewProps {
@@ -36,18 +39,8 @@ export function ThreeDayView({
 	const today = new Date();
 	const hours = Array.from({ length: 24 }, (_, i) => i);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
-	const _currentHour = today.getHours();
 
-	const { events, selectedEvent, getScrollToPosition } = useCalendar();
-
-	useEffect(() => {
-		if (scrollContainerRef.current && getScrollToPosition) {
-			const hourHeight = 80;
-			const scrollPosition = getScrollToPosition(hourHeight);
-
-			scrollContainerRef.current.scrollTop = scrollPosition;
-		}
-	}, [getScrollToPosition]);
+	const { events, selectedEvent } = useCalendar();
 
 	const formatHour = (hour: number) => {
 		const date = new Date();
@@ -114,8 +107,7 @@ export function ThreeDayView({
 					const endMinute = eventEnd.getMinutes();
 
 					const top = startHour * hourHeight + (startMinute / 60) * hourHeight;
-					const duration =
-						endHour - startHour + (endMinute - startMinute) / 60;
+					const duration = endHour - startHour + (endMinute - startMinute) / 60;
 					const height = duration * hourHeight;
 
 					positionedEvents.push({
@@ -165,9 +157,9 @@ export function ThreeDayView({
 	};
 
 	return (
-		<div className="flex flex-col h-full">
+		<div className="flex flex-col h-full overflow-y-auto">
 			{/* Three-day header */}
-			<div className="grid grid-cols-[75px_repeat(3,1fr)] border-b bg-card sticky top-0 z-20">
+			<div className="grid grid-cols-[75px_repeat(3,1fr)] border-b bg-card sticky top-0 z-30">
 				<div className="p-3 border-r"></div>
 				{dates.map((date) => {
 					const isToday = date.toDateString() === today.toDateString();
@@ -223,9 +215,13 @@ export function ThreeDayView({
 									if (item.isGrouped && item.events) {
 										return (
 											<div
+												// biome-ignore lint/suspicious/noArrayIndexKey: index is used as key
 												key={`grouped-${index}`}
 												className="absolute left-2 right-2 z-10"
-												style={{ top: `${item.top}px`, height: `${item.height}px` }}
+												style={{
+													top: `${item.top}px`,
+													height: `${item.height}px`,
+												}}
 											>
 												<GroupedEventsCard
 													events={item.events}
@@ -236,17 +232,26 @@ export function ThreeDayView({
 										);
 									}
 									if (item.event) {
+										const isSelected = shallowEqual(item.event, selectedEvent);
 										return (
 											<div
 												key={`${item.event.type}-${item.event.dtstart}-${item.event.dtend}`}
-												className="absolute left-2 right-2 z-10"
-												style={{ top: `${item.top}px`, height: `${item.height}px` }}
+												className={cn(
+													"absolute left-2 right-2 z-10",
+													isSelected && "z-20",
+												)}
+												style={{
+													top: `${item.top}px`,
+													height: `${item.height}px`,
+												}}
 											>
 												<EventCard
+													compact
 													event={item.event}
 													onClick={onEventClick}
 													className="h-full"
-													isSelected={shallowEqual(item.event, selectedEvent)}
+													// TODO: this seems expensive to do on every render
+													isSelected={isSelected}
 												/>
 											</div>
 										);
@@ -269,7 +274,6 @@ export function ThreeDayView({
 
 								{hours.map((hour) => {
 									const isPast = isPastTimeSlot(date, hour);
-									const hasEvents = hasEventsInHour(date, hour);
 
 									return (
 										<div key={hour} className="relative group">
@@ -281,16 +285,10 @@ export function ThreeDayView({
 													isPast &&
 														"bg-gray-100/30 hover:bg-gray-100/30 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(0,0,0,0.02)_4px,rgba(0,0,0,0.02)_8px)] cursor-not-allowed opacity-60",
 												)}
-												onClick={() =>
-													!isPast && !hasEvents && onTimeSlotClick?.(date, hour)
-												}
+												onClick={() => onTimeSlotClick?.(date, hour)}
 												disabled={isPast}
 												onKeyDown={(e) => {
-													if (
-														!isPast &&
-														!hasEvents &&
-														(e.key === "Enter" || e.key === " ")
-													) {
+													if (e.key === "Enter" || e.key === " ") {
 														e.preventDefault();
 														onTimeSlotClick?.(date, hour);
 													}

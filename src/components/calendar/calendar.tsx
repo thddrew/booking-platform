@@ -59,20 +59,13 @@ export function Calendar({
 		onViewChange?.(newView);
 	};
 
-	const handleDateChange = (newDate: Date) => {
-		setCurrentDate(newDate);
-		onDateChange?.(newDate);
-	};
-
 	const handleEventClick = (event: CalendarEvent) => {
 		onEventClick?.(event);
 	};
 
 	const handleDateClick = (date: Date) => {
-		if (view === "month") {
-			setView("day");
-			handleDateChange(date);
-		}
+		setCurrentDate(date);
+		onDateChange?.(date);
 	};
 
 	const renderView = () => {

@@ -97,7 +97,7 @@ const EventsCalendars: UIFieldClientComponent = (_props) => {
 					<CardHeader>
 						<CardTitle>Schedules</CardTitle>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="space-y-1">
 						{schedules?.map((schedule) => {
 							if (!schedule.id) return null;
 							return (
@@ -144,6 +144,14 @@ const EventsCalendars: UIFieldClientComponent = (_props) => {
 							scheduleInstanceData.setValue(calEvent);
 							fieldDtstart.setValue(calEvent.dtstart);
 							fieldDtend.setValue(calEvent.dtend);
+						}}
+						onTimeSlotClick={() => {
+							console.log("onTimeSlotClick");
+							if (isDisabled) return;
+
+							scheduleInstanceData.setValue(null);
+							fieldDtstart.setValue(null);
+							fieldDtend.setValue(null);
 						}}
 						config={{
 							month: {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import {
 	type CalendarEvent,
 	defaultViewConfig,
@@ -11,7 +11,10 @@ import { cn } from "@/lib/utils";
 import { useCalendar } from "./calendar-provider";
 import { EventCard } from "./event/event-card";
 import { GroupedEventsCard } from "./event/grouped-events-card";
-import { groupEventsByStartHour, shouldCollapseEvents } from "./utils/group-events";
+import {
+	groupEventsByStartHour,
+	shouldCollapseEvents,
+} from "./utils/group-events";
 import { shallowEqual } from "./utils/shallow-equal";
 
 interface DayViewProps {
@@ -39,20 +42,12 @@ export function DayView({
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const _currentHour = today.getHours();
 
-	const { events, selectedEvent, getScrollToPosition } = useCalendar();
-
-	useEffect(() => {
-		if (scrollContainerRef.current && getScrollToPosition) {
-			const hourHeight = 80;
-			const scrollPosition = getScrollToPosition(hourHeight);
-
-			scrollContainerRef.current.scrollTop = scrollPosition;
-		}
-	}, [getScrollToPosition]);
+	const { events, selectedEvent } = useCalendar();
 
 	const formatHour = (hour: number) => {
 		const date = new Date();
 		date.setHours(hour, 0, 0, 0);
+
 		return date.toLocaleTimeString("en-US", {
 			hour: "numeric",
 			hour12: true,
@@ -115,8 +110,7 @@ export function DayView({
 					const endMinute = eventEnd.getMinutes();
 
 					const top = startHour * hourHeight + (startMinute / 60) * hourHeight;
-					const duration =
-						endHour - startHour + (endMinute - startMinute) / 60;
+					const duration = endHour - startHour + (endMinute - startMinute) / 60;
 					const height = duration * hourHeight;
 
 					positionedEvents.push({
@@ -193,6 +187,7 @@ export function DayView({
 							if (item.isGrouped && item.events) {
 								return (
 									<div
+										// biome-ignore lint/suspicious/noArrayIndexKey: index is used as key
 										key={`grouped-${index}`}
 										className="absolute left-2 right-2 z-10"
 										style={{ top: `${item.top}px`, height: `${item.height}px` }}
@@ -206,17 +201,21 @@ export function DayView({
 								);
 							}
 							if (item.event) {
+								const isSelected = shallowEqual(item.event, selectedEvent);
 								return (
 									<div
 										key={`${item.event.type}-${item.event.dtstart}-${item.event.dtend}`}
-										className="absolute left-2 right-2 z-10"
+										className={cn(
+											"absolute left-2 right-2 z-10",
+											isSelected && "z-20",
+										)}
 										style={{ top: `${item.top}px`, height: `${item.height}px` }}
 									>
 										<EventCard
 											event={item.event}
 											onClick={onEventClick}
 											className="h-full"
-											isSelected={shallowEqual(item.event, selectedEvent)}
+											isSelected={isSelected}
 										/>
 									</div>
 								);

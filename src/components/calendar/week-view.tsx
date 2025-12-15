@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import {
 	type CalendarEvent,
 	defaultViewConfig,
@@ -11,7 +11,10 @@ import { cn } from "@/lib/utils";
 import { useCalendar } from "./calendar-provider";
 import { EventCard } from "./event/event-card";
 import { GroupedEventsCard } from "./event/grouped-events-card";
-import { groupEventsByStartHour, shouldCollapseEvents } from "./utils/group-events";
+import {
+	groupEventsByStartHour,
+	shouldCollapseEvents,
+} from "./utils/group-events";
 import { shallowEqual } from "./utils/shallow-equal";
 
 interface WeekViewProps {
@@ -36,18 +39,8 @@ export function WeekView({
 	const today = new Date();
 	const hours = Array.from({ length: 24 }, (_, i) => i);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
-	const _currentHour = today.getHours();
 
-	const { events, selectedEvent, getScrollToPosition } = useCalendar();
-
-	useEffect(() => {
-		if (scrollContainerRef.current && getScrollToPosition) {
-			const hourHeight = 64;
-			const scrollPosition = getScrollToPosition(hourHeight);
-
-			scrollContainerRef.current.scrollTop = scrollPosition;
-		}
-	}, [getScrollToPosition]);
+	const { events, selectedEvent } = useCalendar();
 
 	const formatHour = (hour: number) => {
 		const date = new Date();
@@ -111,8 +104,7 @@ export function WeekView({
 					const endMinute = eventEnd.getMinutes();
 
 					const top = startHour * hourHeight + (startMinute / 60) * hourHeight;
-					const duration =
-						endHour - startHour + (endMinute - startMinute) / 60;
+					const duration = endHour - startHour + (endMinute - startMinute) / 60;
 					const height = duration * hourHeight;
 
 					positionedEvents.push({
@@ -162,9 +154,9 @@ export function WeekView({
 	};
 
 	return (
-		<div className="flex flex-col h-full">
+		<div className="flex flex-col h-full overflow-y-auto">
 			{/* Week header */}
-			<div className="grid grid-cols-[75px_repeat(7,1fr)] border-b bg-card sticky top-0 z-20">
+			<div className="grid grid-cols-[75px_repeat(7,1fr)] border-b bg-card sticky top-0 z-30">
 				<div className="p-3 border-r"></div>
 				{dates.map((date) => {
 					const isToday = date.toDateString() === today.toDateString();
@@ -223,9 +215,13 @@ export function WeekView({
 									if (item.isGrouped && item.events) {
 										return (
 											<div
+												// biome-ignore lint/suspicious/noArrayIndexKey: index is used as key
 												key={`grouped-${index}`}
 												className="absolute left-1 right-1 z-10"
-												style={{ top: `${item.top}px`, height: `${item.height}px` }}
+												style={{
+													top: `${item.top}px`,
+													height: `${item.height}px`,
+												}}
 											>
 												<GroupedEventsCard
 													events={item.events}
@@ -237,18 +233,26 @@ export function WeekView({
 										);
 									}
 									if (item.event) {
+										const isSelected = shallowEqual(item.event, selectedEvent);
+
 										return (
 											<div
 												key={`${item.event.type}-${item.event.dtstart}-${item.event.dtend}`}
-												className="absolute left-1 right-1 z-10"
-												style={{ top: `${item.top}px`, height: `${item.height}px` }}
+												className={cn(
+													"absolute left-1 right-1 z-10",
+													isSelected && "z-20",
+												)}
+												style={{
+													top: `${item.top}px`,
+													height: `${item.height}px`,
+												}}
 											>
 												<EventCard
 													event={item.event}
 													onClick={onEventClick}
 													compact
 													className="h-full"
-													isSelected={shallowEqual(item.event, selectedEvent)}
+													isSelected={isSelected}
 												/>
 											</div>
 										);

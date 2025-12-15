@@ -1,5 +1,6 @@
 "use client";
 
+import { isSameDay } from "date-fns";
 import { CheckCircle2, Plus } from "lucide-react";
 import {
 	type BookingInstance,
@@ -44,14 +45,11 @@ export function MonthView({
 	const getEventsForDate = (date: Date) => {
 		return events.filter((event) => {
 			const eventStart = new Date(event.dtstart);
-			const eventEnd = new Date(event.dtend);
 			const targetDate = new Date(date);
 
-			targetDate.setHours(0, 0, 0, 0);
-			eventStart.setHours(0, 0, 0, 0);
-			eventEnd.setHours(0, 0, 0, 0);
+			const isSameDayCheck = isSameDay(targetDate, eventStart);
 
-			return targetDate >= eventStart && targetDate <= eventEnd;
+			return isSameDayCheck;
 		});
 	};
 
@@ -67,7 +65,6 @@ export function MonthView({
 	};
 
 	const separateEvents = (dayEvents: CalendarEvent[]) => {
-		const _now = new Date();
 		const activeBookings: BookingInstance[] = [];
 		const completedBookings: BookingInstance[] = [];
 		const scheduleInstances: ScheduleInstance[] = [];
@@ -157,7 +154,7 @@ export function MonthView({
 
 								<div className="space-y-1">
 									{/* Mobile view: circles and +more */}
-									<div className="sm:hidden space-y-1">
+									{/* <div className="sm:hidden space-y-1">
 										{completedBookings.length > 0 && (
 											<div className="flex items-center space-x-1 text-[10px] font-medium text-foreground/70">
 												<CheckCircle2 className="w-3 h-3 text-green-500" />
@@ -174,23 +171,23 @@ export function MonthView({
 												)}
 											</div>
 										)}
-									</div>
+									</div> */}
 
-									{/* Desktop view: event cards */}
-									<div className="hidden sm:block space-y-1">
-										{dayEvents.slice(0, 2).map((event) => (
+									<div className="space-y-1">
+										{dayEvents.length === 1 && (
 											<EventCard
-												key={`${event.type}-${event.dtstart}-${event.dtend}`}
-												event={event}
+												key={`${dayEvents[0].type}-${dayEvents[0].dtstart}-${dayEvents[0].dtend}`}
+												event={dayEvents[0]}
 												onClick={onEventClick}
 												compact
 												isSelected={shallowEqual(event, selectedEvent)}
 											/>
-										))}
-										{dayEvents.length > 2 && (
+										)}
+										{dayEvents.length > 1 && (
 											<GroupedEventsCard
 												events={dayEvents}
 												onEventClick={onEventClick}
+												selectedEvent={selectedEvent}
 												compact
 											/>
 										)}
