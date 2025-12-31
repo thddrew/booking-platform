@@ -139,4 +139,32 @@ export const seed: NonNullable<Config["onInit"]> = async (
 			title: "Page for Tenant 3",
 		},
 	});
+
+	// Create default "events" pages for each tenant
+	await payload.create({
+		collection: "pages",
+		data: {
+			slug: "events",
+			tenant: tenant1.id,
+			title: "Events",
+		},
+	});
+
+	await payload.create({
+		collection: "pages",
+		data: {
+			slug: "events",
+			tenant: tenant2.id,
+			title: "Events",
+		},
+	});
+
+	await payload.create({
+		collection: "pages",
+		data: {
+			slug: "events",
+			tenant: tenant3.id,
+			title: "Events",
+		},
+	});
 };

@@ -327,6 +327,10 @@ export interface Event {
   isActive?: boolean | null;
   stripeProductId?: string | null;
   title: string;
+  /**
+   * URL-friendly identifier for this event. Auto-generated from title if left empty.
+   */
+  slug?: string | null;
   description?: {
     root: {
       type: string;
@@ -909,6 +913,7 @@ export interface EventsSelect<T extends boolean = true> {
   isActive?: T;
   stripeProductId?: T;
   title?: T;
+  slug?: T;
   description?: T;
   thumbnail?: T;
   gallery?: T;

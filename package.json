@@ -14,6 +14,7 @@
 		"generate:types": "payload generate:types",
 		"payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
 		"seed": "bun run payload migrate:fresh",
+		"create-default-event-pages": "cross-env NODE_OPTIONS=--no-deprecation bun run scripts/create-default-event-pages.ts",
 		"start": "cross-env NODE_OPTIONS=--no-deprecation next start",
 		"lint": "biome check .",
 		"tsc": "tsgo --project tsconfig.json"

@@ -3,7 +3,9 @@ import { superAdminFieldAccess } from "@/access/superAdminFieldAccess";
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
 import { convertAmountToDataType } from "./hooks/convertAmountToDataType";
 import { convertAmountToDisplayType } from "./hooks/convertAmountToDisplayType";
+import { ensureUniqueEventSlug } from "./hooks/ensureUniqueEventSlug";
 import { generateRrulestring } from "./hooks/generateRrulestring";
+import { generateSlugFromTitle } from "./hooks/generateSlugFromTitle";
 import { populateVirtualRruleFields } from "./hooks/populate-virtual-rrule-fields";
 import { upsertStripeProduct } from "./hooks/upsertStripeProduct";
 
@@ -77,6 +79,19 @@ export const Events: CollectionConfig<"events"> = {
 							type: "text",
 							label: "Title",
 							required: true,
+						},
+						{
+							name: "slug",
+							type: "text",
+							label: "Slug",
+							admin: {
+								description:
+									"URL-friendly identifier for this event. Auto-generated from title if left empty.",
+							},
+							index: true,
+							hooks: {
+								beforeValidate: [generateSlugFromTitle, ensureUniqueEventSlug],
+							},
 						},
 						{
 							name: "description",

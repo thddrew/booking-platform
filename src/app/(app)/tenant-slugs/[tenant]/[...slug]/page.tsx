@@ -18,11 +18,20 @@ export default async function Page({
 	const { user } = await payload.auth({ headers });
 
 	const slug = params?.slug;
+	const slugString = slug?.join("/") || "";
 
+	const isEventsList = slugString === "events";
+	const isEventDetail =
+		slugString.startsWith("events/") && slugString.split("/").length === 2;
+	const eventSlug: string | null = isEventDetail
+		? slugString.split("/")[1]
+		: null;
+
+	let tenant: { id: string } | undefined;
 	try {
 		const tenantsQuery = await payload.find({
 			collection: "tenants",
-			overrideAccess: false,
+			overrideAccess: isEventsList || isEventDetail ? true : false,
 			user,
 			where: {
 				slug: {
@@ -30,23 +39,138 @@ export default async function Page({
 				},
 			},
 		});
-		// If no tenant is found, the user does not have access
-		// Show the login view
+
 		if (tenantsQuery.docs.length === 0) {
+			if (isEventsList || isEventDetail) {
+				const publicTenantsQuery = await payload.find({
+					collection: "tenants",
+					overrideAccess: true,
+					where: {
+						and: [
+							{
+								slug: {
+									equals: params.tenant,
+								},
+							},
+							{
+								allowPublicRead: {
+									equals: true,
+								},
+							},
+						],
+					},
+				});
+
+				if (publicTenantsQuery.docs.length > 0) {
+					tenant = publicTenantsQuery.docs[0];
+				} else {
+					redirect(
+						`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
+							`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
+						)}`,
+					);
+				}
+			} else {
+				redirect(
+					`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
+						`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
+					)}`,
+				);
+			}
+		} else {
+			tenant = tenantsQuery.docs[0];
+		}
+	} catch (_e) {
+		if (isEventsList || isEventDetail) {
+			try {
+				const publicTenantsQuery = await payload.find({
+					collection: "tenants",
+					overrideAccess: true,
+					where: {
+						and: [
+							{
+								slug: {
+									equals: params.tenant,
+								},
+							},
+							{
+								allowPublicRead: {
+									equals: true,
+								},
+							},
+						],
+					},
+				});
+
+				if (publicTenantsQuery.docs.length > 0) {
+					tenant = publicTenantsQuery.docs[0];
+				} else {
+					redirect(
+						`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
+							`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
+						)}`,
+					);
+				}
+			} catch {
+				redirect(
+					`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
+						`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
+					)}`,
+				);
+			}
+		} else {
 			redirect(
 				`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
 					`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
 				)}`,
 			);
 		}
-	} catch (_e) {
-		// If the query fails, it means the user did not have access to query on the slug field
-		// Show the login view
-		redirect(
-			`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
-				`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
-			)}`,
-		);
+	}
+
+	if (!tenant) {
+		return notFound();
+	}
+
+	if (isEventDetail && eventSlug) {
+		const eventQuery = await payload.find({
+			collection: "events",
+			where: {
+				and: [
+					{
+						tenant: {
+							equals: tenant.id,
+						},
+					},
+					{
+						slug: {
+							equals: eventSlug,
+						},
+					},
+					{
+						isActive: {
+							equals: true,
+						},
+					},
+					{
+						_status: {
+							equals: "published",
+						},
+					},
+				],
+			},
+			limit: 1,
+		});
+
+		const event = eventQuery.docs[0];
+		if (!event) {
+			return notFound();
+		}
+
+		return <RenderPage data={null} event={event} slug={slugString} />;
+	}
+
+	if (isEventsList) {
+		return <RenderPage data={null} slug={slugString} tenantId={tenant.id} tenantSlug={params.tenant} />;
 	}
 
 	const slugConstraint: Where = slug
