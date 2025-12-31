@@ -41,7 +41,7 @@ export default buildConfig({
 		autoLogin:
 			process.env.NODE_ENV === "development" &&
 			process.env.PAYLOAD_AUTOLOGIN === "true"
-				? { email: "thddrew@gmail.com", password: "demo" }
+				? { email: "demo@payloadcms.com", password: "demo" }
 				: undefined,
 		components: {
 			views: {

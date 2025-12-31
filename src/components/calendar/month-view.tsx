@@ -153,45 +153,23 @@ export function MonthView({
 								</div>
 
 								<div className="space-y-1">
-									{/* Mobile view: circles and +more */}
-									{/* <div className="sm:hidden space-y-1">
-										{completedBookings.length > 0 && (
-											<div className="flex items-center space-x-1 text-[10px] font-medium text-foreground/70">
-												<CheckCircle2 className="w-3 h-3 text-green-500" />
-												<span>{completedBookings.length}</span>
-											</div>
-										)}
-										{activeBookings.length > 0 && (
-											<div className="flex items-center space-x-1">
-												<span className="w-3 h-3 rounded-full bg-cyan-500 shrink-0"></span>
-												{activeBookings.length > 1 && (
-													<span className="text-[10px] font-medium text-foreground/70">
-														+{activeBookings.length - 1}
-													</span>
-												)}
-											</div>
-										)}
-									</div> */}
-
-									<div className="space-y-1">
-										{dayEvents.length === 1 && (
-											<EventCard
-												key={`${dayEvents[0].type}-${dayEvents[0].dtstart}-${dayEvents[0].dtend}`}
-												event={dayEvents[0]}
-												onClick={onEventClick}
-												compact
-												isSelected={shallowEqual(event, selectedEvent)}
-											/>
-										)}
-										{dayEvents.length > 1 && (
-											<GroupedEventsCard
-												events={dayEvents}
-												onEventClick={onEventClick}
-												selectedEvent={selectedEvent}
-												compact
-											/>
-										)}
-									</div>
+									{dayEvents.length === 1 && (
+										<EventCard
+											key={`${dayEvents[0].type}-${dayEvents[0].dtstart}-${dayEvents[0].dtend}`}
+											event={dayEvents[0]}
+											onClick={onEventClick}
+											compact
+											isSelected={shallowEqual(event, selectedEvent)}
+										/>
+									)}
+									{dayEvents.length > 1 && (
+										<GroupedEventsCard
+											events={dayEvents}
+											onEventClick={onEventClick}
+											selectedEvent={selectedEvent}
+											compact
+										/>
+									)}
 								</div>
 							</div>
 							{showCreateBtn && !isPast && (

@@ -16,14 +16,14 @@ export const getDefaultAccountStripeClient = async () => {
 	}
 
 	return new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-		apiVersion: "2025-08-27.basil",
+		apiVersion: "2025-03-31.basil" as Stripe.LatestApiVersion,
 		stripeAccount: account.stripeAccountId,
 	});
 };
 
 export const getAccountStripeClient = async (stripeAccount: string) => {
 	return new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-		apiVersion: "2025-08-27.basil",
+		apiVersion: "2025-03-31.basil" as Stripe.LatestApiVersion,
 		stripeAccount,
 	});
 };

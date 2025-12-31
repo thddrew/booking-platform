@@ -65,18 +65,9 @@ export function ScheduleInstanceCard({
 			<div
 				className={cn(
 					"sticky w-full top-20 flex items-start justify-between truncate gap-0.5 flex-wrap",
-					// "@max-[10rem]:flex-col @max-[10rem]:items-start @max-[10rem]:justify-start @max-[10rem]:h-full",
 					view === "day" && "top-2",
 				)}
 			>
-				{/* <div
-						className={cn(
-							"font-medium leading-tight md:line-clamp-2",
-							compact && "text-xs",
-						)}
-					>
-						{event.title}
-					</div> */}
 				<div className={cn("text-muted-foreground", compact && "text-xs")}>
 					{formatTimeRange(new Date(event.dtstart), new Date(event.dtend))}
 				</div>

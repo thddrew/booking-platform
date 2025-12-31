@@ -22,7 +22,7 @@ export default function SendTestEmailForm({
 	const field = useField({ path: "testEmail" });
 
 	const parsedEmail = useMemo(() => {
-		return z.string().email().safeParse(field.value);
+		return z.email().safeParse(field.value);
 	}, [field.value]);
 
 	const onSubmit = async () => {

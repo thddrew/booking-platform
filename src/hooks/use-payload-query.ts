@@ -6,7 +6,6 @@ import {
 	useQuery,
 } from "@tanstack/react-query";
 import type { Where } from "payload";
-import { stringify } from "qs-esm";
 
 /**
  * We separate the API by its parts to make cache-busting easier
@@ -21,33 +20,6 @@ export const constructQueryKeys = (api: string, query?: Where) => {
 
 	return [...splitApi, query];
 };
-
-/**
- * Wraps the Payload REST API with RQ for caching
- */
-export const _usePayloadQuery = <Value>({
-	api,
-	query,
-	options,
-}: {
-	api: string;
-	query?: Where;
-	// TODO: add depth, limit, select, pagination api
-	options?: Omit<UseQueryOptions<Value>, "queryKey" | "queryFn">;
-}) =>
-	useQuery<Value>({
-		queryKey: constructQueryKeys(api, query),
-		queryFn: async () => {
-			const data = await fetch(
-				`${api}?${stringify({ where: query }, { addQueryPrefix: true })}`,
-				{
-					credentials: "include",
-				},
-			);
-			return data.json();
-		},
-		...options,
-	});
 
 /**
  * Wraps the Payload SDK with RQ for caching

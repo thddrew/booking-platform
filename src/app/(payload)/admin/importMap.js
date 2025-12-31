@@ -54,6 +54,7 @@ import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc056
 import { default as default_b25b6ab9cc9a519bde7fd26e0ab112bd } from '../../../../src/components/dashboard/dashboard-view'
 import { default as default_da38590ff3ba72e686c0cf77be2cf57d } from '../../../../src/components/stripe-checkout/checkout-view'
 import { default as default_f83036f8249290e7f3600cb150b87829 } from '../../../../src/components/stripe-checkout/checkout-success-view'
+import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 
 export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
@@ -111,5 +112,6 @@ export const importMap = {
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "/src/components/dashboard/dashboard-view#default": default_b25b6ab9cc9a519bde7fd26e0ab112bd,
   "/src/components/stripe-checkout/checkout-view#default": default_da38590ff3ba72e686c0cf77be2cf57d,
-  "/src/components/stripe-checkout/checkout-success-view#default": default_f83036f8249290e7f3600cb150b87829
+  "/src/components/stripe-checkout/checkout-success-view#default": default_f83036f8249290e7f3600cb150b87829,
+  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
 }

@@ -47,19 +47,10 @@ export const enum__bookings_v_version_payment_method = pgEnum(
   "enum__bookings_v_version_payment_method",
   ["payNow", "payLater"],
 );
-export const enum_emails_email_type = pgEnum("enum_emails_email_type", [
-  "bookingConfirmationEmail",
-  "bookingCancelledEmail",
-  "bookingUpdatedEmail",
-]);
 export const enum_emails_status = pgEnum("enum_emails_status", [
   "draft",
   "published",
 ]);
-export const enum__emails_v_version_email_type = pgEnum(
-  "enum__emails_v_version_email_type",
-  ["bookingConfirmationEmail", "bookingCancelledEmail", "bookingUpdatedEmail"],
-);
 export const enum__emails_v_version_status = pgEnum(
   "enum__emails_v_version_status",
   ["draft", "published"],
@@ -203,6 +194,9 @@ export const users = pgTable(
   "users",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
+      onDelete: "set null",
+    }),
     username: varchar("username"),
     updatedAt: timestamp("updated_at", {
       mode: "string",
@@ -227,7 +221,7 @@ export const users = pgTable(
     }),
     salt: varchar("salt"),
     hash: varchar("hash"),
-    loginAttempts: numeric("login_attempts").default("0"),
+    loginAttempts: numeric("login_attempts", { mode: "number" }).default(0),
     lockUntil: timestamp("lock_until", {
       mode: "string",
       withTimezone: true,
@@ -235,6 +229,7 @@ export const users = pgTable(
     }),
   },
   (columns) => [
+    index("users_tenant_idx").on(columns.tenant),
     index("users_username_idx").on(columns.username),
     index("users_updated_at_idx").on(columns.updatedAt),
     index("users_created_at_idx").on(columns.createdAt),
@@ -380,6 +375,9 @@ export const payments_settings = pgTable(
   "payments_settings",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
+      onDelete: "set null",
+    }),
     updatedAt: timestamp("updated_at", {
       mode: "string",
       withTimezone: true,
@@ -396,6 +394,7 @@ export const payments_settings = pgTable(
       .notNull(),
   },
   (columns) => [
+    index("payments_settings_tenant_idx").on(columns.tenant),
     index("payments_settings_updated_at_idx").on(columns.updatedAt),
     index("payments_settings_created_at_idx").on(columns.createdAt),
   ],
@@ -405,11 +404,9 @@ export const logs = pgTable(
   "logs",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    user: uuid("user_id")
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "set null",
-      }),
+    tenant: uuid("tenant_id").references(() => tenants.id, {
+      onDelete: "set null",
+    }),
     updatedAt: timestamp("updated_at", {
       mode: "string",
       withTimezone: true,
@@ -426,7 +423,7 @@ export const logs = pgTable(
       .notNull(),
   },
   (columns) => [
-    index("logs_user_idx").on(columns.user),
+    index("logs_tenant_idx").on(columns.tenant),
     index("logs_updated_at_idx").on(columns.updatedAt),
     index("logs_created_at_idx").on(columns.createdAt),
   ],
@@ -451,6 +448,13 @@ export const events_schedules_schedule = pgTable(
       precision: 3,
     }),
     isRecurring: boolean("is_recurring").default(true),
+    SU: boolean("su").default(false),
+    MO: boolean("mo").default(false),
+    TU: boolean("tu").default(false),
+    WE: boolean("we").default(false),
+    TH: boolean("th").default(false),
+    FR: boolean("fr").default(false),
+    SA: boolean("sa").default(false),
     rrulestring: varchar("rrulestring"),
   },
   (columns) => [
@@ -474,9 +478,9 @@ export const events_prices = pgTable(
     isActive: boolean("is_active").default(true),
     label: varchar("label"),
     description: varchar("description"),
-    amount: numeric("amount").default("0"),
-    quantityUnit: numeric("quantity_unit").default("1"),
-    quantity: numeric("quantity").default("0"),
+    amount: numeric("amount", { mode: "number" }).default(0),
+    quantityUnit: numeric("quantity_unit", { mode: "number" }).default(1),
+    quantity: numeric("quantity", { mode: "number" }).default(0),
   },
   (columns) => [
     index("events_prices_order_idx").on(columns._order),
@@ -503,8 +507,8 @@ export const events = pgTable(
     thumbnail: uuid("thumbnail_id").references(() => media.id, {
       onDelete: "set null",
     }),
-    maxQuantity: numeric("max_quantity").default("4"),
-    minQuantity: numeric("min_quantity").default("1"),
+    maxQuantity: numeric("max_quantity", { mode: "number" }).default(4),
+    minQuantity: numeric("min_quantity", { mode: "number" }).default(1),
     updatedAt: timestamp("updated_at", {
       mode: "string",
       withTimezone: true,
@@ -582,6 +586,13 @@ export const _events_v_version_schedules_schedule = pgTable(
       precision: 3,
     }),
     isRecurring: boolean("is_recurring").default(true),
+    SU: boolean("su").default(false),
+    MO: boolean("mo").default(false),
+    TU: boolean("tu").default(false),
+    WE: boolean("we").default(false),
+    TH: boolean("th").default(false),
+    FR: boolean("fr").default(false),
+    SA: boolean("sa").default(false),
     rrulestring: varchar("rrulestring"),
     _uuid: varchar("_uuid"),
   },
@@ -608,9 +619,9 @@ export const _events_v_version_prices = pgTable(
     isActive: boolean("is_active").default(true),
     label: varchar("label"),
     description: varchar("description"),
-    amount: numeric("amount").default("0"),
-    quantityUnit: numeric("quantity_unit").default("1"),
-    quantity: numeric("quantity").default("0"),
+    amount: numeric("amount", { mode: "number" }).default(0),
+    quantityUnit: numeric("quantity_unit", { mode: "number" }).default(1),
+    quantity: numeric("quantity", { mode: "number" }).default(0),
     _uuid: varchar("_uuid"),
   },
   (columns) => [
@@ -641,8 +652,12 @@ export const _events_v = pgTable(
     version_thumbnail: uuid("version_thumbnail_id").references(() => media.id, {
       onDelete: "set null",
     }),
-    version_maxQuantity: numeric("version_max_quantity").default("4"),
-    version_minQuantity: numeric("version_min_quantity").default("1"),
+    version_maxQuantity: numeric("version_max_quantity", {
+      mode: "number",
+    }).default(4),
+    version_minQuantity: numeric("version_min_quantity", {
+      mode: "number",
+    }).default(1),
     version_updatedAt: timestamp("version_updated_at", {
       mode: "string",
       withTimezone: true,
@@ -979,28 +994,34 @@ export const media = pgTable(
     thumbnailURL: varchar("thumbnail_u_r_l"),
     filename: varchar("filename"),
     mimeType: varchar("mime_type"),
-    filesize: numeric("filesize"),
-    width: numeric("width"),
-    height: numeric("height"),
-    focalX: numeric("focal_x"),
-    focalY: numeric("focal_y"),
+    filesize: numeric("filesize", { mode: "number" }),
+    width: numeric("width", { mode: "number" }),
+    height: numeric("height", { mode: "number" }),
+    focalX: numeric("focal_x", { mode: "number" }),
+    focalY: numeric("focal_y", { mode: "number" }),
     sizes_thumbnail_url: varchar("sizes_thumbnail_url"),
-    sizes_thumbnail_width: numeric("sizes_thumbnail_width"),
-    sizes_thumbnail_height: numeric("sizes_thumbnail_height"),
+    sizes_thumbnail_width: numeric("sizes_thumbnail_width", { mode: "number" }),
+    sizes_thumbnail_height: numeric("sizes_thumbnail_height", {
+      mode: "number",
+    }),
     sizes_thumbnail_mimeType: varchar("sizes_thumbnail_mime_type"),
-    sizes_thumbnail_filesize: numeric("sizes_thumbnail_filesize"),
+    sizes_thumbnail_filesize: numeric("sizes_thumbnail_filesize", {
+      mode: "number",
+    }),
     sizes_thumbnail_filename: varchar("sizes_thumbnail_filename"),
     sizes_mobile_url: varchar("sizes_mobile_url"),
-    sizes_mobile_width: numeric("sizes_mobile_width"),
-    sizes_mobile_height: numeric("sizes_mobile_height"),
+    sizes_mobile_width: numeric("sizes_mobile_width", { mode: "number" }),
+    sizes_mobile_height: numeric("sizes_mobile_height", { mode: "number" }),
     sizes_mobile_mimeType: varchar("sizes_mobile_mime_type"),
-    sizes_mobile_filesize: numeric("sizes_mobile_filesize"),
+    sizes_mobile_filesize: numeric("sizes_mobile_filesize", { mode: "number" }),
     sizes_mobile_filename: varchar("sizes_mobile_filename"),
     sizes_desktop_url: varchar("sizes_desktop_url"),
-    sizes_desktop_width: numeric("sizes_desktop_width"),
-    sizes_desktop_height: numeric("sizes_desktop_height"),
+    sizes_desktop_width: numeric("sizes_desktop_width", { mode: "number" }),
+    sizes_desktop_height: numeric("sizes_desktop_height", { mode: "number" }),
     sizes_desktop_mimeType: varchar("sizes_desktop_mime_type"),
-    sizes_desktop_filesize: numeric("sizes_desktop_filesize"),
+    sizes_desktop_filesize: numeric("sizes_desktop_filesize", {
+      mode: "number",
+    }),
     sizes_desktop_filename: varchar("sizes_desktop_filename"),
   },
   (columns) => [
@@ -1171,6 +1192,31 @@ export const _campaigns_v_rels = pgTable(
   ],
 );
 
+export const emails_past_emails = pgTable(
+  "emails_past_emails",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: uuid("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    workflowId: varchar("workflow_id"),
+    transactionId: varchar("transaction_id"),
+  },
+  (columns) => [
+    index("emails_past_emails_order_idx").on(columns._order),
+    index("emails_past_emails_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [emails.id],
+      name: "emails_past_emails_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
 export const emails = pgTable(
   "emails",
   {
@@ -1181,7 +1227,6 @@ export const emails = pgTable(
     subject: varchar("subject"),
     preview: varchar("preview"),
     emailContent: jsonb("email_content"),
-    emailType: enum_emails_email_type("email_type"),
     updatedAt: timestamp("updated_at", {
       mode: "string",
       withTimezone: true,
@@ -1212,6 +1257,78 @@ export const emails = pgTable(
   ],
 );
 
+export const emails_texts = pgTable(
+  "emails_texts",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order").notNull(),
+    parent: uuid("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    text: varchar("text"),
+  },
+  (columns) => [
+    index("emails_texts_order_parent").on(columns.order, columns.parent),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [emails.id],
+      name: "emails_texts_parent_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const emails_rels = pgTable(
+  "emails_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: uuid("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    campaignsID: uuid("campaigns_id"),
+  },
+  (columns) => [
+    index("emails_rels_order_idx").on(columns.order),
+    index("emails_rels_parent_idx").on(columns.parent),
+    index("emails_rels_path_idx").on(columns.path),
+    index("emails_rels_campaigns_id_idx").on(columns.campaignsID),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [emails.id],
+      name: "emails_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["campaignsID"]],
+      foreignColumns: [campaigns.id],
+      name: "emails_rels_campaigns_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _emails_v_version_past_emails = pgTable(
+  "_emails_v_version_past_emails",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: uuid("_parent_id").notNull(),
+    id: uuid("id").defaultRandom().primaryKey(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    workflowId: varchar("workflow_id"),
+    transactionId: varchar("transaction_id"),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_emails_v_version_past_emails_order_idx").on(columns._order),
+    index("_emails_v_version_past_emails_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_emails_v.id],
+      name: "_emails_v_version_past_emails_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
 export const _emails_v = pgTable(
   "_emails_v",
   {
@@ -1225,7 +1342,6 @@ export const _emails_v = pgTable(
     version_subject: varchar("version_subject"),
     version_preview: varchar("version_preview"),
     version_emailContent: jsonb("version_email_content"),
-    version_emailType: enum__emails_v_version_email_type("version_email_type"),
     version_updatedAt: timestamp("version_updated_at", {
       mode: "string",
       withTimezone: true,
@@ -1280,6 +1396,62 @@ export const _emails_v = pgTable(
   ],
 );
 
+export const _emails_v_texts = pgTable(
+  "_emails_v_texts",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order").notNull(),
+    parent: uuid("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    text: varchar("text"),
+  },
+  (columns) => [
+    index("_emails_v_texts_order_parent").on(columns.order, columns.parent),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_emails_v.id],
+      name: "_emails_v_texts_parent_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _emails_v_rels = pgTable(
+  "_emails_v_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: uuid("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    campaignsID: uuid("campaigns_id"),
+  },
+  (columns) => [
+    index("_emails_v_rels_order_idx").on(columns.order),
+    index("_emails_v_rels_parent_idx").on(columns.parent),
+    index("_emails_v_rels_path_idx").on(columns.path),
+    index("_emails_v_rels_campaigns_id_idx").on(columns.campaignsID),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_emails_v.id],
+      name: "_emails_v_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["campaignsID"]],
+      foreignColumns: [campaigns.id],
+      name: "_emails_v_rels_campaigns_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const payload_kv = pgTable(
+  "payload_kv",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    key: varchar("key").notNull(),
+    data: jsonb("data").notNull(),
+  },
+  (columns) => [uniqueIndex("payload_kv_key_idx").on(columns.key)],
+);
+
 export const payload_jobs_log = pgTable(
   "payload_jobs_log",
   {
@@ -1324,7 +1496,7 @@ export const payload_jobs = pgTable(
       withTimezone: true,
       precision: 3,
     }),
-    totalTried: numeric("total_tried").default("0"),
+    totalTried: numeric("total_tried", { mode: "number" }).default(0),
     hasError: boolean("has_error").default(false),
     error: jsonb("error"),
     taskSlug: enum_payload_jobs_task_slug("task_slug"),
@@ -1410,7 +1582,6 @@ export const payload_locked_documents_rels = pgTable(
     mediaID: uuid("media_id"),
     campaignsID: uuid("campaigns_id"),
     emailsID: uuid("emails_id"),
-    "payload-jobsID": uuid("payload_jobs_id"),
   },
   (columns) => [
     index("payload_locked_documents_rels_order_idx").on(columns.order),
@@ -1441,9 +1612,6 @@ export const payload_locked_documents_rels = pgTable(
       columns.campaignsID,
     ),
     index("payload_locked_documents_rels_emails_id_idx").on(columns.emailsID),
-    index("payload_locked_documents_rels_payload_jobs_id_idx").on(
-      columns["payload-jobsID"],
-    ),
     foreignKey({
       columns: [columns["parent"]],
       foreignColumns: [payload_locked_documents.id],
@@ -1514,11 +1682,6 @@ export const payload_locked_documents_rels = pgTable(
       foreignColumns: [emails.id],
       name: "payload_locked_documents_rels_emails_fk",
     }).onDelete("cascade"),
-    foreignKey({
-      columns: [columns["payload-jobsID"]],
-      foreignColumns: [payload_jobs.id],
-      name: "payload_locked_documents_rels_payload_jobs_fk",
-    }).onDelete("cascade"),
   ],
 );
 
@@ -1582,7 +1745,7 @@ export const payload_migrations = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name"),
-    batch: numeric("batch"),
+    batch: numeric("batch", { mode: "number" }),
     updatedAt: timestamp("updated_at", {
       mode: "string",
       withTimezone: true,
@@ -1656,7 +1819,12 @@ export const relations_users_sessions = relations(
     }),
   }),
 );
-export const relations_users = relations(users, ({ many }) => ({
+export const relations_users = relations(users, ({ one, many }) => ({
+  tenant: one(tenants, {
+    fields: [users.tenant],
+    references: [tenants.id],
+    relationName: "tenant",
+  }),
   roles: many(users_roles, {
     relationName: "roles",
   }),
@@ -1694,13 +1862,19 @@ export const relations_payments = relations(payments, ({ one }) => ({
 }));
 export const relations_payments_settings = relations(
   payments_settings,
-  () => ({}),
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [payments_settings.tenant],
+      references: [tenants.id],
+      relationName: "tenant",
+    }),
+  }),
 );
 export const relations_logs = relations(logs, ({ one }) => ({
-  user: one(users, {
-    fields: [logs.user],
-    references: [users.id],
-    relationName: "user",
+  tenant: one(tenants, {
+    fields: [logs.tenant],
+    references: [tenants.id],
+    relationName: "tenant",
   }),
 }));
 export const relations_events_schedules_schedule = relations(
@@ -1948,14 +2122,87 @@ export const relations__campaigns_v = relations(
     }),
   }),
 );
-export const relations_emails = relations(emails, ({ one }) => ({
+export const relations_emails_past_emails = relations(
+  emails_past_emails,
+  ({ one }) => ({
+    _parentID: one(emails, {
+      fields: [emails_past_emails._parentID],
+      references: [emails.id],
+      relationName: "pastEmails",
+    }),
+  }),
+);
+export const relations_emails_texts = relations(emails_texts, ({ one }) => ({
+  parent: one(emails, {
+    fields: [emails_texts.parent],
+    references: [emails.id],
+    relationName: "_texts",
+  }),
+}));
+export const relations_emails_rels = relations(emails_rels, ({ one }) => ({
+  parent: one(emails, {
+    fields: [emails_rels.parent],
+    references: [emails.id],
+    relationName: "_rels",
+  }),
+  campaignsID: one(campaigns, {
+    fields: [emails_rels.campaignsID],
+    references: [campaigns.id],
+    relationName: "campaigns",
+  }),
+}));
+export const relations_emails = relations(emails, ({ one, many }) => ({
   tenant: one(tenants, {
     fields: [emails.tenant],
     references: [tenants.id],
     relationName: "tenant",
   }),
+  pastEmails: many(emails_past_emails, {
+    relationName: "pastEmails",
+  }),
+  _texts: many(emails_texts, {
+    relationName: "_texts",
+  }),
+  _rels: many(emails_rels, {
+    relationName: "_rels",
+  }),
 }));
-export const relations__emails_v = relations(_emails_v, ({ one }) => ({
+export const relations__emails_v_version_past_emails = relations(
+  _emails_v_version_past_emails,
+  ({ one }) => ({
+    _parentID: one(_emails_v, {
+      fields: [_emails_v_version_past_emails._parentID],
+      references: [_emails_v.id],
+      relationName: "version_pastEmails",
+    }),
+  }),
+);
+export const relations__emails_v_texts = relations(
+  _emails_v_texts,
+  ({ one }) => ({
+    parent: one(_emails_v, {
+      fields: [_emails_v_texts.parent],
+      references: [_emails_v.id],
+      relationName: "_texts",
+    }),
+  }),
+);
+export const relations__emails_v_rels = relations(
+  _emails_v_rels,
+  ({ one }) => ({
+    parent: one(_emails_v, {
+      fields: [_emails_v_rels.parent],
+      references: [_emails_v.id],
+      relationName: "_rels",
+    }),
+    campaignsID: one(campaigns, {
+      fields: [_emails_v_rels.campaignsID],
+      references: [campaigns.id],
+      relationName: "campaigns",
+    }),
+  }),
+);
+export const relations__emails_v = relations(_emails_v, ({ one, many }) => ({
   parent: one(emails, {
     fields: [_emails_v.parent],
     references: [emails.id],
@@ -1966,7 +2213,17 @@ export const relations__emails_v = relations(_emails_v, ({ one }) => ({
     references: [tenants.id],
     relationName: "version_tenant",
   }),
+  version_pastEmails: many(_emails_v_version_past_emails, {
+    relationName: "version_pastEmails",
+  }),
+  _texts: many(_emails_v_texts, {
+    relationName: "_texts",
+  }),
+  _rels: many(_emails_v_rels, {
+    relationName: "_rels",
+  }),
 }));
+export const relations_payload_kv = relations(payload_kv, () => ({}));
 export const relations_payload_jobs_log = relations(
   payload_jobs_log,
   ({ one }) => ({
@@ -2055,11 +2312,6 @@ export const relations_payload_locked_documents_rels = relations(
       references: [emails.id],
       relationName: "emails",
     }),
-    "payload-jobsID": one(payload_jobs, {
-      fields: [payload_locked_documents_rels["payload-jobsID"]],
-      references: [payload_jobs.id],
-      relationName: "payload-jobs",
-    }),
   }),
 );
 export const relations_payload_locked_documents = relations(
@@ -2105,9 +2357,7 @@ type DatabaseSchema = {
   enum__events_v_version_status: typeof enum__events_v_version_status;
   enum_bookings_payment_method: typeof enum_bookings_payment_method;
   enum__bookings_v_version_payment_method: typeof enum__bookings_v_version_payment_method;
-  enum_emails_email_type: typeof enum_emails_email_type;
   enum_emails_status: typeof enum_emails_status;
-  enum__emails_v_version_email_type: typeof enum__emails_v_version_email_type;
   enum__emails_v_version_status: typeof enum__emails_v_version_status;
   enum_payload_jobs_log_task_slug: typeof enum_payload_jobs_log_task_slug;
   enum_payload_jobs_log_state: typeof enum_payload_jobs_log_state;
@@ -2139,8 +2389,15 @@ type DatabaseSchema = {
   campaigns_rels: typeof campaigns_rels;
   _campaigns_v: typeof _campaigns_v;
   _campaigns_v_rels: typeof _campaigns_v_rels;
+  emails_past_emails: typeof emails_past_emails;
   emails: typeof emails;
+  emails_texts: typeof emails_texts;
+  emails_rels: typeof emails_rels;
+  _emails_v_version_past_emails: typeof _emails_v_version_past_emails;
   _emails_v: typeof _emails_v;
+  _emails_v_texts: typeof _emails_v_texts;
+  _emails_v_rels: typeof _emails_v_rels;
+  payload_kv: typeof payload_kv;
   payload_jobs_log: typeof payload_jobs_log;
   payload_jobs: typeof payload_jobs;
   payload_locked_documents: typeof payload_locked_documents;
@@ -2175,8 +2432,15 @@ type DatabaseSchema = {
   relations_campaigns: typeof relations_campaigns;
   relations__campaigns_v_rels: typeof relations__campaigns_v_rels;
   relations__campaigns_v: typeof relations__campaigns_v;
+  relations_emails_past_emails: typeof relations_emails_past_emails;
+  relations_emails_texts: typeof relations_emails_texts;
+  relations_emails_rels: typeof relations_emails_rels;
   relations_emails: typeof relations_emails;
+  relations__emails_v_version_past_emails: typeof relations__emails_v_version_past_emails;
+  relations__emails_v_texts: typeof relations__emails_v_texts;
+  relations__emails_v_rels: typeof relations__emails_v_rels;
   relations__emails_v: typeof relations__emails_v;
+  relations_payload_kv: typeof relations_payload_kv;
   relations_payload_jobs_log: typeof relations_payload_jobs_log;
   relations_payload_jobs: typeof relations_payload_jobs;
   relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels;

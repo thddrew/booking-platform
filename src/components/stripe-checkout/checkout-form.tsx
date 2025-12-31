@@ -29,7 +29,7 @@ import CheckoutFormSkeleton from "./checkout-form-skeleton";
 import { useCheckoutDetails } from "./checkout-provider";
 
 const formSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
 });
 
 export const CheckoutForm = ({ header }: { header?: React.ReactNode }) => {

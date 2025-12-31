@@ -36,6 +36,12 @@ export const seed: NonNullable<Config["onInit"]> = async (
 			email: "demo@payloadcms.com",
 			password: "demo",
 			roles: ["super-admin"],
+			tenants: [
+				{
+					roles: ["tenant-admin"],
+					tenant: tenant1.id,
+				},
+			],
 		},
 	});
 
