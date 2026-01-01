@@ -1,3 +1,4 @@
+import { convertLexicalToHTMLAsync } from '@payloadcms/richtext-lexical/html-async'
 import {
 	ArrowLeftIcon,
 	CalendarIcon,
@@ -7,6 +8,7 @@ import {
 	Share2Icon,
 } from "lucide-react";
 import Link from "next/link";
+import { RefreshRouteOnSave } from "@/app/components/live-preview-refresh";
 import { Button } from "@/components/ui/button";
 import type { Event } from "@/payload-types";
 
@@ -26,7 +28,25 @@ function formatTime(date: Date): string {
 	}).format(date);
 }
 
-export function EventDetailPage({ event }: { event: Event }) {
+async function EventDescription({
+	description,
+}: {
+	description: NonNullable<Event["description"]>;
+}) {
+	const html = await convertLexicalToHTMLAsync({
+		data: description as Parameters<typeof convertLexicalToHTMLAsync>[0]["data"],
+	});
+
+	return (
+		<div
+			className="prose prose-lg dark:prose-invert max-w-none [&_p]:text-[16px] [&_p]:leading-7 [&_p]:text-foreground [&_h1]:text-[28px] [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-[24px] [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-[20px] [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:my-2 [&_a]:text-primary [&_a]:underline [&_strong]:font-semibold [&_em]:italic [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_blockquote]:border-l-4 [&_blockquote]:border-muted [&_blockquote]:pl-4 [&_blockquote]:italic"
+			// biome-ignore lint/security/noDangerouslySetInnerHtml: Lexical HTML is sanitized by convertLexicalToHTMLAsync
+			dangerouslySetInnerHTML={{ __html: html }}
+		/>
+	);
+}
+
+export async function EventDetailPage({ event }: { event: Event }) {
 	const hasPrices = event.prices && event.prices.length > 0;
 	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
 	const isFree = activePrices.length === 0 || activePrices.every((p) => p.amount === 0);
@@ -40,6 +60,7 @@ export function EventDetailPage({ event }: { event: Event }) {
 
 	return (
 		<div className="min-h-screen bg-background">
+			<RefreshRouteOnSave />
 			<div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
 				<div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1760px]">
 					<div className="flex items-center justify-between h-16">
@@ -131,11 +152,7 @@ export function EventDetailPage({ event }: { event: Event }) {
 
 						{event.description && (
 							<div className="mb-8 pb-8 border-b">
-								<div className="prose prose-lg dark:prose-invert max-w-none">
-									<p className="text-[16px] leading-7 text-foreground whitespace-pre-line">
-										Event description would be rendered here
-									</p>
-								</div>
+								<EventDescription description={event.description} />
 							</div>
 						)}
 

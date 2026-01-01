@@ -134,6 +134,7 @@ export default async function Page({
 	if (isEventDetail && eventSlug) {
 		const eventQuery = await payload.find({
 			collection: "events",
+			draft: true,
 			where: {
 				and: [
 					{
@@ -144,16 +145,6 @@ export default async function Page({
 					{
 						slug: {
 							equals: eventSlug,
-						},
-					},
-					{
-						isActive: {
-							equals: true,
-						},
-					},
-					{
-						_status: {
-							equals: "published",
 						},
 					},
 				],

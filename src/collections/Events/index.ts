@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { superAdminFieldAccess } from "@/access/superAdminFieldAccess";
 import { superAdminOrTenantAdminAccess } from "@/collections/Pages/access/superAdminOrTenantAdmin";
+import { extractID } from "@/utilities/extractID";
 import { convertAmountToDataType } from "./hooks/convertAmountToDataType";
 import { convertAmountToDisplayType } from "./hooks/convertAmountToDisplayType";
 import { ensureUniqueEventSlug } from "./hooks/ensureUniqueEventSlug";
@@ -41,6 +42,30 @@ export const Events: CollectionConfig<"events"> = {
 	admin: {
 		useAsTitle: "title",
 		defaultColumns: ["title", "isActive", "_status"],
+		livePreview: {
+			url: async (args) => {
+				const tenantId = extractID(args.data?.tenant);
+				if (!tenantId) {
+					return null;
+				}
+
+				const tenant = await args.req.payload.findByID({
+					collection: "tenants",
+					id: tenantId,
+				});
+
+				if (!tenant) {
+					return null;
+				}
+
+				const eventSlug = args.data?.slug || args.data?.id;
+				if (!eventSlug) {
+					return null;
+				}
+
+				return `/tenant-slugs/${tenant.slug}/events/${eventSlug}`;
+			},
+		},
 	},
 	hooks: {
 		beforeChange: [generateRrulestring],

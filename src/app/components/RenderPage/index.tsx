@@ -4,7 +4,7 @@ import React from "react";
 import { EventDetailPage } from "./EventDetailPage";
 import { EventsListPage } from "./EventsListPage";
 
-export const RenderPage = ({
+export const RenderPage = async ({
 	data,
 	event,
 	slug,
@@ -18,7 +18,7 @@ export const RenderPage = ({
 	tenantSlug?: string;
 }) => {
 	if (event) {
-		return <EventDetailPage event={event} />;
+		return await EventDetailPage({ event });
 	}
 
 	if (slug === "events" && tenantId) {
