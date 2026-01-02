@@ -31,7 +31,7 @@ export default async function Page({
 	try {
 		const tenantsQuery = await payload.find({
 			collection: "tenants",
-			overrideAccess: isEventsList || isEventDetail ? true : false,
+			overrideAccess: isEventsList || isEventDetail,
 			user,
 			where: {
 				slug: {
