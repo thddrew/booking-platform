@@ -1,6 +1,7 @@
 import type React from "react";
 
 import "./globals.css";
+import NuqsAdapter from "@/components/providers/nuqs";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const baseClass = "multi-tenant";
@@ -19,15 +20,17 @@ export default function RootLayout({
 	return (
 		<html suppressHydrationWarning className={baseClass} lang="en">
 			<body>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="system"
-					forcedTheme="light"
-					enableSystem
-					disableTransitionOnChange
-				>
-					{children}
-				</ThemeProvider>
+				<NuqsAdapter>
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="system"
+						forcedTheme="light"
+						enableSystem
+						disableTransitionOnChange
+					>
+						{children}
+					</ThemeProvider>
+				</NuqsAdapter>
 			</body>
 		</html>
 	);

@@ -2,7 +2,6 @@ import configPromise from "@payload-config";
 import { convertLexicalToHTMLAsync } from '@payloadcms/richtext-lexical/html-async';
 import {
 	ArrowLeftIcon,
-	CalendarIcon,
 	CheckIcon,
 	HeartIcon,
 	Share2Icon,
@@ -15,22 +14,6 @@ import { Separator } from "@/components/ui/separator";
 import type { Event } from "@/payload-types";
 import { EventBookingPanel } from "./EventBookingPanel";
 import { getAvailableTimeslots } from "./utils/get-available-timeslots";
-
-function formatDate(date: Date): string {
-	return new Intl.DateTimeFormat("en-US", {
-		month: "short",
-		day: "numeric",
-		year: "numeric",
-	}).format(date);
-}
-
-function formatTime(date: Date): string {
-	return new Intl.DateTimeFormat("en-US", {
-		hour: "numeric",
-		minute: "2-digit",
-		hour12: true,
-	}).format(date);
-}
 
 async function EventDescription({
 	description,
@@ -60,7 +43,6 @@ export async function EventDetailPage({ event }: { event: Event }) {
 	const galleryImages = event.gallery?.filter(
 		(img) => typeof img === "object" && "url" in img,
 	) || [];
-	const firstSchedule = event.schedules?.schedule?.find((s) => s.isActive !== false);
 
 	const payload = await getPayload({ config: configPromise });
 	const startDate = new Date();
@@ -78,34 +60,32 @@ export async function EventDetailPage({ event }: { event: Event }) {
 	return (
 		<div className="min-h-screen bg-background">
 			<RefreshRouteOnSave />
-			<div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
-				<div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1760px]">
-					<div className="flex items-center justify-between h-16">
-						<Link
-							href="../events"
-							className="flex items-center gap-2 text-foreground hover:opacity-70 transition-opacity"
+			<div className="fixed top-4 left-4 z-10">
+				<div className="flex items-center justify-between gap-4 px-4 py-2 bg-background/80 backdrop-blur-md rounded-full border border-border shadow-lg">
+					<Link
+						href="../events"
+						className="flex items-center gap-2 text-foreground hover:opacity-70 transition-opacity"
+					>
+						<ArrowLeftIcon className="h-5 w-5" />
+						<span className="hidden sm:inline font-medium">Back</span>
+					</Link>
+					<div className="flex items-center gap-2">
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							aria-label="Share"
 						>
-							<ArrowLeftIcon className="h-5 w-5" />
-							<span className="hidden sm:inline font-medium">Back</span>
-						</Link>
-						<div className="flex items-center gap-2">
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								aria-label="Share"
-							>
-								<Share2Icon className="h-5 w-5" />
-							</Button>
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								aria-label="Save to favorites"
-							>
-								<HeartIcon className="h-5 w-5" />
-							</Button>
-						</div>
+							<Share2Icon className="h-5 w-5" />
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							aria-label="Save to favorites"
+						>
+							<HeartIcon className="h-5 w-5" />
+						</Button>
 					</div>
 				</div>
 			</div>
@@ -125,38 +105,9 @@ export async function EventDetailPage({ event }: { event: Event }) {
 
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1760px] py-8">
 				<div className="mb-6 pb-6">
-					<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-						<div className="flex-1">
-							<h1 className="text-[32px] font-semibold mb-3 text-foreground">
-								{event.title}
-							</h1>
-							<div className="flex flex-wrap items-center gap-4 text-[15px] text-muted-foreground">
-								{firstSchedule && (
-									<div className="flex items-center gap-1.5">
-										<CalendarIcon className="h-4 w-4" />
-										<span>
-											{formatDate(new Date(firstSchedule.dtstart))} at{" "}
-											{formatTime(new Date(firstSchedule.dtstart))}
-										</span>
-									</div>
-								)}
-							</div>
-						</div>
-						<div className="flex items-baseline gap-2">
-							{!isFree ? (
-								<>
-									<span className="text-[28px] font-semibold">
-										${minPrice.toFixed(0)}
-									</span>
-									{activePrices.length > 1 && (
-										<span className="text-[16px] text-muted-foreground">+</span>
-									)}
-								</>
-							) : (
-								<span className="text-[28px] font-semibold">Free</span>
-							)}
-						</div>
-					</div>
+					<h1 className="text-[32px] font-semibold text-foreground">
+						{event.title}
+					</h1>
 					<Separator className="mt-6" />
 				</div>
 

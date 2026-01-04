@@ -1,7 +1,8 @@
 "use client";
 
 import { ClockIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,6 +40,10 @@ export function EventBookingPanel({
 	activePrices,
 	hasMultiplePrices,
 }: EventBookingPanelProps) {
+	const searchParams = useSearchParams();
+	const presetDtstart = searchParams.get("dtstart");
+	const presetDtend = searchParams.get("dtend");
+
 	const timeslotsByDate = useMemo(() => {
 		const map = new Map<string, AvailableTimeslot[]>();
 		for (const slot of timeslots) {
@@ -68,6 +73,26 @@ export function EventBookingPanel({
 	}, [selectedDate, timeslotsByDate]);
 
 	const [selectedTimeslot, setSelectedTimeslot] = useState<AvailableTimeslot | null>(null);
+
+	useEffect(() => {
+		if (presetDtstart && presetDtend) {
+			const presetStart = new Date(presetDtstart);
+			const presetEnd = new Date(presetDtend);
+
+			const matchingSlot = timeslots.find((slot) => {
+				return (
+					slot.dtstart.getTime() === presetStart.getTime() &&
+					slot.dtend.getTime() === presetEnd.getTime()
+				);
+			});
+
+			if (matchingSlot) {
+				setSelectedTimeslot(matchingSlot);
+				const dateKey = matchingSlot.dtstart.toISOString().split("T")[0];
+				setSelectedDate(new Date(dateKey));
+			}
+		}
+	}, [presetDtstart, presetDtend, timeslots]);
 
 	return (
 		<Card className="rounded-2xl shadow-lg">
@@ -109,6 +134,7 @@ export function EventBookingPanel({
 										type="button"
 										variant={isSelected ? "default" : "outline"}
 										size="sm"
+										className={isSelected ? "border border-transparent" : undefined}
 										onClick={() => setSelectedDate(date)}
 									>
 										{isToday ? "Today" : formatDate(date)}
