@@ -14,7 +14,8 @@ interface SearchBarProps {
 	endDate: Date | null;
 	onSearchChange: (value: string | null) => void;
 	onPeopleChange: (value: number | null) => void;
-	onDateRangeChange: (range: { from?: Date | null; to?: Date | null } | undefined) => void;
+	onStartDateChange: (date: Date | null) => void;
+	onEndDateChange: (date: Date | null) => void;
 	onClearFilters: () => void;
 	hasActiveFilters: boolean;
 }
@@ -26,15 +27,36 @@ export function SearchBar({
 	endDate,
 	onSearchChange,
 	onPeopleChange,
-	onDateRangeChange,
+	onStartDateChange,
+	onEndDateChange,
 	onClearFilters,
 	hasActiveFilters,
 }: SearchBarProps) {
 	const dateDisplayText = startDate && endDate
 		? `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`
 		: startDate
-			? format(startDate, "MMM d, yyyy")
-			: "Add dates";
+			? `From ${format(startDate, "MMM d, yyyy")}`
+			: endDate
+				? `Until ${format(endDate, "MMM d, yyyy")}`
+				: "Add dates";
+
+	const handleDateRangeChange = (range: { from?: Date | null; to?: Date | null } | undefined) => {
+		if (range?.from) {
+			const start = new Date(range.from);
+			start.setHours(0, 0, 0, 0);
+			onStartDateChange(start);
+		} else {
+			onStartDateChange(null);
+		}
+
+		if (range?.to) {
+			const end = new Date(range.to);
+			end.setHours(23, 59, 59, 999);
+			onEndDateChange(end);
+		} else {
+			onEndDateChange(null);
+		}
+	};
 
 	return (
 		<div className="mb-8">
@@ -81,7 +103,7 @@ export function SearchBar({
 								from: startDate || undefined,
 								to: endDate || undefined,
 							}}
-							onSelect={onDateRangeChange}
+							onSelect={handleDateRangeChange}
 							numberOfMonths={2}
 						/>
 					</PopoverContent>

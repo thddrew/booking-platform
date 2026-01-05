@@ -1,11 +1,13 @@
 "use client";
 
-import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
-import { useMemo } from "react";
+import { useQueryStates } from "nuqs";
+import { useEffect } from "react";
 import type { Event } from "@/payload-types";
 import { EmptyState } from "./empty-state";
 import { EventCard } from "./event-card";
 import { SearchBar } from "./search-bar";
+import { eventsListSearchParamsParsers } from "./search-params";
+import { validateDateRange } from "./utils/validate-date-range";
 
 interface EventsListPageFiltersProps {
 	events: Event[];
@@ -16,110 +18,74 @@ export function EventsListPageFilters({
 	events,
 	tenantSlug,
 }: EventsListPageFiltersProps) {
-	const [{ search, people, dateRange }, setFilters] = useQueryStates({
-		search: parseAsString.withDefault(""),
-		people: parseAsInteger,
-		dateRange: parseAsString,
-	});
+	const [{ search, people, startDate, endDate }, setFilters] = useQueryStates(
+		eventsListSearchParamsParsers,
+	);
 
-	const peopleValue = people;
-	const [startDate, endDate] = dateRange
-		? dateRange.split(",").map((d) => (d ? new Date(d) : null))
-		: [null, null];
+	const { isValid: isValidDateRange, startDate: validatedStartDate, endDate: validatedEndDate } =
+		validateDateRange(startDate, endDate);
 
-	const filteredEvents = useMemo(() => {
-		let filtered = events;
-
-		if (search.trim()) {
-			const query = search.toLowerCase().trim();
-			filtered = filtered.filter((event) =>
-				event.title.toLowerCase().includes(query),
-			);
-		}
-
-		if (peopleValue !== null) {
-			filtered = filtered.filter((event) => {
-				return (event.maxQuantity ?? 0) >= peopleValue;
+	useEffect(() => {
+		if (!isValidDateRange) {
+			setFilters({
+				startDate: null,
+				endDate: null,
 			});
 		}
+	}, [isValidDateRange, setFilters]);
 
-		if (startDate && endDate) {
-			filtered = filtered.filter((event) => {
-				const schedules = event.schedules?.schedule?.filter((s) => s.isActive !== false) || [];
-				return schedules.some((schedule) => {
-					const scheduleStart = new Date(schedule.dtstart);
-					const scheduleEnd = new Date(schedule.dtend);
-					return scheduleStart <= endDate && scheduleEnd >= startDate;
-				});
-			});
-		}
-
-		return filtered;
-	}, [events, search, peopleValue, startDate, endDate]);
+	const displayStartDate = isValidDateRange ? validatedStartDate : null;
+	const displayEndDate = isValidDateRange ? validatedEndDate : null;
 
 	const clearFilters = () => {
 		setFilters({
 			search: null,
 			people: null,
-			dateRange: null,
+			startDate: null,
+			endDate: null,
 		});
 	};
 
 	const hasActiveFilters =
-		search.trim() || peopleValue !== null || startDate !== null || endDate !== null;
+		search.trim() || people !== null || displayStartDate !== null || displayEndDate !== null;
 
-	const handleDateRangeSelect = (range: { from?: Date | null; to?: Date | null } | undefined) => {
-		if (range?.from && range?.to) {
-			setFilters({
-				dateRange: `${range.from.toISOString()},${range.to.toISOString()}`,
-			});
-		} else if (range?.from) {
-			setFilters({
-				dateRange: `${range.from.toISOString()},`,
-			});
-		} else {
-			setFilters({
-				dateRange: null,
-			});
-		}
+	const handleStartDateChange = (date: Date | null) => {
+		setFilters({ startDate: date });
 	};
 
-	const handleSearchChange = (value: string | null) => {
-		setFilters({ search: value });
-	};
-
-	const handlePeopleChange = (value: number | null) => {
-		setFilters({ people: value });
+	const handleEndDateChange = (date: Date | null) => {
+		setFilters({ endDate: date });
 	};
 
 	return (
 		<div>
 			<SearchBar
 				searchQuery={search}
-				peopleValue={peopleValue}
-				startDate={startDate}
-				endDate={endDate}
-				onSearchChange={handleSearchChange}
-				onPeopleChange={handlePeopleChange}
-				onDateRangeChange={handleDateRangeSelect}
+				peopleValue={people}
+				startDate={displayStartDate}
+				endDate={displayEndDate}
+				onSearchChange={(value) => setFilters({ search: value })}
+				onPeopleChange={(value) => setFilters({ people: value })}
+				onStartDateChange={handleStartDateChange}
+				onEndDateChange={handleEndDateChange}
 				onClearFilters={clearFilters}
 				hasActiveFilters={hasActiveFilters}
 			/>
 
-			{filteredEvents.length === 0 ? (
+			{events.length === 0 ? (
 				<EmptyState
 					hasActiveFilters={hasActiveFilters}
 					onClearFilters={clearFilters}
 				/>
 			) : (
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-					{filteredEvents.map((event) => (
+					{events.map((event) => (
 						<EventCard
 							key={event.id}
 							event={event}
 							tenantSlug={tenantSlug}
-							dateRangeStart={startDate}
-							dateRangeEnd={endDate}
+							dateRangeStart={displayStartDate}
+							dateRangeEnd={displayEndDate}
 						/>
 					))}
 				</div>

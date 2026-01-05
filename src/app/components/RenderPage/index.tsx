@@ -1,28 +1,40 @@
-import type { Event, Page } from "@payload-types";
+import type { Page } from "@payload-types";
+import type { SearchParams } from "nuqs/server";
 
 import React from "react";
 import { EventDetailPage } from "./EventDetailPage";
 import { EventsListPage } from "./EventsListPage";
+import { eventsListSearchParamsCache } from "./EventsListPageFilters/search-params";
 
 export const RenderPage = async ({
 	data,
-	event,
 	slug,
 	tenantId,
 	tenantSlug,
+	searchParams,
 }: {
 	data: Page | null;
-	event?: Event;
 	slug?: string;
 	tenantId?: string;
 	tenantSlug?: string;
+	searchParams?: Promise<SearchParams>;
 }) => {
-	if (event) {
-		return await EventDetailPage({ event });
+	const slugString = slug || "";
+
+	const isEventsList = slugString === "events";
+	const isEventDetail = slugString.startsWith("events/") && slugString.split("/").length === 2;
+
+	if (isEventsList && tenantId && searchParams) {
+		// Parse searchParams to populate the cache for child components
+		await eventsListSearchParamsCache.parse(searchParams);
+		return (
+			<EventsListPage tenantId={tenantId} tenantSlug={tenantSlug} />
+		);
 	}
 
-	if (slug === "events" && tenantId) {
-		return <EventsListPage tenantId={tenantId} tenantSlug={tenantSlug} />;
+	if (isEventDetail && tenantId && tenantSlug) {
+		const eventSlug = slugString.split("/")[1];
+		return <EventDetailPage eventSlug={eventSlug} tenantId={tenantId} tenantSlug={tenantSlug} />;
 	}
 
 	if (!data) {

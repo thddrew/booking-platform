@@ -7,7 +7,9 @@ import {
 	Share2Icon,
 } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getPayload } from "payload";
+import { Suspense } from "react";
 import { RefreshRouteOnSave } from "@/app/components/live-preview-refresh";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -33,17 +35,7 @@ async function EventDescription({
 	);
 }
 
-export async function EventDetailPage({ event }: { event: Event }) {
-	const hasPrices = event.prices && event.prices.length > 0;
-	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
-	const isFree = activePrices.length === 0 || activePrices.every((p) => p.amount === 0);
-	const minPrice = activePrices.length > 0
-		? Math.min(...activePrices.map((p) => p.amount))
-		: 0;
-	const galleryImages = event.gallery?.filter(
-		(img) => typeof img === "object" && "url" in img,
-	) || [];
-
+async function EventBookingPanelWrapper({ event }: { event: Event }) {
 	const payload = await getPayload({ config: configPromise });
 	const startDate = new Date();
 	startDate.setHours(0, 0, 0, 0);
@@ -56,6 +48,65 @@ export async function EventDetailPage({ event }: { event: Event }) {
 		endDate,
 		payload,
 	});
+
+	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
+	const isFree = activePrices.length === 0 || activePrices.every((p) => p.amount === 0);
+	const minPrice = activePrices.length > 0
+		? Math.min(...activePrices.map((p) => p.amount))
+		: 0;
+
+	return (
+		<EventBookingPanel
+			timeslots={availableTimeslots}
+			minPrice={minPrice}
+			isFree={isFree}
+			activePrices={activePrices}
+			hasMultiplePrices={activePrices.length > 1}
+		/>
+	);
+}
+
+export async function EventDetailPage({
+	eventSlug,
+	tenantId,
+	tenantSlug,
+}: {
+	eventSlug: string;
+	tenantId: string;
+	tenantSlug: string;
+}) {
+	const payload = await getPayload({ config: configPromise });
+
+	const eventQuery = await payload.find({
+		collection: "events",
+		draft: true,
+		where: {
+			and: [
+				{
+					tenant: {
+						equals: tenantId,
+					},
+				},
+				{
+					slug: {
+						equals: eventSlug,
+					},
+				},
+			],
+		},
+		limit: 1,
+	});
+
+	const event = eventQuery.docs[0];
+	if (!event) {
+		return notFound();
+	}
+
+	const hasPrices = event.prices && event.prices.length > 0;
+	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
+	const galleryImages = event.gallery?.filter(
+		(img) => typeof img === "object" && "url" in img,
+	) || [];
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -174,13 +225,9 @@ export async function EventDetailPage({ event }: { event: Event }) {
 					</div>
 
 					<div className="lg:sticky lg:top-[72px] h-fit">
-						<EventBookingPanel
-							timeslots={availableTimeslots}
-							minPrice={minPrice}
-							isFree={isFree}
-							activePrices={activePrices}
-							hasMultiplePrices={activePrices.length > 1}
-						/>
+						<Suspense fallback={<div className="h-[400px] bg-muted rounded-2xl animate-pulse" />}>
+							<EventBookingPanelWrapper event={event} />
+						</Suspense>
 					</div>
 				</div>
 			</div>
