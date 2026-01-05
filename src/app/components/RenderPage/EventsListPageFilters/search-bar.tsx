@@ -60,7 +60,7 @@ export function SearchBar({
 
 	return (
 		<div className="mb-8">
-			<div className="flex items-center gap-0 bg-white border border-border rounded-full shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+			<div className="flex items-center gap-0 bg-card border border-border rounded-full shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
 				<div className="flex-1 min-w-0">
 					<button
 						type="button"
@@ -128,15 +128,16 @@ export function SearchBar({
 					</PopoverTrigger>
 					<PopoverContent className="w-auto p-4" align="start">
 						<div className="space-y-4">
-							<div className="flex items-center justify-between">
+							<div className="flex items-center justify-between gap-4">
 								<div>
 									<div className="font-semibold">Guests</div>
 									<div className="text-sm text-muted-foreground">Number of people</div>
 								</div>
-								<div className="flex items-center gap-4">
+								<div className="flex items-center">
 									<Button
 										type="button"
 										variant="outline"
+										className="size-8"
 										size="icon"
 										onClick={() => {
 											if (peopleValue && peopleValue > 1) {
@@ -153,6 +154,7 @@ export function SearchBar({
 									<Button
 										type="button"
 										variant="outline"
+										className="size-8"
 										size="icon"
 										onClick={() => {
 											onPeopleChange((peopleValue ?? 1) + 1);

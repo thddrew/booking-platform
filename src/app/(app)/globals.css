@@ -1,10 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind CSS custom variant */
 @custom-variant dark (&:is(.dark *));
 
-/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind CSS theme token definition */
 @theme inline {
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -120,12 +118,10 @@
 
 @layer base {
 	* {
-		/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind CSS utilities */
 		@apply border-border outline-ring/50;
 	}
 
 	body {
-		/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind CSS utilities */
 		@apply bg-background text-foreground;
 	}
 }
