@@ -6,6 +6,7 @@ import type { Where } from "payload";
 import { getPayload } from "payload";
 
 import { RenderPage } from "../../../../components/RenderPage";
+import { eventsListSearchParamsCache } from "../../../../components/RenderPage/EventsListPageFilters/search-params";
 
 export default async function Page({
 	params: paramsPromise,
@@ -83,6 +84,13 @@ export default async function Page({
 		return notFound();
 	}
 
+	// For events routes, skip Pages query and let RenderPage handle event routing
+	if (isEventsRoute) {
+		// Parse searchParams to populate the cache for child components
+		await eventsListSearchParamsCache.parse(searchParams);
+		return <RenderPage data={null} slug={slugString} tenantId={tenant.id} tenantSlug={params.tenant} />;
+	}
+
 	const slugConstraint: Where = slug
 		? {
 				slug: {
@@ -131,5 +139,5 @@ export default async function Page({
 		return notFound();
 	}
 
-	return <RenderPage data={pageData} slug={slugString} tenantId={tenant.id} tenantSlug={params.tenant} searchParams={searchParams} />;
+	return <RenderPage data={pageData} slug={slugString} tenantId={tenant.id} tenantSlug={params.tenant} />;
 }
