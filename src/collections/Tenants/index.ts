@@ -1,7 +1,6 @@
 import type { CollectionConfig } from "payload";
 
 import { isSuperAdminAccess } from "@/access/isSuperAdmin";
-import { createDefaultPages } from "./hooks/createDefaultPages";
 import { updateAndDeleteAccess } from "./access/updateAndDelete";
 
 export const Tenants: CollectionConfig = {
@@ -14,9 +13,6 @@ export const Tenants: CollectionConfig = {
 	},
 	admin: {
 		useAsTitle: "name",
-	},
-	hooks: {
-		afterChange: [createDefaultPages],
 	},
 	fields: [
 		{
