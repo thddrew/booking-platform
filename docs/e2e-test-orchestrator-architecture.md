@@ -907,20 +907,23 @@ class ResourceLimiter {
 
 ### Recommended Setup
 
-**For Production/CI:**
+**For Development (Current Focus):**
 
-- ✅ Docker containers (Option 1)
+- ✅ Process sandboxing (Option 1) - fast iteration
+- ✅ Code validation before execution
+- ✅ Resource limits (memory, CPU, timeout)
+- ⚠️ Network restrictions (allow localhost for dev server)
+- ✅ Module access restrictions
+- ✅ File system access control
+
+**For Production/CI (Future):**
+
+- ✅ Docker containers (Option 2) - maximum isolation
 - ✅ Code validation before execution
 - ✅ Network isolation (block external)
 - ✅ Resource limits
 - ✅ Audit logging
-
-**For Development:**
-
-- ⚠️ Process sandboxing (Option 2) - faster iteration
-- ✅ Code validation
-- ✅ Resource limits
-- ⚠️ Network restrictions (more permissive)
+- ✅ User isolation (non-root)
 
 ## Considerations
 
