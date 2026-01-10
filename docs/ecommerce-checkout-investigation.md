@@ -677,12 +677,13 @@ const booking = await payload.find({
 ## Next Steps
 
 1. ✅ **Decisions made**: Cart, payment method, guest support
-2. 🔄 **Update access control**: Allow public booking creation
-3. 🔄 **Update hooks**: Support guest customer snapshots
-4. 🔄 **Design**: Checkout flow UI/UX mockups (optional)
-5. 🔄 **Implement**: Public checkout route and components
-6. 🔄 **Test**: Guest booking flow end-to-end
-7. 🔄 **Test**: Stripe Connect integration with guest bookings
+2. ✅ **Update access control**: Allow public booking creation
+3. ✅ **Update hooks**: Support guest customer snapshots
+4. ✅ **Implement**: Public checkout route and components
+5. ✅ **Implement**: Booking confirmation success pages
+6. 🔄 **Implement**: Payment page for paid events (redirect to Stripe)
+7. 🔄 **Test**: Guest booking flow end-to-end
+8. 🔄 **Test**: Stripe Connect integration with guest bookings
 
 ---
 
