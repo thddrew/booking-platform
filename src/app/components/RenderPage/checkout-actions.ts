@@ -119,3 +119,158 @@ export async function createGuestBooking({
 		};
 	}
 }
+
+/**
+ * Get the default connected Stripe account for a tenant (public access)
+ */
+export async function getTenantStripeAccount(tenantId: string): Promise<{
+	stripeAccountId: string | null;
+	error?: string;
+}> {
+	try {
+		const payload = await getPayload({ config: configPromise });
+
+		const accountsQuery = await payload.find({
+			collection: "connectedAccounts",
+			overrideAccess: true,
+			where: {
+				and: [
+					{
+						tenant: {
+							equals: tenantId,
+						},
+					},
+					{
+						default: {
+							equals: true,
+						},
+					},
+				],
+			},
+			limit: 1,
+		});
+
+		const account = accountsQuery.docs[0];
+
+		if (!account?.stripeAccountId) {
+			return {
+				stripeAccountId: null,
+				error: "No Stripe account configured for this tenant",
+			};
+		}
+
+		return {
+			stripeAccountId: account.stripeAccountId,
+		};
+	} catch (err) {
+		console.error("Failed to get tenant Stripe account:", err);
+		return {
+			stripeAccountId: null,
+			error: "Failed to load payment configuration",
+		};
+	}
+}
+
+/**
+ * Get booking details for the payment page
+ */
+export async function getBookingForPayment(bookingId: string, email: string): Promise<{
+	success: boolean;
+	booking?: {
+		id: string;
+		tenantId: string;
+		pricingSnapshot: Record<string, unknown>;
+		eventSnapshot: Record<string, unknown>;
+		customerEmail: string;
+		dtstart: string;
+		dtend: string;
+	};
+	error?: string;
+}> {
+	try {
+		const payload = await getPayload({ config: configPromise });
+
+		const booking = await payload.findByID({
+			collection: "bookings",
+			id: bookingId,
+		});
+
+		if (!booking) {
+			return {
+				success: false,
+				error: "Booking not found",
+			};
+		}
+
+		// Parse customer snapshot to validate email
+		let customerSnapshot: { email?: string } = {};
+		if (booking.customerSnapshot) {
+			if (typeof booking.customerSnapshot === "string") {
+				try {
+					customerSnapshot = JSON.parse(booking.customerSnapshot);
+				} catch {
+					customerSnapshot = {};
+				}
+			} else if (typeof booking.customerSnapshot === "object") {
+				customerSnapshot = booking.customerSnapshot as typeof customerSnapshot;
+			}
+		}
+
+		// Validate email matches for security
+		if (customerSnapshot.email !== email) {
+			return {
+				success: false,
+				error: "Invalid booking access",
+			};
+		}
+
+		// Parse pricing snapshot
+		let pricingSnapshot: Record<string, unknown> = {};
+		if (booking.pricingSnapshot) {
+			if (typeof booking.pricingSnapshot === "string") {
+				try {
+					pricingSnapshot = JSON.parse(booking.pricingSnapshot);
+				} catch {
+					pricingSnapshot = {};
+				}
+			} else if (typeof booking.pricingSnapshot === "object") {
+				pricingSnapshot = booking.pricingSnapshot as Record<string, unknown>;
+			}
+		}
+
+		// Parse event snapshot
+		let eventSnapshot: Record<string, unknown> = {};
+		if (booking.eventSnapshot) {
+			if (typeof booking.eventSnapshot === "string") {
+				try {
+					eventSnapshot = JSON.parse(booking.eventSnapshot);
+				} catch {
+					eventSnapshot = {};
+				}
+			} else if (typeof booking.eventSnapshot === "object") {
+				eventSnapshot = booking.eventSnapshot as Record<string, unknown>;
+			}
+		}
+
+		const tenantId = typeof booking.tenant === "string" ? booking.tenant : booking.tenant?.id;
+
+		return {
+			success: true,
+			booking: {
+				id: booking.id,
+				tenantId: tenantId || "",
+				pricingSnapshot,
+				eventSnapshot,
+				customerEmail: customerSnapshot.email || email,
+				dtstart: booking.dtstart,
+				dtend: booking.dtend,
+			},
+		};
+	} catch (err) {
+		console.error("Failed to get booking for payment:", err);
+		return {
+			success: false,
+			error: "Failed to load booking",
+		};
+	}
+}
