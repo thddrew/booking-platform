@@ -485,10 +485,10 @@ Running LLM-generated code presents security risks:
 
 ### Sandboxing Strategies
 
-#### Option 1: Docker Container (Recommended)
+#### Option 1: Process Sandboxing (Recommended for Development)
 
-**Isolation Level**: High
-**Implementation**: Run each worker in isolated Docker container
+**Isolation Level**: Medium-High
+**Implementation**: Use Node.js `worker_threads` with VM context restrictions
 
 ```typescript
 // scripts/test-worker-sandboxed.ts
@@ -553,10 +553,12 @@ async function runSpecInDocker(spec: TestSpec) {
 - ✅ Dropped capabilities (no root privileges)
 - ✅ Timeout enforcement at container level
 
-#### Option 2: Process Sandboxing (Node.js)
+#### Option 2: Docker Container (Future/Production)
 
-**Isolation Level**: Medium
-**Implementation**: Use Node.js `worker_threads` with restrictions
+**Isolation Level**: High
+**Implementation**: Run each worker in isolated Docker container
+
+**Note**: Recommended for production/CI environments where maximum isolation is required.
 
 ```typescript
 // scripts/test-worker-sandboxed.ts
