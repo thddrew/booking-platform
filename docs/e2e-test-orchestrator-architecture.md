@@ -311,70 +311,213 @@ while (queue.length > 0 || activeWorkers.length > 0) {
 }
 ```
 
-### 3. Worker Execution
+### 3. Worker Execution with DOM Debugging
 
 ```typescript
 // scripts/test-worker.ts
+import { chromium, type Page } from 'playwright';
+
 async function runSpec(specPath: string) {
   const spec = await loadSpec(specPath);
-
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  
+  // Track console messages and network failures
+  const consoleMessages: string[] = [];
+  const networkFailures: string[] = [];
+  
+  page.on('console', msg => consoleMessages.push(`${msg.type()}: ${msg.text()}`));
+  page.on('requestfailed', request => {
+    networkFailures.push(`${request.method()} ${request.url()}: ${request.failure()?.errorText}`);
+  });
+  
+  const pageContext = { page, consoleMessages, networkFailures };
+  
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       // Run test with timeout
       const result = await runPlaywrightTest(spec.code, {
         timeout: 180000, // 3 minutes
+        pageContext, // Pass page context for debugging
       });
-
+      
       if (result.success) {
-        return {
-          success: true,
+        await browser.close();
+        return { 
+          success: true, 
           attempts: attempt,
           fixes: attempt > 1 ? getAppliedFixes() : [],
         };
       }
     } catch (error) {
       if (attempt === 3) {
-        // Max retries reached
+        // Max retries reached - collect final debug info
+        const debugInfo = await collectDebugInfo(pageContext, error);
+        await browser.close();
         return {
           success: false,
           attempts: attempt,
           error: error,
+          debugInfo, // Include debug info in final result
           unfixable: true,
         };
       }
-
-      // Ask LLM to fix strategy
-      const fix = await llmFixStrategy(spec, error, attempt);
+      
+      // Ask LLM to fix strategy with DOM context
+      const fix = await llmFixStrategy(spec, error, attempt, pageContext);
       spec.code = applyFix(spec.code, fix);
+      
+      // Don't close browser - retry with same page context
     }
   }
+  
+  await browser.close();
 }
 ```
 
-### 4. LLM Fix Strategy
+### 4. DOM Debugging Access
+
+**Yes, the LLM has access to the headless DOM state for debugging.**
+
+When a test fails, the worker collects comprehensive debugging information from Playwright's page context:
+
+**Available Debugging Information:**
+- ✅ **DOM Snapshot** - Full HTML content of the page
+- ✅ **Accessibility Tree** - Structured representation of accessible elements
+- ✅ **Available Elements** - List of all selectable elements with their attributes (data-testid, id, class, role, text)
+- ✅ **Screenshot** - Visual snapshot of the page state (base64 encoded)
+- ✅ **Console Logs** - Browser console messages
+- ✅ **Network Requests** - Failed network requests with error details
+- ✅ **Page State** - Current URL, page title
+- ✅ **Error Stack Trace** - Full error stack for analysis
+
+**How It Works:**
+1. Test runs in Playwright with page context tracking
+2. On failure, debug info is collected BEFORE page closes
+3. Debug info is passed to LLM along with error message
+4. LLM can see actual DOM structure, not just error text
+5. LLM proposes fixes based on real page state
+
+**Benefits:**
+- LLM can see what elements actually exist on the page
+- LLM can propose selectors based on actual DOM structure
+- LLM can understand layout issues from screenshots
+- LLM can diagnose network failures from request logs
+- Much more accurate fixes than just error message parsing
+
+### 5. LLM Fix Strategy with DOM Context
 
 ```typescript
-async function llmFixStrategy(spec, error, attempt) {
+async function llmFixStrategy(spec, error, attempt, pageContext) {
+  // Collect debugging information from Playwright
+  const debugInfo = await collectDebugInfo(pageContext, error);
+  
   const prompt = `
     Test spec goal: ${spec.goal}
     Test steps: ${spec.steps.join(", ")}
     Current code: ${spec.code}
     Error: ${error.message}
     Attempt: ${attempt}/3
-
+    
+    **Debugging Context:**
+    - Page URL: ${debugInfo.url}
+    - Page Title: ${debugInfo.title}
+    - DOM Snapshot: ${debugInfo.domSnapshot}
+    - Accessibility Tree: ${debugInfo.accessibilityTree}
+    - Available Elements: ${debugInfo.availableElements}
+    - Screenshot: ${debugInfo.screenshotBase64}
+    - Console Logs: ${debugInfo.consoleLogs}
+    - Network Requests: ${debugInfo.networkRequests}
+    - Error Stack Trace: ${debugInfo.stackTrace}
+    
     Analyze the failure and propose a strategy-level fix.
     Focus on:
     - Different navigation approach
-    - Different waiting strategy
-    - Different element selection
+    - Different waiting strategy  
+    - Different element selection (use actual available elements from DOM)
     - Handling dynamic content
-
+    - Correct selector based on actual page structure
+    
     Return the fixed code section.
   `;
-
-  // Use cursor-agent to fix
+  
+  // Use cursor-agent to fix with full context
   const fix = await cursorAgent.execute(prompt);
   return fix;
+}
+
+async function collectDebugInfo(pageContext, error) {
+  const page = pageContext.page;
+  
+  try {
+    // 1. Get current page state
+    const url = page.url();
+    const title = await page.title();
+    
+    // 2. Get DOM snapshot (sanitized HTML)
+    const domSnapshot = await page.content();
+    
+    // 3. Get accessibility tree (structured DOM representation)
+    const accessibilityTree = await page.accessibility.snapshot();
+    
+    // 4. Get available selectable elements
+    const availableElements = await page.evaluate(() => {
+      const elements = [];
+      // Get elements with common identifiers
+      document.querySelectorAll('[data-testid], [id], [class], [role], button, a, input, select').forEach(el => {
+        const info = {
+          tag: el.tagName,
+          testId: el.getAttribute('data-testid'),
+          id: el.getAttribute('id'),
+          class: el.getAttribute('class'),
+          role: el.getAttribute('role'),
+          text: el.textContent?.trim().substring(0, 50),
+          visible: el.offsetWidth > 0 && el.offsetHeight > 0,
+        };
+        elements.push(info);
+      });
+      return elements;
+    });
+    
+    // 5. Take screenshot
+    const screenshotBuffer = await page.screenshot({ fullPage: false });
+    const screenshotBase64 = screenshotBuffer.toString('base64');
+    
+    // 6. Get console logs
+    const consoleLogs = pageContext.consoleMessages || [];
+    
+    // 7. Get network requests (if any failed)
+    const networkRequests = pageContext.networkFailures || [];
+    
+    // 8. Error stack trace
+    const stackTrace = error.stack || '';
+    
+    return {
+      url,
+      title,
+      domSnapshot: domSnapshot.substring(0, 5000), // Limit size
+      accessibilityTree: JSON.stringify(accessibilityTree).substring(0, 5000),
+      availableElements: JSON.stringify(availableElements),
+      screenshotBase64,
+      consoleLogs: consoleLogs.slice(-10), // Last 10 logs
+      networkRequests: networkRequests.slice(-5), // Last 5 failures
+      stackTrace,
+    };
+  } catch (e) {
+    // If page is closed/crashed, return minimal info
+    return {
+      url: 'Page not available',
+      title: 'Page crashed',
+      domSnapshot: '',
+      accessibilityTree: '',
+      availableElements: [],
+      screenshotBase64: '',
+      consoleLogs: [],
+      networkRequests: [],
+      stackTrace: error.stack || '',
+    };
+  }
 }
 ```
 
