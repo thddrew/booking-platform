@@ -35,7 +35,13 @@ async function EventDescription({
 	);
 }
 
-async function EventBookingPanelWrapper({ event }: { event: Event }) {
+async function EventBookingPanelWrapper({
+	event,
+	tenantSlug,
+}: {
+	event: Event;
+	tenantSlug: string;
+}) {
 	const payload = await getPayload({ config: configPromise });
 	const startDate = new Date();
 	startDate.setHours(0, 0, 0, 0);
@@ -228,7 +234,7 @@ export async function EventDetailPage({
 
 					<div className="lg:sticky lg:top-[72px] h-fit">
 						<Suspense fallback={<div className="h-[400px] bg-muted rounded-2xl animate-pulse" />}>
-							<EventBookingPanelWrapper event={event} />
+							<EventBookingPanelWrapper event={event} tenantSlug={tenantSlug} />
 						</Suspense>
 					</div>
 				</div>
