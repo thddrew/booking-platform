@@ -368,16 +368,21 @@ async function runSpec(specPath: string) {
         };
       }
 
-      // Ask LLM to fix strategy with DOM context
-      const fix = await llmFixStrategy(spec, error, attempt, pageContext);
-      spec.code = applyFix(spec.code, fix);
-
-      // Don't close browser - retry with same page context
+        // Collect and save debug info
+        const debugInfo = await collectDebugInfo(pageContext, error);
+        const debugPaths = await saveDebugInfo(debugInfo, specPath, attempt);
+        
+        // Ask LLM to fix strategy with DOM context
+        // debugPaths.hostPath is accessible to LLM (cursor-agent) on host
+        const fix = await llmFixStrategy(spec, error, attempt, debugPaths.hostPath);
+        spec.code = applyFix(spec.code, fix);
+ 
+        // Don't close browser - retry with same page context
+      }
     }
+ 
+    await browser.close();
   }
-
-  await browser.close();
-}
 ```
 
 ### 4. DOM Debugging Access
@@ -417,6 +422,7 @@ When a test fails, the worker collects comprehensive debugging information from 
 - ✅ **Persistent**: Debug files saved for later analysis if test fails completely
 
 **File Structure:**
+
 ```
 e2e/debug/
   {spec-name}/
@@ -436,24 +442,23 @@ e2e/debug/
 ### 5. LLM Fix Strategy with DOM Context
 
 ```typescript
-async function llmFixStrategy(spec, error, attempt, pageContext) {
-  // Collect and save debugging information to files
-  const debugInfo = await collectDebugInfo(pageContext, error);
-  const debugDir = await saveDebugInfo(debugInfo, spec.path, attempt);
- 
+async function llmFixStrategy(spec, error, attempt, debugDir) {
+  // debugDir is the host-accessible path to debug files
+  // LLM (cursor-agent) runs on host and can read files from this directory using grep/find
+  
   const prompt = `
     Test spec goal: ${spec.goal}
     Test steps: ${spec.steps.join(", ")}
     Current code: ${spec.code}
     Error: ${error.message}
     Attempt: ${attempt}/3
- 
+
     **Debugging Context:**
     - Page URL: ${debugInfo.url}
     - Page Title: ${debugInfo.title}
     - Error Stack Trace: ${debugInfo.stackTrace}
     - Debug files location: ${debugDir}
- 
+
     **Debug Files Available (read with grep/find as needed):**
     - ${debugDir}/dom.html - Full DOM snapshot
     - ${debugDir}/accessibility.json - Accessibility tree
@@ -461,13 +466,13 @@ async function llmFixStrategy(spec, error, attempt, pageContext) {
     - ${debugDir}/screenshot.png - Page screenshot
     - ${debugDir}/console.log - Console messages
     - ${debugDir}/network.log - Failed network requests
- 
+
     **Instructions:**
     1. Use grep/find to search the debug files as needed
     2. Example: grep -i "timeslot" ${debugDir}/dom.html
     3. Example: grep "data-testid" ${debugDir}/elements.json
     4. Read files only when you need specific information
-    
+
     Analyze the failure and propose a strategy-level fix.
     Focus on:
     - Different navigation approach
@@ -475,10 +480,10 @@ async function llmFixStrategy(spec, error, attempt, pageContext) {
     - Different element selection (check elements.json for actual available elements)
     - Handling dynamic content
     - Correct selector based on actual page structure (search dom.html)
- 
+
     Return the fixed code section.
   `;
- 
+
   // Use cursor-agent with file system access to read debug files
   const fix = await cursorAgent.execute(prompt, {
     workingDirectory: debugDir,
@@ -492,18 +497,18 @@ import * as path from "path";
 
 async function collectDebugInfo(pageContext, error) {
   const page = pageContext.page;
- 
+
   try {
     // 1. Get current page state
     const url = page.url();
     const title = await page.title();
- 
+
     // 2. Get DOM snapshot (full HTML - no size limit)
     const domSnapshot = await page.content();
- 
+
     // 3. Get accessibility tree (structured DOM representation)
     const accessibilityTree = await page.accessibility.snapshot();
- 
+
     // 4. Get available selectable elements
     const availableElements = await page.evaluate(() => {
       const elements = [];
@@ -526,19 +531,19 @@ async function collectDebugInfo(pageContext, error) {
         });
       return elements;
     });
- 
+
     // 5. Take screenshot
     const screenshotBuffer = await page.screenshot({ fullPage: false });
- 
+
     // 6. Get console logs
     const consoleLogs = pageContext.consoleMessages || [];
- 
+
     // 7. Get network requests (if any failed)
     const networkRequests = pageContext.networkFailures || [];
- 
+
     // 8. Error stack trace
     const stackTrace = error.stack || "";
- 
+
     return {
       url,
       title,
@@ -566,18 +571,27 @@ async function collectDebugInfo(pageContext, error) {
   }
 }
 
-async function saveDebugInfo(debugInfo, specPath, attempt) {
-  // Create debug directory: e2e/debug/{spec-name}/attempt-{n}/
+async function saveDebugInfo(debugInfo, specPath, attempt, outputDir = "e2e/debug") {
+  // Create debug directory: {outputDir}/{spec-name}/attempt-{n}/
+  // For process sandboxing: outputDir = "e2e/debug" (host filesystem)
+  // For Docker: outputDir = "/app/debug" (container) - mounted to host
   const specName = path.basename(specPath, ".spec.ts");
   const debugDir = path.join(
-    "e2e",
-    "debug",
+    outputDir,
     specName,
     `attempt-${attempt}-${Date.now()}`
   );
   
   await fs.mkdir(debugDir, { recursive: true });
- 
+  
+  // Return both container path and host path for LLM access
+  return {
+    containerPath: debugDir,
+    hostPath: process.env.DEBUG_HOST_PATH 
+      ? path.join(process.env.DEBUG_HOST_PATH, specName, path.basename(debugDir))
+      : debugDir, // For process sandboxing, same path
+  };
+
   // Save debug files
   await Promise.all([
     // 1. DOM snapshot as HTML
@@ -585,19 +599,19 @@ async function saveDebugInfo(debugInfo, specPath, attempt) {
       path.join(debugDir, "dom.html"),
       debugInfo.domSnapshot || "<html><body>No DOM available</body></html>"
     ),
-    
+
     // 2. Accessibility tree as JSON
     fs.writeFile(
       path.join(debugDir, "accessibility.json"),
       JSON.stringify(debugInfo.accessibilityTree, null, 2)
     ),
-    
+
     // 3. Available elements as JSON
     fs.writeFile(
       path.join(debugDir, "elements.json"),
       JSON.stringify(debugInfo.availableElements, null, 2)
     ),
-    
+
     // 4. Screenshot as PNG
     debugInfo.screenshotBuffer
       ? fs.writeFile(
@@ -605,19 +619,19 @@ async function saveDebugInfo(debugInfo, specPath, attempt) {
           debugInfo.screenshotBuffer
         )
       : Promise.resolve(),
-    
+
     // 5. Console logs as text
     fs.writeFile(
       path.join(debugDir, "console.log"),
       debugInfo.consoleLogs.join("\n") || "No console logs"
     ),
-    
+
     // 6. Network failures as text
     fs.writeFile(
       path.join(debugDir, "network.log"),
       debugInfo.networkRequests.join("\n") || "No network failures"
     ),
-    
+
     // 7. Error info as text
     fs.writeFile(
       path.join(debugDir, "error.txt"),
@@ -625,7 +639,7 @@ async function saveDebugInfo(debugInfo, specPath, attempt) {
         `Title: ${debugInfo.title}\n\n` +
         `Stack Trace:\n${debugInfo.stackTrace}`
     ),
-    
+
     // 8. Index file with summary
     fs.writeFile(
       path.join(debugDir, "README.txt"),
@@ -646,7 +660,7 @@ async function saveDebugInfo(debugInfo, specPath, attempt) {
         `- error.txt: Error details and stack trace`
     ),
   ]);
- 
+
   return debugDir;
 }
 ```
