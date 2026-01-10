@@ -681,7 +681,7 @@ const booking = await payload.find({
 3. ✅ **Update hooks**: Support guest customer snapshots
 4. ✅ **Implement**: Public checkout route and components
 5. ✅ **Implement**: Booking confirmation success pages
-6. 🔄 **Implement**: Payment page for paid events (redirect to Stripe)
+6. ✅ **Implement**: Payment page for paid events (Stripe Checkout embedded)
 7. 🔄 **Test**: Guest booking flow end-to-end
 8. 🔄 **Test**: Stripe Connect integration with guest bookings
 
