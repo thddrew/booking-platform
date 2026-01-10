@@ -1,7 +1,7 @@
 "use client";
 
 import { ClockIcon } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,8 @@ interface EventBookingPanelProps {
 	isFree: boolean;
 	activePrices: Array<{ id?: string | null; label: string; amount: number }>;
 	hasMultiplePrices: boolean;
+	eventId: string;
+	tenantSlug?: string;
 }
 
 export function EventBookingPanel({
@@ -39,7 +41,10 @@ export function EventBookingPanel({
 	isFree,
 	activePrices,
 	hasMultiplePrices,
+	eventId,
+	tenantSlug,
 }: EventBookingPanelProps) {
+	const router = useRouter();
 	const searchParams = useSearchParams();
 	const presetDtstart = searchParams.get("dtstart");
 	const presetDtend = searchParams.get("dtend");
@@ -208,6 +213,29 @@ export function EventBookingPanel({
 				size="lg"
 				className="w-full rounded-lg"
 				disabled={!selectedTimeslot || !selectedTimeslot.isAvailable}
+				onClick={() => {
+					if (!selectedTimeslot || !selectedTimeslot.isAvailable) return;
+
+					// Build checkout URL with booking details
+					const params = new URLSearchParams({
+						eventId,
+						dtstart: selectedTimeslot.dtstart.toISOString(),
+						dtend: selectedTimeslot.dtend.toISOString(),
+						scheduleId: selectedTimeslot.scheduleId,
+					});
+
+					// Determine base path based on current route structure
+					// If we're in tenant-slugs, use that; otherwise use tenant-domains
+					const currentPath = window.location.pathname;
+					const isTenantSlugs = currentPath.includes("/tenant-slugs/");
+					const basePath = isTenantSlugs && tenantSlug
+						? `/tenant-slugs/${tenantSlug}/checkout`
+						: currentPath.includes("/tenant-domains/")
+							? `/tenant-domains/${tenantSlug || "checkout"}/checkout`
+							: `/checkout`;
+
+					router.push(`${basePath}?${params.toString()}`);
+				}}
 			>
 				Book Event
 			</Button>

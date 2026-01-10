@@ -47,9 +47,18 @@ export const saveSnapshots: CollectionBeforeChangeHook<Booking> = async ({
             .then((customer) => {
               data.customerSnapshot = JSON.stringify(customer);
             })
-        : Promise.resolve().then(() => {
-            data.customerSnapshot = JSON.stringify({});
-          }),
+        : data.customerSnapshot && typeof data.customerSnapshot === "object"
+          ? Promise.resolve().then(() => {
+              // Guest booking: customerSnapshot is already provided as object
+              // Ensure it's a valid object and stringify it
+              const customer = data.customerSnapshot as Record<string, unknown>;
+              // Remove id if present (guest bookings don't have customer ID)
+              const { id: _, ...customerWithoutId } = customer;
+              data.customerSnapshot = JSON.stringify(customerWithoutId);
+            })
+          : Promise.resolve().then(() => {
+              data.customerSnapshot = JSON.stringify({});
+            }),
     ]);
   } catch (err) {
     console.error(err);

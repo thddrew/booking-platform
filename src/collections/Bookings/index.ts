@@ -11,6 +11,7 @@ import {
   BOOKING_UPDATED,
 } from "../Emails/utils/email-types";
 import { EventPricesRecordSchema } from "../Events/utils/schemas";
+import { createAccess } from "./access/create-access";
 import { updateAccess } from "./access/update-access";
 import { cancelBookingEmail } from "./hooks/cancel-booking-email";
 import { newBookingEmail } from "./hooks/new-booking-email";
@@ -23,7 +24,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
   trash: true,
   versions: true,
   access: {
-    create: superAdminOrTenantAdminAccess,
+    create: createAccess,
     delete: superAdminOrTenantAdminAccess,
     read: () => true,
     update: updateAccess,

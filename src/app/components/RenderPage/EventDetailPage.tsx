@@ -62,6 +62,8 @@ async function EventBookingPanelWrapper({ event }: { event: Event }) {
 			isFree={isFree}
 			activePrices={activePrices}
 			hasMultiplePrices={activePrices.length > 1}
+			eventId={event.id}
+			tenantSlug={tenantSlug}
 		/>
 	);
 }
