@@ -664,25 +664,21 @@ sudo chroot /sandbox /bin/playwright test
 - ✅ Process isolation
 - ⚠️ Requires system-level setup
 
-### Recommended Security Configuration
-
-#### Multi-Layer Approach
+### Recommended Security Configuration (Development)
 
 ```typescript
 // scripts/test-orchestrator-secure.ts
-import { Docker } from "dockerode";
+import { TestSandbox } from "./security/test-sandbox";
 import { ResourceLimiter } from "./security/resource-limiter";
 import { CodeValidator } from "./security/code-validator";
-import { NetworkIsolator } from "./security/network-isolator";
 
 class SecureTestOrchestrator {
-  private docker: Docker;
+  private sandbox: TestSandbox;
   private validator: CodeValidator;
   private limiter: ResourceLimiter;
-  private network: NetworkIsolator;
 
   constructor() {
-    this.docker = new Docker();
+    this.sandbox = new TestSandbox();
     this.validator = new CodeValidator();
     this.limiter = new ResourceLimiter({
       maxMemory: 512 * 1024 * 1024, // 512MB
@@ -703,37 +699,11 @@ class SecureTestOrchestrator {
       throw new Error(`Code validation failed: ${validation.reason}`);
     }
 
-    // 2. Run in Docker container
-    const container = await this.docker.createContainer({
-      Image: "test-runner:latest",
-      Cmd: ["node", "/app/run-test.js"],
-      HostConfig: {
-        // Resource limits
-        Memory: this.limiter.maxMemory,
-        CpuQuota: this.limiter.cpuQuota,
-        // Network restrictions
-        NetworkMode: "test-network",
-        // File system isolation
-        Binds: [`${spec.path}:/app/spec.ts:ro`, "./e2e/results:/app/results"],
-      },
-      // Security options
-      SecurityOpt: [
-        "no-new-privileges:true",
-        "seccomp:unconfined", // Or custom seccomp profile
-      ],
-      CapDrop: ["ALL"],
-    });
-
-    // 3. Apply network restrictions
-    await this.network.configure(container);
-
-    // 4. Run with timeout
-    await container.start();
+    // 2. Run in process sandbox with resource limits
     const result = await Promise.race([
-      this.runTest(container),
+      this.sandbox.execute(spec.code, this.limiter.maxDuration),
       this.limiter.timeout(),
     ]);
-    await container.remove();
 
     return result;
   }
