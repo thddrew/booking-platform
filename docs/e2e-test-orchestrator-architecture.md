@@ -315,25 +315,29 @@ while (queue.length > 0 || activeWorkers.length > 0) {
 
 ```typescript
 // scripts/test-worker.ts
-import { chromium, type Page } from 'playwright';
+import { chromium, type Page } from "playwright";
 
 async function runSpec(specPath: string) {
   const spec = await loadSpec(specPath);
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
   const page = await context.newPage();
-  
+
   // Track console messages and network failures
   const consoleMessages: string[] = [];
   const networkFailures: string[] = [];
-  
-  page.on('console', msg => consoleMessages.push(`${msg.type()}: ${msg.text()}`));
-  page.on('requestfailed', request => {
-    networkFailures.push(`${request.method()} ${request.url()}: ${request.failure()?.errorText}`);
+
+  page.on("console", (msg) =>
+    consoleMessages.push(`${msg.type()}: ${msg.text()}`)
+  );
+  page.on("requestfailed", (request) => {
+    networkFailures.push(
+      `${request.method()} ${request.url()}: ${request.failure()?.errorText}`
+    );
   });
-  
+
   const pageContext = { page, consoleMessages, networkFailures };
-  
+
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       // Run test with timeout
@@ -341,11 +345,11 @@ async function runSpec(specPath: string) {
         timeout: 180000, // 3 minutes
         pageContext, // Pass page context for debugging
       });
-      
+
       if (result.success) {
         await browser.close();
-        return { 
-          success: true, 
+        return {
+          success: true,
           attempts: attempt,
           fixes: attempt > 1 ? getAppliedFixes() : [],
         };
@@ -363,15 +367,15 @@ async function runSpec(specPath: string) {
           unfixable: true,
         };
       }
-      
+
       // Ask LLM to fix strategy with DOM context
       const fix = await llmFixStrategy(spec, error, attempt, pageContext);
       spec.code = applyFix(spec.code, fix);
-      
+
       // Don't close browser - retry with same page context
     }
   }
-  
+
   await browser.close();
 }
 ```
@@ -383,6 +387,7 @@ async function runSpec(specPath: string) {
 When a test fails, the worker collects comprehensive debugging information from Playwright's page context:
 
 **Available Debugging Information:**
+
 - ✅ **DOM Snapshot** - Full HTML content of the page
 - ✅ **Accessibility Tree** - Structured representation of accessible elements
 - ✅ **Available Elements** - List of all selectable elements with their attributes (data-testid, id, class, role, text)
@@ -393,131 +398,256 @@ When a test fails, the worker collects comprehensive debugging information from 
 - ✅ **Error Stack Trace** - Full error stack for analysis
 
 **How It Works:**
+
 1. Test runs in Playwright with page context tracking
 2. On failure, debug info is collected BEFORE page closes
-3. Debug info is passed to LLM along with error message
-4. LLM can see actual DOM structure, not just error text
-5. LLM proposes fixes based on real page state
+3. Debug info is saved to local files (not passed in prompt to avoid token limits)
+4. LLM is given file paths and can use grep/find to search files as needed
+5. LLM reads specific debug files only when needed for analysis
+6. LLM proposes fixes based on real page state discovered through file searches
 
 **Benefits:**
-- LLM can see what elements actually exist on the page
-- LLM can propose selectors based on actual DOM structure
-- LLM can understand layout issues from screenshots
-- LLM can diagnose network failures from request logs
-- Much more accurate fixes than just error message parsing
+
+- ✅ **Efficient Context Usage**: Large debug data saved to files, not in prompt
+- ✅ **On-Demand Access**: LLM only reads files it needs via grep/find
+- ✅ **Full DOM Access**: No size limits - LLM can search full DOM snapshot
+- ✅ **Structured Data**: JSON files for easy parsing and searching
+- ✅ **Visual Debugging**: Screenshot available when needed
+- ✅ **Searchable**: LLM can grep for specific patterns, attributes, text
+- ✅ **Persistent**: Debug files saved for later analysis if test fails completely
+
+**File Structure:**
+```
+e2e/debug/
+  {spec-name}/
+    attempt-1-{timestamp}/
+      dom.html              # Full DOM snapshot
+      accessibility.json    # Accessibility tree
+      elements.json         # Available elements with attributes
+      screenshot.png        # Page screenshot
+      console.log           # Console messages
+      network.log           # Network failures
+      error.txt             # Error details
+      README.txt            # Summary/index
+    attempt-2-{timestamp}/  # Retry debug files
+    attempt-3-{timestamp}/  # Final attempt debug files
+```
 
 ### 5. LLM Fix Strategy with DOM Context
 
 ```typescript
 async function llmFixStrategy(spec, error, attempt, pageContext) {
-  // Collect debugging information from Playwright
+  // Collect and save debugging information to files
   const debugInfo = await collectDebugInfo(pageContext, error);
-  
+  const debugDir = await saveDebugInfo(debugInfo, spec.path, attempt);
+ 
   const prompt = `
     Test spec goal: ${spec.goal}
     Test steps: ${spec.steps.join(", ")}
     Current code: ${spec.code}
     Error: ${error.message}
     Attempt: ${attempt}/3
-    
+ 
     **Debugging Context:**
     - Page URL: ${debugInfo.url}
     - Page Title: ${debugInfo.title}
-    - DOM Snapshot: ${debugInfo.domSnapshot}
-    - Accessibility Tree: ${debugInfo.accessibilityTree}
-    - Available Elements: ${debugInfo.availableElements}
-    - Screenshot: ${debugInfo.screenshotBase64}
-    - Console Logs: ${debugInfo.consoleLogs}
-    - Network Requests: ${debugInfo.networkRequests}
     - Error Stack Trace: ${debugInfo.stackTrace}
+    - Debug files location: ${debugDir}
+ 
+    **Debug Files Available (read with grep/find as needed):**
+    - ${debugDir}/dom.html - Full DOM snapshot
+    - ${debugDir}/accessibility.json - Accessibility tree
+    - ${debugDir}/elements.json - Available selectable elements
+    - ${debugDir}/screenshot.png - Page screenshot
+    - ${debugDir}/console.log - Console messages
+    - ${debugDir}/network.log - Failed network requests
+ 
+    **Instructions:**
+    1. Use grep/find to search the debug files as needed
+    2. Example: grep -i "timeslot" ${debugDir}/dom.html
+    3. Example: grep "data-testid" ${debugDir}/elements.json
+    4. Read files only when you need specific information
     
     Analyze the failure and propose a strategy-level fix.
     Focus on:
     - Different navigation approach
-    - Different waiting strategy  
-    - Different element selection (use actual available elements from DOM)
+    - Different waiting strategy
+    - Different element selection (check elements.json for actual available elements)
     - Handling dynamic content
-    - Correct selector based on actual page structure
-    
+    - Correct selector based on actual page structure (search dom.html)
+ 
     Return the fixed code section.
   `;
-  
-  // Use cursor-agent to fix with full context
-  const fix = await cursorAgent.execute(prompt);
+ 
+  // Use cursor-agent with file system access to read debug files
+  const fix = await cursorAgent.execute(prompt, {
+    workingDirectory: debugDir,
+    allowFileAccess: true,
+  });
   return fix;
 }
 
+import * as fs from "fs/promises";
+import * as path from "path";
+
 async function collectDebugInfo(pageContext, error) {
   const page = pageContext.page;
-  
+ 
   try {
     // 1. Get current page state
     const url = page.url();
     const title = await page.title();
-    
-    // 2. Get DOM snapshot (sanitized HTML)
+ 
+    // 2. Get DOM snapshot (full HTML - no size limit)
     const domSnapshot = await page.content();
-    
+ 
     // 3. Get accessibility tree (structured DOM representation)
     const accessibilityTree = await page.accessibility.snapshot();
-    
+ 
     // 4. Get available selectable elements
     const availableElements = await page.evaluate(() => {
       const elements = [];
       // Get elements with common identifiers
-      document.querySelectorAll('[data-testid], [id], [class], [role], button, a, input, select').forEach(el => {
-        const info = {
-          tag: el.tagName,
-          testId: el.getAttribute('data-testid'),
-          id: el.getAttribute('id'),
-          class: el.getAttribute('class'),
-          role: el.getAttribute('role'),
-          text: el.textContent?.trim().substring(0, 50),
-          visible: el.offsetWidth > 0 && el.offsetHeight > 0,
-        };
-        elements.push(info);
-      });
+      document
+        .querySelectorAll(
+          "[data-testid], [id], [class], [role], button, a, input, select"
+        )
+        .forEach((el) => {
+          const info = {
+            tag: el.tagName,
+            testId: el.getAttribute("data-testid"),
+            id: el.getAttribute("id"),
+            class: el.getAttribute("class"),
+            role: el.getAttribute("role"),
+            text: el.textContent?.trim().substring(0, 50),
+            visible: el.offsetWidth > 0 && el.offsetHeight > 0,
+          };
+          elements.push(info);
+        });
       return elements;
     });
-    
+ 
     // 5. Take screenshot
     const screenshotBuffer = await page.screenshot({ fullPage: false });
-    const screenshotBase64 = screenshotBuffer.toString('base64');
-    
+ 
     // 6. Get console logs
     const consoleLogs = pageContext.consoleMessages || [];
-    
+ 
     // 7. Get network requests (if any failed)
     const networkRequests = pageContext.networkFailures || [];
-    
+ 
     // 8. Error stack trace
-    const stackTrace = error.stack || '';
-    
+    const stackTrace = error.stack || "";
+ 
     return {
       url,
       title,
-      domSnapshot: domSnapshot.substring(0, 5000), // Limit size
-      accessibilityTree: JSON.stringify(accessibilityTree).substring(0, 5000),
-      availableElements: JSON.stringify(availableElements),
-      screenshotBase64,
-      consoleLogs: consoleLogs.slice(-10), // Last 10 logs
-      networkRequests: networkRequests.slice(-5), // Last 5 failures
+      domSnapshot, // Full snapshot - no size limit
+      accessibilityTree,
+      availableElements,
+      screenshotBuffer,
+      consoleLogs,
+      networkRequests,
       stackTrace,
     };
   } catch (e) {
     // If page is closed/crashed, return minimal info
     return {
-      url: 'Page not available',
-      title: 'Page crashed',
-      domSnapshot: '',
-      accessibilityTree: '',
+      url: "Page not available",
+      title: "Page crashed",
+      domSnapshot: "",
+      accessibilityTree: null,
       availableElements: [],
-      screenshotBase64: '',
+      screenshotBuffer: null,
       consoleLogs: [],
       networkRequests: [],
-      stackTrace: error.stack || '',
+      stackTrace: error.stack || "",
     };
   }
+}
+
+async function saveDebugInfo(debugInfo, specPath, attempt) {
+  // Create debug directory: e2e/debug/{spec-name}/attempt-{n}/
+  const specName = path.basename(specPath, ".spec.ts");
+  const debugDir = path.join(
+    "e2e",
+    "debug",
+    specName,
+    `attempt-${attempt}-${Date.now()}`
+  );
+  
+  await fs.mkdir(debugDir, { recursive: true });
+ 
+  // Save debug files
+  await Promise.all([
+    // 1. DOM snapshot as HTML
+    fs.writeFile(
+      path.join(debugDir, "dom.html"),
+      debugInfo.domSnapshot || "<html><body>No DOM available</body></html>"
+    ),
+    
+    // 2. Accessibility tree as JSON
+    fs.writeFile(
+      path.join(debugDir, "accessibility.json"),
+      JSON.stringify(debugInfo.accessibilityTree, null, 2)
+    ),
+    
+    // 3. Available elements as JSON
+    fs.writeFile(
+      path.join(debugDir, "elements.json"),
+      JSON.stringify(debugInfo.availableElements, null, 2)
+    ),
+    
+    // 4. Screenshot as PNG
+    debugInfo.screenshotBuffer
+      ? fs.writeFile(
+          path.join(debugDir, "screenshot.png"),
+          debugInfo.screenshotBuffer
+        )
+      : Promise.resolve(),
+    
+    // 5. Console logs as text
+    fs.writeFile(
+      path.join(debugDir, "console.log"),
+      debugInfo.consoleLogs.join("\n") || "No console logs"
+    ),
+    
+    // 6. Network failures as text
+    fs.writeFile(
+      path.join(debugDir, "network.log"),
+      debugInfo.networkRequests.join("\n") || "No network failures"
+    ),
+    
+    // 7. Error info as text
+    fs.writeFile(
+      path.join(debugDir, "error.txt"),
+      `URL: ${debugInfo.url}\n` +
+        `Title: ${debugInfo.title}\n\n` +
+        `Stack Trace:\n${debugInfo.stackTrace}`
+    ),
+    
+    // 8. Index file with summary
+    fs.writeFile(
+      path.join(debugDir, "README.txt"),
+      `Debug Information\n` +
+        `================\n\n` +
+        `Page URL: ${debugInfo.url}\n` +
+        `Page Title: ${debugInfo.title}\n` +
+        `Elements Found: ${debugInfo.availableElements?.length || 0}\n` +
+        `Console Messages: ${debugInfo.consoleLogs?.length || 0}\n` +
+        `Network Failures: ${debugInfo.networkRequests?.length || 0}\n\n` +
+        `Files:\n` +
+        `- dom.html: Full DOM snapshot\n` +
+        `- accessibility.json: Accessibility tree\n` +
+        `- elements.json: Selectable elements with attributes\n` +
+        `- screenshot.png: Visual page state\n` +
+        `- console.log: Browser console messages\n` +
+        `- network.log: Failed network requests\n` +
+        `- error.txt: Error details and stack trace`
+    ),
+  ]);
+ 
+  return debugDir;
 }
 ```
 
