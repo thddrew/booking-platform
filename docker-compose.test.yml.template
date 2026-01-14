@@ -1,0 +1,204 @@
+# docker-compose.test.yml
+# Template for running E2E tests with app in container
+# 
+# Usage:
+#   1. Copy this file to docker-compose.test.yml
+#   2. Customize environment variables and configuration
+#   3. Run: docker-compose -f docker-compose.test.yml up --build
+#
+# Commands:
+#   docker-compose -f docker-compose.test.yml up --build          # Run all services
+#   docker-compose -f docker-compose.test.yml up -d postgres app  # Start app only
+#   docker-compose -f docker-compose.test.yml run --rm tests      # Run tests
+#   docker-compose -f docker-compose.test.yml down -v             # Cleanup with volumes
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # Database Service
+  # ============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: e2e-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-test_db}
+      POSTGRES_USER: ${POSTGRES_USER:-test_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test_password}
+      POSTGRES_HOST_AUTH_METHOD: trust  # For test environment only
+    volumes:
+      # Named volume for data persistence (optional - remove for fresh DB each run)
+      - postgres-test-data:/var/lib/postgresql/data
+      # Or use tmpfs for in-memory database (faster, no persistence)
+      # tmpfs:
+      #   - /var/lib/postgresql/data
+    ports:
+      # Expose for debugging/inspection (optional)
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-test_user} -d ${POSTGRES_DB:-test_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    # Network configuration
+    networks:
+      - test-network
+
+  # ============================================================================
+  # Application Service
+  # ============================================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Optional: Use build args
+      args:
+        NODE_ENV: test
+    container_name: e2e-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database connection (use service name 'postgres' as host)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-test_user}:${POSTGRES_PASSWORD:-test_password}@postgres:5432/${POSTGRES_DB:-test_db}
+      
+      # App configuration
+      NODE_ENV: test
+      PORT: 4000
+      
+      # Add any other required environment variables
+      # NEXT_PUBLIC_API_URL: http://app:4000
+      # STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      # etc.
+      
+    ports:
+      # Expose for debugging/inspection (optional)
+      - "${APP_PORT:-4000}:4000"
+    healthcheck:
+      # Wait for app to be ready before running tests
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      # Alternative if curl not available:
+      # test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s  # Give app time to start
+    # Startup command: migrate, seed, then start
+    command: >
+      sh -c "
+        echo 'Running database migrations...' &&
+        bun run db:migrate &&
+        echo 'Seeding test data...' &&
+        bun run db:seed:test &&
+        echo 'Starting application...' &&
+        bun run start
+      "
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+    networks:
+      - test-network
+    # Restart policy (optional - don't restart on failure for tests)
+    restart: "no"
+
+  # ============================================================================
+  # Test Runner Service
+  # ============================================================================
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      # Or use existing image
+      # image: your-app:test
+    container_name: e2e-tests
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      # Base URL - use service name to reach app
+      BASE_URL: http://app:4000
+      
+      # Test configuration
+      MAX_WORKERS: ${MAX_WORKERS:-5}
+      TIMEOUT: ${TIMEOUT:-180000}
+      MAX_RETRIES: ${MAX_RETRIES:-3}
+      
+      # LLM API configuration
+      # Required: Get API key from Cursor dashboard (Integrations > User API Keys)
+      # Container needs outbound internet access to Cursor's API servers
+      # Default bridge network allows this automatically
+      CURSOR_API_KEY: ${CURSOR_API_KEY}
+      
+      # Debug configuration
+      DEBUG_KEEP_ALL: ${DEBUG_KEEP_ALL:-false}
+      DEBUG_HOST_PATH: /app/e2e/debug
+      
+      # Environment detection
+      DOCKER: "true"
+      CI: ${CI:-false}
+      
+      # Optional: Pass through other env vars
+      # NODE_ENV: test
+    volumes:
+      # Mount test specs (read-only)
+      - ./e2e/specs:/app/e2e/specs:ro
+      
+      # Mount debug output directory (read-write)
+      - ./e2e/debug:/app/e2e/debug
+      
+      # Mount test results directory (read-write)
+      - ./docs/e2e-test-results:/app/docs/e2e-test-results
+      
+      # Optional: Mount fixtures if needed
+      # - ./e2e/fixtures:/app/e2e/fixtures:ro
+      
+      # Optional: Mount node_modules for faster builds (if using bind mount)
+      # - ./node_modules:/app/node_modules
+    command: bun run test:e2e:orchestrate
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+    networks:
+      - test-network
+    # Don't restart on failure - we want to see the failure
+    restart: "no"
+    # Exit code propagation
+    exit_code: 0
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  test-network:
+    driver: bridge
+    # Note: Bridge network allows outbound internet access by default
+    # This is required for agent to authenticate with Cursor's API
+    # Optional: Create isolated network
+    # name: e2e-test-network
+    # ipam:
+    #   config:
+    #     - subnet: 172.20.0.0/16
+
+# ============================================================================
+# Volumes
+# ============================================================================
+volumes:
+  # Named volume for PostgreSQL data
+  # Remove this and use tmpfs in postgres service for in-memory DB (faster)
+  postgres-test-data:
+    driver: local
+    # Optional: Use named volume for persistence across runs
+    # name: e2e-postgres-data

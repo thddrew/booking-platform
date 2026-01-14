@@ -1,0 +1,57 @@
+# Dockerfile.test
+# Dockerfile for E2E test runner container
+#
+# Usage:
+#   1. Copy this file to Dockerfile.test
+#   2. Customize based on your project needs
+#   3. Build: docker build -f Dockerfile.test -t your-app:test .
+
+FROM oven/bun:1-alpine
+
+# Install Playwright dependencies
+# This installs Chromium and system dependencies needed for Playwright
+RUN bunx playwright install --with-deps chromium
+
+# Install system dependencies if needed
+RUN apk add --no-cache \
+    curl \
+    wget \
+    git \
+    # Add any other dependencies your tests need
+    # python3 \
+    # make \
+    # g++
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY bun.lockb* ./
+
+# Install dependencies
+# Use bun install for reproducible builds
+RUN bun install --frozen-lockfile
+
+# Copy test files and configuration
+COPY e2e/ ./e2e/
+COPY scripts/ ./scripts/
+COPY playwright.config.ts ./
+COPY e2e.config.ts ./
+COPY tsconfig.json ./
+
+# Copy any other required files
+COPY docs/ ./docs/
+
+# Optional: Copy source files if tests need them
+# COPY src/ ./src/
+
+# Set environment
+ENV NODE_ENV=test
+ENV DOCKER=true
+
+# Verify Playwright installation
+RUN bunx playwright --version
+
+# Default command (can be overridden in docker-compose)
+CMD ["bun", "run", "test:e2e:orchestrate"]
