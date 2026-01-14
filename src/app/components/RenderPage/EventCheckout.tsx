@@ -75,7 +75,6 @@ export function EventCheckout({
 	const [error, setError] = useState<string | null>(null);
 
 	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
-	const isFree = activePrices.length === 0 || activePrices.every((p) => p.amount === 0);
 	const totalPrice = activePrices.reduce((sum, p) => sum + p.amount, 0);
 
 	const form = useForm<CustomerInfoFormData>({
@@ -105,23 +104,13 @@ export function EventCheckout({
 						email: data.email,
 						phone: data.phone || undefined,
 					},
-					// For free events, we can mark as complete immediately
-					// For paid events, we'll redirect to payment
-					isFree,
 				});
 
 				if (result.success && result.bookingId) {
-					if (isFree) {
-						// Free event - redirect to success page
-						router.push(
-							`/tenant-slugs/${tenantSlug}/checkout/success?bookingId=${result.bookingId}&email=${encodeURIComponent(data.email)}`
-						);
-					} else {
-						// Paid event - redirect to payment page
-						router.push(
-							`/tenant-slugs/${tenantSlug}/checkout/payment?bookingId=${result.bookingId}&email=${encodeURIComponent(data.email)}`
-						);
-					}
+					// Always redirect to payment page (includes $0 pricing if applicable)
+					router.push(
+						`/tenant-slugs/${tenantSlug}/checkout/payment?bookingId=${result.bookingId}&email=${encodeURIComponent(data.email)}`
+					);
 				} else {
 					setError(result.error || "Failed to create booking");
 				}
@@ -242,8 +231,6 @@ export function EventCheckout({
 													<Loader2Icon className="h-4 w-4 animate-spin mr-2" />
 													Processing...
 												</>
-											) : isFree ? (
-												"Complete Booking"
 											) : (
 												"Continue to Payment"
 											)}
@@ -332,7 +319,7 @@ export function EventCheckout({
 								<div className="flex items-center justify-between font-medium">
 									<span>Total</span>
 									<span className="text-lg">
-										{isFree ? "Free" : `$${totalPrice.toFixed(2)}`}
+										{`$${totalPrice.toFixed(2)}`}
 									</span>
 								</div>
 							</CardContent>

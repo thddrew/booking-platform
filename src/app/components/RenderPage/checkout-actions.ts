@@ -17,7 +17,6 @@ interface CreateGuestBookingParams {
 	dtend: string;
 	scheduleId: string;
 	customerInfo: CustomerInfo;
-	isFree: boolean;
 }
 
 interface CreateGuestBookingResult {
@@ -33,7 +32,6 @@ export async function createGuestBooking({
 	dtend,
 	scheduleId,
 	customerInfo,
-	isFree,
 }: CreateGuestBookingParams): Promise<CreateGuestBookingResult> {
 	try {
 		const payload = await getPayload({ config: configPromise });
@@ -100,10 +98,9 @@ export async function createGuestBooking({
 				selectedScheduleInstanceData,
 				customerSnapshot,
 				pricingSnapshot,
-				paymentMethod: isFree ? "payLater" : "payNow",
-				// For free events, we could mark as complete
-				// For paid events, payment status will be updated by Stripe webhook
-				paymentStatus: isFree ? "complete" : null,
+				paymentMethod: "payNow",
+				// Payment status will be updated by Stripe webhook
+				paymentStatus: null,
 			},
 		});
 
