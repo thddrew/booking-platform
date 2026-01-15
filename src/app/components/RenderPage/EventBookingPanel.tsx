@@ -1,8 +1,9 @@
 "use client";
 
-import { ClockIcon } from "lucide-react";
+import { AlertTriangleIcon, ClockIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -98,6 +99,9 @@ export function EventBookingPanel({
 			}
 		}
 	}, [presetDtstart, presetDtend, timeslots]);
+
+	const hasNoPrices = activePrices.length === 0;
+	const hasNoTimeslots = availableDates.length === 0;
 
 	return (
 		<Card className="rounded-2xl shadow-lg">
@@ -197,24 +201,37 @@ export function EventBookingPanel({
 						</div>
 					)}
 				</div>
-			) : (
-				<div className="mb-6">
-					<Card>
-						<CardContent className="p-4 text-center">
-							<p className="text-sm text-muted-foreground">
-								No available times at this time
-							</p>
-						</CardContent>
-					</Card>
+			) : null}
+
+			{(hasNoPrices || hasNoTimeslots) && (
+				<div className="mb-6 space-y-3">
+					{hasNoPrices && (
+						<Alert variant="destructive">
+							<AlertTriangleIcon />
+							<AlertTitle>No pricing available</AlertTitle>
+							<AlertDescription>
+								This event does not have any valid pricing options configured.
+							</AlertDescription>
+						</Alert>
+					)}
+					{hasNoTimeslots && (
+						<Alert variant="destructive">
+							<AlertTriangleIcon />
+							<AlertTitle>No available times</AlertTitle>
+							<AlertDescription>
+								There are no available time slots for this event at this time.
+							</AlertDescription>
+						</Alert>
+					)}
 				</div>
 			)}
 
 			<Button
 				size="lg"
 				className="w-full rounded-lg"
-				disabled={!selectedTimeslot || !selectedTimeslot.isAvailable}
+				disabled={!selectedTimeslot || !selectedTimeslot.isAvailable || activePrices.length === 0}
 				onClick={() => {
-					if (!selectedTimeslot || !selectedTimeslot.isAvailable) return;
+					if (!selectedTimeslot || !selectedTimeslot.isAvailable || activePrices.length === 0) return;
 
 					// Build checkout URL with booking details
 					const params = new URLSearchParams({

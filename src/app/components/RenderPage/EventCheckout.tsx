@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, CalendarIcon, ClockIcon, Loader2Icon, UsersIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -74,8 +74,34 @@ export function EventCheckout({
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | null>(null);
 
-	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
-	const totalPrice = activePrices.reduce((sum, p) => sum + p.amount, 0);
+	const activePrices = event.prices || [];
+	const [selectedPrices, setSelectedPrices] = useState<Record<string, number>>(() => {
+		const initial: Record<string, number> = {};
+		activePrices.forEach((price) => {
+			if (price.id) {
+				initial[price.id] = 0;
+			}
+		});
+		return initial;
+	});
+
+	const selectedLineItems = useMemo(() => {
+		return activePrices
+			.filter((price) => price.id && (selectedPrices[price.id] ?? 0) > 0)
+			.map((price) => ({
+				...price,
+				quantity: selectedPrices[price.id as string] ?? 0,
+				quantityUnit: price.quantityUnit ?? 1,
+			}));
+	}, [activePrices, selectedPrices]);
+	const totalGuests = selectedLineItems.reduce(
+		(sum, price) => sum + price.quantity * (price.quantityUnit ?? 1),
+		0,
+	);
+	const totalPrice = selectedLineItems.reduce(
+		(sum, price) => sum + price.amount * price.quantity,
+		0,
+	);
 
 	const form = useForm<CustomerInfoFormData>({
 		resolver: zodResolver(customerInfoSchema),
@@ -92,6 +118,28 @@ export function EventCheckout({
 
 		startTransition(async () => {
 			try {
+				if (totalGuests === 0) {
+					setError("Please select at least one pricing option");
+					return;
+				}
+				if (totalGuests > event.maxQuantity) {
+					setError(`Please select at most ${event.maxQuantity} guests`);
+					return;
+				}
+				console.log("Creating booking with payload", {
+					eventId: event.id,
+					tenantId,
+					dtstart: selectedTimeslot.dtstart.toISOString(),
+					dtend: selectedTimeslot.dtend.toISOString(),
+					scheduleId: selectedTimeslot.scheduleId,
+					customerInfo: {
+						firstName: data.firstName,
+						lastName: data.lastName,
+						email: data.email,
+						phone: data.phone || undefined,
+					},
+					selectedPrices,
+				});
 				const result = await createGuestBooking({
 					eventId: event.id,
 					tenantId,
@@ -104,6 +152,7 @@ export function EventCheckout({
 						email: data.email,
 						phone: data.phone || undefined,
 					},
+					selectedPrices,
 				});
 
 				if (result.success && result.bookingId) {
@@ -289,7 +338,7 @@ export function EventCheckout({
 									</div>
 									<div className="flex items-center gap-3 text-sm">
 										<UsersIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-										<span>1 guest</span>
+										<span>{totalGuests} guest{totalGuests === 1 ? "" : "s"}</span>
 									</div>
 								</div>
 
@@ -297,16 +346,53 @@ export function EventCheckout({
 								{activePrices.length > 0 && (
 									<>
 										<Separator />
-										<div className="space-y-2">
+										<div className="space-y-3">
 											{activePrices.map((price) => (
-												<div
-													key={price.id}
-													className="flex items-center justify-between text-sm"
-												>
-													<span className="text-muted-foreground">{price.label}</span>
-													<span>
-														{price.amount === 0 ? "Free" : `$${price.amount.toFixed(2)}`}
-													</span>
+												<div key={price.id} className="flex items-center justify-between gap-3">
+													<div className="text-sm">
+														<div className="font-medium">{price.label}</div>
+														<div className="text-muted-foreground">
+															{price.amount === 0 ? "Free" : `$${price.amount.toFixed(2)}`}
+														</div>
+													</div>
+													<div className="flex items-center gap-2">
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															onClick={() => {
+																if (!price.id) return;
+																setSelectedPrices((prev) => ({
+																	...prev,
+																	[price.id as string]: Math.max(0, (prev[price.id as string] ?? 0) - 1),
+																}));
+															}}
+														>
+															-
+														</Button>
+														<span className="w-6 text-center">
+															{selectedPrices[price.id as string] ?? 0}
+														</span>
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															onClick={() => {
+																if (!price.id) return;
+																const quantityUnit = price.quantityUnit ?? 1;
+																const nextTotalGuests = totalGuests + quantityUnit;
+																if (nextTotalGuests > event.maxQuantity) {
+																	return;
+																}
+																setSelectedPrices((prev) => ({
+																	...prev,
+																	[price.id as string]: (prev[price.id as string] ?? 0) + 1,
+																}));
+															}}
+														>
+															+
+														</Button>
+													</div>
 												</div>
 											))}
 										</div>
@@ -319,7 +405,7 @@ export function EventCheckout({
 								<div className="flex items-center justify-between font-medium">
 									<span>Total</span>
 									<span className="text-lg">
-										{`$${totalPrice.toFixed(2)}`}
+										{totalPrice === 0 ? "Free" : `$${totalPrice.toFixed(2)}`}
 									</span>
 								</div>
 							</CardContent>

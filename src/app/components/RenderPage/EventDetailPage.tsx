@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import type { Event } from "@/payload-types";
 import { EventBookingPanel } from "./EventBookingPanel";
 import { getAvailableTimeslots } from "./utils/get-available-timeslots";
+import { filterValidPrices } from "./utils/filter-valid-prices";
 
 async function EventDescription({
 	description,
@@ -55,7 +56,7 @@ async function EventBookingPanelWrapper({
 		payload,
 	});
 
-	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
+	const activePrices = event.prices || [];
 	const isFree = activePrices.length === 0 || activePrices.every((p) => p.amount === 0);
 	const minPrice = activePrices.length > 0
 		? Math.min(...activePrices.map((p) => p.amount))
@@ -110,8 +111,9 @@ export async function EventDetailPage({
 		return notFound();
 	}
 
-	const hasPrices = event.prices && event.prices.length > 0;
-	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
+	const eventWithValidPrices = filterValidPrices(event);
+	const hasPrices = eventWithValidPrices.prices && eventWithValidPrices.prices.length > 0;
+	const activePrices = eventWithValidPrices.prices || [];
 	const galleryImages = event.gallery?.filter(
 		(img) => typeof img === "object" && "url" in img,
 	) || [];
@@ -234,7 +236,7 @@ export async function EventDetailPage({
 
 					<div className="lg:sticky lg:top-[72px] h-fit">
 						<Suspense fallback={<div className="h-[400px] bg-muted rounded-2xl animate-pulse" />}>
-							<EventBookingPanelWrapper event={event} tenantSlug={tenantSlug} />
+							<EventBookingPanelWrapper event={eventWithValidPrices} tenantSlug={tenantSlug} />
 						</Suspense>
 					</div>
 				</div>

@@ -17,6 +17,7 @@ interface CreateGuestBookingParams {
 	dtend: string;
 	scheduleId: string;
 	customerInfo: CustomerInfo;
+	selectedPrices: Record<string, number>;
 }
 
 interface CreateGuestBookingResult {
@@ -32,6 +33,7 @@ export async function createGuestBooking({
 	dtend,
 	scheduleId,
 	customerInfo,
+	selectedPrices,
 }: CreateGuestBookingParams): Promise<CreateGuestBookingResult> {
 	try {
 		const payload = await getPayload({ config: configPromise });
@@ -63,26 +65,86 @@ export async function createGuestBooking({
 		if (scheduleId && event.schedules?.schedule) {
 			const schedule = event.schedules.schedule.find((s) => s.id === scheduleId);
 			if (schedule) {
+				if (!event.maxQuantity || typeof event.maxQuantity !== "number") {
+					return {
+						success: false,
+						error: "Event maxQuantity is invalid",
+					};
+				}
 				selectedScheduleInstanceData = {
+					id: `${schedule.id}-${dtstart}`,
+					type: "scheduleInstance",
 					scheduleId: schedule.id,
-					scheduleName: schedule.scheduleName || event.title,
+					title: schedule.scheduleName || event.title,
 					dtstart,
 					dtend,
-					rrulestring: schedule.rrulestring || null,
+					maxQuantity: event.maxQuantity,
+				};
+			} else {
+				return {
+					success: false,
+					error: "Schedule not found",
 				};
 			}
 		}
 
-		// Build pricing snapshot from event prices
+		// Build pricing snapshot from selected prices
 		const pricingSnapshot: Record<string, unknown> = {};
 		const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
-		for (const price of activePrices) {
-			if (price.id) {
-				pricingSnapshot[price.id] = {
-					...price,
-					quantity: 1, // Default to 1 for now
+		const activePricesById = new Map(
+			activePrices.filter((price) => price.id).map((price) => [price.id, price]),
+		);
+		const selectedEntries = Object.entries(selectedPrices).filter(
+			([, quantity]) => typeof quantity === "number" && quantity > 0,
+		);
+		if (selectedEntries.length === 0) {
+			return {
+				success: false,
+				error: "Please select at least one pricing option",
+			};
+		}
+		for (const [priceId, quantity] of selectedEntries) {
+			const price = activePricesById.get(priceId);
+			if (!price) {
+				return {
+					success: false,
+					error: "Selected price is no longer available",
 				};
 			}
+			if (!price.stripePriceId || typeof price.stripePriceId !== "string") {
+				return {
+					success: false,
+					error: "Selected price is missing Stripe price id",
+				};
+			}
+			if (typeof price.quantityUnit !== "number") {
+				return {
+					success: false,
+					error: "Selected price has invalid quantity unit",
+				};
+			}
+			if (typeof price.amount !== "number") {
+				return {
+					success: false,
+					error: "Selected price has invalid amount",
+				};
+			}
+			if (typeof price.label !== "string") {
+				return {
+					success: false,
+					error: "Selected price has invalid label",
+				};
+			}
+			pricingSnapshot[priceId] = {
+				id: priceId,
+				stripePriceId: price.stripePriceId,
+				isActive: price.isActive ?? true,
+				label: price.label,
+				description: price.description ?? null,
+				amount: price.amount,
+				quantityUnit: price.quantityUnit,
+				quantity,
+			};
 		}
 
 		// Create the booking

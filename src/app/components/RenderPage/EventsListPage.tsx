@@ -3,6 +3,7 @@ import { EventsListPageFilters } from "./EventsListPageFilters";
 import { eventsListSearchParamsCache } from "./EventsListPageFilters/search-params";
 import { eventHasInstancesInRange } from "./EventsListPageFilters/utils/event-has-instances-in-range";
 import { validateDateRange } from "./EventsListPageFilters/utils/validate-date-range";
+import { filterValidPrices } from "./utils/filter-valid-prices";
 
 async function EventsListPage({
 	tenantId,
@@ -41,7 +42,7 @@ async function EventsListPage({
 		limit: 100,
 	});
 
-	let events = eventsQuery.docs;
+	let events = eventsQuery.docs.map(filterValidPrices);
 
 	if (search.trim()) {
 		const query = search.toLowerCase().trim();

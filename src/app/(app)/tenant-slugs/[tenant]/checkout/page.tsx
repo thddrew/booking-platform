@@ -3,6 +3,7 @@ import { headers as getHeaders } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { getPayload } from "payload";
 import { EventCheckout } from "@/app/components/RenderPage/EventCheckout";
+import { filterValidPrices } from "@/app/components/RenderPage/utils/filter-valid-prices";
 
 export default async function CheckoutPage({
 	params: paramsPromise,
@@ -103,9 +104,11 @@ export default async function CheckoutPage({
 		return notFound();
 	}
 
+	const eventWithValidPrices = filterValidPrices(event);
+
 	return (
 		<EventCheckout
-			event={event}
+			event={eventWithValidPrices}
 			selectedTimeslot={{
 				dtstart: new Date(dtstart),
 				dtend: new Date(dtend),
