@@ -3,91 +3,80 @@
  *
  * Copy this file and customize it for your test spec.
  * Follow the structure and fill in the required fields.
+ *
+ * AGENT-FIRST APPROACH:
+ * - The agent uses agent-browser CLI to interact with the page
+ * - The agent discovers elements automatically using snapshots
+ * - No need to write Playwright code - just describe what should happen
+ * - Be specific in steps: include expected values, field names, button text
  */
 
 export default {
-  /**
-   * Goal: Clear, concise description of the test objective
-   * Example: "Create a free event booking as a guest user"
-   */
-  goal: "DESCRIBE_TEST_GOAL_HERE",
+	/**
+	 * Goal: Clear, concise description of the test objective
+	 * Example: "Create a free event booking as a guest user"
+	 */
+	goal: "DESCRIBE_TEST_GOAL_HERE",
 
-  /**
-   * Steps: Human-readable list of test steps
-   * Used by LLM to understand test flow
-   */
-  steps: [
-    "Step 1: Describe the first action",
-    "Step 2: Describe the second action",
-    "Step 3: Describe verification step",
-    // Add more steps as needed
-  ],
+	/**
+	 * Start URL: The page where the test begins (relative to baseUrl)
+	 * The agent will navigate here first using: bunx agent-browser open <url>
+	 * Example: "/tenant-slugs/gold/events/free-event"
+	 */
+	startUrl: "/path/to/start/page",
 
-  /**
-   * Code: Playwright test code implementing the happy path
-   * - Should be executable Playwright test code
-   * - Include comments for clarity
-   * - Use data-testid attributes when possible
-   * - Include assertions
-   */
-  code: `
-    import { test, expect } from '@playwright/test';
-    
-    test('TEST_NAME_HERE', async ({ page }) => {
-      // Step 1: Navigate to page
-      await page.goto('/path/to/page');
-      
-      // Step 2: Perform action
-      await page.click('[data-testid="element-id"]');
-      
-      // Step 3: Verify result
-      await expect(page.locator('[data-testid="result"]')).toBeVisible();
-    });
-  `,
+	/**
+	 * Steps: Human-readable list of test steps
+	 * The agent will use agent-browser to execute these steps autonomously.
+	 *
+	 * TIPS:
+	 * - Be specific: "Fill firstName field with 'John'" not "Fill form"
+	 * - Include expected values: "Select timeslot '1:00 PM - 3:00 PM'"
+	 * - Use button text: "Click 'Book Event' button"
+	 * - The agent will discover elements via snapshots automatically
+	 */
+	steps: [
+		"Step 1: Describe the first action (be specific)",
+		"Step 2: Describe the second action (include expected values)",
+		"Step 3: Describe verification step",
+		// Add more steps as needed
+	],
 
-  /**
-   * Assertions: List of expected outcomes
-   * Used by LLM to understand what success looks like
-   */
-  assertions: [
-    "Assertion 1: Describe expected outcome",
-    "Assertion 2: Describe another expected outcome",
-    // Add more assertions as needed
-  ],
+	/**
+	 * Success Criteria: How to determine if the test passed
+	 * The agent will verify these after completing all steps.
+	 *
+	 * TIPS:
+	 * - Be specific: "URL contains /checkout/success"
+	 * - Include text to check: "Page displays 'Booking Confirmed'"
+	 * - Use verifiable assertions
+	 */
+	successCriteria: [
+		"URL contains /checkout/success",
+		"Page displays 'Booking Confirmed' or similar success message",
+		// Add more criteria as needed
+	],
 
-  /**
-   * Metadata: Optional test metadata
-   */
-  metadata: {
-    /**
-     * Dependencies: Tests that must run before this test
-     * Only use if absolutely necessary (reduces parallelization)
-     * Prefer combining dependent tests into single spec
-     */
-    dependencies: [] as string[], // e.g., ['setup-user.spec.ts']
+	/**
+	 * Metadata: Optional test metadata
+	 */
+	metadata: {
+		/**
+		 * Prerequisites: Conditions that must be met before test runs
+		 * Example: "Test tenant 'gold' must exist with allowPublicRead=true"
+		 */
+		prerequisites: [] as string[],
 
-    /**
-     * Prerequisites: Conditions that must be met before test runs
-     * Example: "Database must have test event seeded"
-     */
-    prerequisites: [] as string[],
+		/**
+		 * Tags: Test categorization for filtering/organization
+		 * Example: ['checkout', 'guest-user', 'free-booking', 'smoke']
+		 */
+		tags: [] as string[],
 
-    /**
-     * Tags: Test categorization
-     * Example: ['checkout', 'guest-user', 'free-booking']
-     */
-    tags: [] as string[],
-
-    /**
-     * Timeout: Custom timeout for this spec (in milliseconds)
-     * Overrides global timeout (3 minutes) if set
-     */
-    timeout: undefined as number | undefined,
-
-    /**
-     * Retries: Custom retry count for this spec
-     * Overrides global maxRetries (3) if set
-     */
-    retries: undefined as number | undefined,
-  },
+		/**
+		 * Timeout: Custom timeout for this spec (in milliseconds)
+		 * If not set, uses global timeout from e2e.config.ts
+		 */
+		timeout: undefined as number | undefined,
+	},
 };

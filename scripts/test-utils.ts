@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
  */
 export async function discoverSpecs(specsDir: string): Promise<string[]> {
 	const fullPath = path.resolve(__dirname, '..', specsDir);
-	
+
 	try {
 		const files: string[] = [];
 		await discoverSpecsRecursive(fullPath, files);
@@ -29,10 +29,10 @@ export async function discoverSpecs(specsDir: string): Promise<string[]> {
 async function discoverSpecsRecursive(dir: string, files: string[]): Promise<void> {
 	try {
 		const entries = await fs.readdir(dir, { withFileTypes: true });
-		
+
 		for (const entry of entries) {
 			const fullPath = path.join(dir, entry.name);
-			
+
 			if (entry.isDirectory()) {
 				await discoverSpecsRecursive(fullPath, files);
 			} else if (entry.isFile() && entry.name.endsWith('.spec.ts')) {
@@ -51,27 +51,27 @@ async function discoverSpecsRecursive(dir: string, files: string[]): Promise<voi
 export async function loadSpec(specPath: string): Promise<TestSpec> {
 	try {
 		// Resolve absolute path for import
-		const absolutePath = path.isAbsolute(specPath) 
-			? specPath 
+		const absolutePath = path.isAbsolute(specPath)
+			? specPath
 			: path.resolve(process.cwd(), specPath);
-		
+
 		// Convert to file:// URL for ES module import
 		const specUrl = `file://${absolutePath}`;
-		
+
 		// Dynamic import of the spec file
 		const specModule = await import(specUrl);
 		const spec = specModule.default || specModule;
-		
-		if (!spec.goal || !spec.code) {
-			throw new Error(`Invalid spec format: missing goal or code in ${specPath}`);
+
+		if (!spec.goal || !spec.startUrl) {
+			throw new Error(`Invalid spec format: missing goal or startUrl in ${specPath}`);
 		}
-		
+
 		return {
 			path: specPath,
 			goal: spec.goal,
+			startUrl: spec.startUrl,
 			steps: spec.steps || [],
-			code: spec.code,
-			assertions: spec.assertions || [],
+			successCriteria: spec.successCriteria || [],
 			metadata: spec.metadata || {},
 		};
 	} catch (error) {
@@ -85,16 +85,14 @@ export async function loadSpec(specPath: string): Promise<TestSpec> {
 export interface TestSpec {
 	path: string;
 	goal: string;
+	startUrl: string;
 	steps: string[];
-	code: string;
-	assertions: string[];
+	successCriteria: string[];
 	metadata: {
 		dependencies?: string[];
 		prerequisites?: string[];
 		tags?: string[];
 		timeout?: number;
-		retries?: number;
-		discovery?: boolean; // If true, run discovery mode to generate test code from DOM
 	};
 }
 
@@ -106,12 +104,12 @@ export async function checkAppHealth(baseUrl: string, endpoint: string = '/healt
 		const url = `${baseUrl}${endpoint}`;
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 5000);
-		
+
 		const response = await fetch(url, {
 			method: 'GET',
 			signal: controller.signal,
 		});
-		
+
 		clearTimeout(timeoutId);
 		return response.ok;
 	} catch (error) {
@@ -132,19 +130,19 @@ export function detectEnvironment(): {
 	isCI: boolean;
 	hostUrl: string;
 } {
-	const isDocker = process.env.DOCKER === 'true' || 
+	const isDocker = process.env.DOCKER === 'true' ||
 	                 (typeof fs !== 'undefined' && fs.existsSync && fs.existsSync('/.dockerenv')) ||
 	                 process.env.CI === 'true';
-	
-	const isCI = process.env.CI === 'true' || 
+
+	const isCI = process.env.CI === 'true' ||
 	             process.env.GITHUB_ACTIONS === 'true';
-	
+
 	let hostUrl: string;
-	
+
 	if (isDocker) {
 		if (process.platform === 'linux') {
-			hostUrl = process.env.BASE_URL || 
-			          process.env.HOST_URL || 
+			hostUrl = process.env.BASE_URL ||
+			          process.env.HOST_URL ||
 			          'http://172.17.0.1:4000';
 		} else {
 			hostUrl = process.env.BASE_URL || 'http://host.docker.internal:4000';
@@ -152,7 +150,7 @@ export function detectEnvironment(): {
 	} else {
 		hostUrl = process.env.BASE_URL || 'http://localhost:4000';
 	}
-	
+
 	return { isDocker, isCI, hostUrl };
 }
 
