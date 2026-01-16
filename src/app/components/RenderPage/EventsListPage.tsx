@@ -1,9 +1,15 @@
 import { payloadSDK } from "@/lib/payload/payload-sdk";
 import { EventsListPageFilters } from "./EventsListPageFilters";
-import { eventsListSearchParamsCache } from "./EventsListPageFilters/search-params";
+import { eventsListSearchParamsCache, parseDate } from "./EventsListPageFilters/search-params";
 import { eventHasInstancesInRange } from "./EventsListPageFilters/utils/event-has-instances-in-range";
 import { validateDateRange } from "./EventsListPageFilters/utils/validate-date-range";
 import { filterValidPrices } from "./utils/filter-valid-prices";
+
+function toDateOrNull(value: string | Date | null | undefined): Date | null {
+	if (value === null || value === undefined) return null;
+	if (typeof value === "string") return parseDate(value);
+	return value;
+}
 
 async function EventsListPage({
 	tenantId,
@@ -15,8 +21,13 @@ async function EventsListPage({
 	// Access cached search params parsed in RenderPage
 	const { search, people, startDate, endDate } = eventsListSearchParamsCache.all();
 
+	// Convert string values to Date | null for validation
+	// The parser should already convert them, but TypeScript doesn't know this
+	const startDateParsed = toDateOrNull(startDate);
+	const endDateParsed = toDateOrNull(endDate);
+
 	const { isValid: isValidDateRange, startDate: validatedStartDate, endDate: validatedEndDate } =
-		validateDateRange(startDate, endDate);
+		validateDateRange(startDateParsed, endDateParsed);
 
 	const eventsQuery = await payloadSDK.find({
 		collection: "events",

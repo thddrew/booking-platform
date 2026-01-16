@@ -313,11 +313,6 @@ export function EventCheckout({
 										)}
 									<div className="min-w-0">
 										<h3 className="font-medium text-base truncate">{event.title}</h3>
-										{event.subtitle && (
-											<p className="text-sm text-muted-foreground truncate">
-												{event.subtitle}
-											</p>
-										)}
 									</div>
 								</div>
 

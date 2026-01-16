@@ -82,10 +82,12 @@ async function callCursorAgent(prompt: string): Promise<string> {
 			return;
 		}
 
+		const defaultArgs = ["--print", "--force", "--model", "auto"];
+
 		// Use streaming JSON format in debug mode for real-time progress
 		const agentArgs = debugMode
-			? ["--print", "--force", "--output-format", "stream-json", "--stream-partial-output", prompt]
-			: ["--print", "--force", prompt];
+			? [...defaultArgs, "--output-format", "stream-json", "--stream-partial-output", prompt]
+			: [...defaultArgs, prompt];
 
 		const agentProcess = spawn("agent", agentArgs, {
 			cwd: path.join(__dirname, ".."),

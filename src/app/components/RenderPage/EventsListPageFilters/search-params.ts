@@ -12,7 +12,7 @@ export function getMinStartDate(): Date {
 	return getTodayDate();
 }
 
-function parseDate(dateString: string | null | undefined): Date | null {
+export function parseDate(dateString: string | null | undefined): Date | null {
 	if (!dateString) return null;
 	const date = new Date(dateString);
 	return Number.isNaN(date.getTime()) ? null : date;

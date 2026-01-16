@@ -2,10 +2,10 @@
 
 /**
  * Test Orchestrator
- * Spawns multiple workers to run test specs in parallel with LLM auto-fix
+ * Spawns multiple workers to run test specs in parallel using agent-first architecture
+ * Each worker spawns cursor-agent which autonomously runs tests using agent-browser
  */
 
-import { spawn } from 'child_process';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { discoverSpecs, checkAppHealth, ensureReportDir, generateReportFilename } from './test-utils.js';
@@ -17,26 +17,96 @@ const __dirname = path.dirname(__filename);
 
 interface TestResult {
 	spec: string;
-	status: 'passed' | 'failed' | 'error';
+	status: 'passed' | 'failed';
 	duration: number;
-	steps: number; // Total debugging steps taken
 	error?: string;
-	fixes?: any[];
-	debugInfo?: any;
+	stepsCompleted?: string[];
 }
 
 interface OrchestratorResults {
 	total: number;
 	passed: number;
-	passedWithoutFixes: number;
-	passedWithFixes: number;
-	failedFixed: number;
-	earlyExit: number;
-	failedUnfixable: number;
+	failed: number;
 	results: TestResult[];
 	executionTime: number;
-	llmApiCalls: number;
-	estimatedCost: number;
+}
+
+interface RunningTest {
+	spec: string;
+	startTime: number;
+}
+
+class ProgressTracker {
+	private running: Map<string, RunningTest> = new Map();
+	private completed: TestResult[] = [];
+	private queue: string[] = [];
+	private total: number = 0;
+
+	constructor(total: number, initialQueue: string[]) {
+		this.total = total;
+		this.queue = [...initialQueue];
+	}
+
+	addRunning(spec: string): void {
+		this.running.set(spec, {
+			spec,
+			startTime: Date.now(),
+		});
+	}
+
+	removeRunning(spec: string): void {
+		this.running.delete(spec);
+	}
+
+	addCompleted(result: TestResult): void {
+		this.completed.push(result);
+		this.removeRunning(result.spec);
+	}
+
+	setQueue(queue: string[]): void {
+		this.queue = queue;
+	}
+
+	private lastProgressLine: string = '';
+
+	update(): void {
+		const runningCount = this.running.size;
+		const queueCount = this.queue.length;
+		const completedCount = this.completed.length;
+		const passed = this.completed.filter((r) => r.status === 'passed').length;
+		const failed = this.completed.filter((r) => r.status === 'failed').length;
+
+		let status = `📊 Progress: ${completedCount}/${this.total} completed`;
+		status += ` | ✅ ${passed} passed`;
+		status += ` | ❌ ${failed} failed`;
+		status += ` | 🏃 ${runningCount} running`;
+		if (queueCount > 0) {
+			status += ` | ⏳ ${queueCount} queued`;
+		}
+
+		// Only print if status changed to avoid excessive output
+		if (status !== this.lastProgressLine) {
+			console.log(status);
+			this.lastProgressLine = status;
+		}
+	}
+
+	printRunning(): void {
+		if (this.running.size > 0) {
+			const runningSpecs = Array.from(this.running.values())
+				.map((r) => {
+					const elapsed = ((Date.now() - r.startTime) / 1000).toFixed(1);
+					return `${r.spec} (${elapsed}s)`;
+				})
+				.join(', ');
+			console.log(`\n🏃 Running: ${runningSpecs}`);
+		}
+	}
+
+	finish(): void {
+		// Progress already printed, just ensure newline
+		console.log('');
+	}
 }
 
 /**
@@ -44,120 +114,135 @@ interface OrchestratorResults {
  */
 async function main() {
 	const startTime = Date.now();
-	
+
 	console.log('🎯 E2E Test Orchestrator');
 	console.log('========================\n');
-	
+
 	// Check app health
 	if (config.waitForApp) {
 		console.log(`🔍 Checking app health at ${config.baseUrl}${config.healthCheckEndpoint}...`);
 		const isHealthy = await checkAppHealth(config.baseUrl, config.healthCheckEndpoint);
-		
+
 		if (!isHealthy) {
 			console.error(`❌ App is not accessible at ${config.baseUrl}`);
 			console.error('Please ensure the app is running before running tests.');
 			console.error(`\n💡 Tip: Start the app with: bun run dev`);
 			process.exit(1);
 		}
-		
+
 		console.log(`✅ App is accessible at ${config.baseUrl}\n`);
 	}
-	
+
 	// Discover test specs
 	console.log(`📋 Discovering test specs in ${config.specsDir}...`);
 	const specs = await discoverSpecs(config.specsDir);
-	
+
 	if (specs.length === 0) {
 		console.error(`❌ No test specs found in ${config.specsDir}`);
 		console.error('Create test specs using the template: e2e/specs/.template.spec.ts');
 		process.exit(1);
 	}
-	
+
 	console.log(`✅ Found ${specs.length} test spec${specs.length > 1 ? 's' : ''}\n`);
-	
+
 	// Ensure report directory exists
 	await ensureReportDir(config.reportDir);
-	
+
 	// Run tests with parallelization
 	console.log(`🚀 Running tests with max ${config.maxWorkers} workers...\n`);
-	const results = await runTestsWithParallelization(specs);
-	
+	console.log('📊 Progress: 0/' + specs.length + ' completed | ✅ 0 passed | ❌ 0 failed | 🏃 0 running | ⏳ ' + specs.length + ' queued');
+	const results = await runTestsWithParallelization(specs, specs);
+
 	// Generate report
 	const executionTime = Date.now() - startTime;
 	const report = generateReport(results, executionTime);
-	
+
 	const reportFilename = generateReportFilename('test-report');
 	const reportPath = path.join(__dirname, '..', config.reportDir, reportFilename);
-	
+
 	await Bun.write(reportPath, report);
-	
+
 	console.log(`\n📊 Report saved to: ${reportPath}`);
 	console.log('\n' + getSummary(results, executionTime));
-	
+
 	// Exit with appropriate code
-	const hasFailures = results.failedFixed > 0 || results.failedUnfixable > 0;
-	process.exit(hasFailures ? 1 : 0);
+	process.exit(results.failed > 0 ? 1 : 0);
 }
 
 /**
  * Run tests with parallelization control
  */
-async function runTestsWithParallelization(specs: string[]): Promise<OrchestratorResults> {
-	const results: TestResult[] = [];
+async function runTestsWithParallelization(specs: string[], allSpecs: string[]): Promise<OrchestratorResults> {
 	const queue = [...specs];
-	const activeWorkers: Promise<TestResult>[] = [];
-	
+	const activeWorkers: Map<string, Promise<TestResult>> = new Map();
 	const allResults: TestResult[] = [];
-	
-	// Process queue
-	while (queue.length > 0 || activeWorkers.length > 0) {
-		// Spawn new workers up to max
-		while (activeWorkers.length < config.maxWorkers && queue.length > 0) {
-			const spec = queue.shift()!;
-			const workerPromise = runWorker(spec);
-			activeWorkers.push(workerPromise);
-			
-			workerPromise.then((result) => {
-				allResults.push(result);
-			});
+
+	// Initialize progress tracker
+	const progress = new ProgressTracker(allSpecs.length, queue);
+	// Don't use interval - update only when state changes
+
+	try {
+		// Process queue
+		while (queue.length > 0 || activeWorkers.size > 0) {
+			// Spawn new workers up to max
+			while (activeWorkers.size < config.maxWorkers && queue.length > 0) {
+				const spec = queue.shift()!;
+				const specName = path.basename(spec, '.spec.ts');
+
+				// Track that this spec is starting
+				progress.addRunning(specName);
+				progress.setQueue(queue);
+				progress.update();
+
+				// Create worker promise
+				const workerPromise = runWorker(spec)
+					.then((result) => {
+						// Remove from active workers
+						activeWorkers.delete(spec);
+						// Add to completed
+						progress.addCompleted(result);
+						progress.setQueue(queue);
+						progress.update();
+						return result;
+					})
+					.catch((error) => {
+						// Handle errors
+						activeWorkers.delete(spec);
+						const errorResult: TestResult = {
+							spec: specName,
+							status: 'failed',
+							duration: 0,
+							error: error.message || String(error),
+						};
+						progress.addCompleted(errorResult);
+						progress.setQueue(queue);
+						progress.update();
+						return errorResult;
+					});
+
+				activeWorkers.set(spec, workerPromise);
+			}
+
+			// Wait for one worker to complete
+			if (activeWorkers.size > 0) {
+				const completed = await Promise.race(Array.from(activeWorkers.values()));
+				allResults.push(completed);
+			}
 		}
-		
-		// Wait for one worker to complete
-		if (activeWorkers.length > 0) {
-			const completed = await Promise.race(activeWorkers);
-			activeWorkers.splice(activeWorkers.indexOf(completed), 1);
-		}
+	} finally {
+		progress.finish();
 	}
-	
+
 	// Calculate statistics
 	const passed = allResults.filter((r) => r.status === 'passed');
-	const passedWithoutFixes = passed.filter((r) => !r.fixes || r.fixes.length === 0);
-	const passedWithFixes = passed.filter((r) => r.fixes && r.fixes.length > 0);
-	const failedFixed = allResults.filter((r) => r.status === 'failed' && r.fixes && r.fixes.length > 0);
-	const earlyExit = allResults.filter((r) => r.earlyExit);
-	const failedUnfixable = allResults.filter((r) => r.status === 'failed' && (!r.fixes || r.fixes.length === 0) && !r.earlyExit);
-	
-	// Estimate LLM API calls (1 per debugging step, fewer for early exit)
-	const llmApiCalls = allResults.reduce((sum, r) => {
-		// Early exit tests use fewer steps, so count actual steps
-		return sum + (r.steps || 0);
-	}, 0);
-	
-	// Estimate cost (~$0.01-0.05 per LLM call)
-	const estimatedCost = llmApiCalls * 0.02; // Average estimate
-	
+	const failed = allResults.filter((r) => r.status === 'failed');
+
 	return {
 		total: allResults.length,
 		passed: passed.length,
-		passedWithoutFixes: passedWithoutFixes.length,
-		passedWithFixes: passedWithFixes.length,
-		failedFixed: failedFixed.length,
-		earlyExit: earlyExit.length,
-		failedUnfixable: failedUnfixable.length,
+		failed: failed.length,
 		results: allResults,
 		executionTime: 0, // Will be set by caller
-		llmApiCalls,
-		estimatedCost,
 	};
 }
 
@@ -168,105 +253,58 @@ function generateReport(results: OrchestratorResults, executionTime: number): st
 	const timestamp = new Date().toISOString();
 	const executionTimeSeconds = (executionTime / 1000).toFixed(2);
 	const executionTimeMinutes = (executionTime / 60000).toFixed(2);
-	
+
 	let report = `# E2E Test Execution Report\n\n`;
 	report += `Date: ${timestamp}\n`;
 	report += `Execution Time: ${executionTimeSeconds}s (${executionTimeMinutes} minutes)\n\n`;
-	
-	const earlyExitCount = results.results.filter((r) => r.earlyExit).length;
-	
+
 	report += `## Summary\n\n`;
 	report += `- Total Specs: ${results.total}\n`;
-	report += `- Passed: ${results.passed} (${results.passedWithoutFixes} without fixes, ${results.passedWithFixes} with fixes)\n`;
-	report += `- Failed (Fixed): ${results.failedFixed}\n`;
-	report += `- Early Exit: ${earlyExitCount} (requires manual intervention)\n`;
-	report += `- Failed (Unfixable): ${results.failedUnfixable}\n`;
-	report += `- LLM API Calls: ${results.llmApiCalls}\n`;
-	report += `- Estimated Cost: $${results.estimatedCost.toFixed(2)}\n\n`;
-	
+	report += `- Passed: ${results.passed}\n`;
+	report += `- Failed: ${results.failed}\n`;
+	report += `- Success Rate: ${((results.passed / results.total) * 100).toFixed(1)}%\n\n`;
+
 	// Test results
 	report += `## Test Results\n\n`;
-	
+
 	for (const result of results.results) {
 		const statusIcon = result.status === 'passed' ? '✅' : '❌';
 		report += `### ${statusIcon} ${result.spec}\n\n`;
 		report += `- Status: ${result.status}\n`;
-		report += `- Duration: ${result.duration}ms\n`;
-		report += `- Debugging Steps: ${result.steps}\n`;
-		
-		if (result.fixes && result.fixes.length > 0) {
-			report += `- Fixes Applied: ${result.fixes.length}\n`;
+		report += `- Duration: ${(result.duration / 1000).toFixed(2)}s\n`;
+
+		if (result.stepsCompleted && result.stepsCompleted.length > 0) {
+			report += `- Steps Completed: ${result.stepsCompleted.length}\n`;
+			report += `  - ${result.stepsCompleted.join('\n  - ')}\n`;
 		}
-		
+
 		if (result.error) {
 			report += `- Error: ${result.error}\n`;
 		}
-		
-		if (result.earlyExit) {
-			report += `- Early Exit: ${result.earlyExit.category}\n`;
-			report += `- Exit Reason: ${result.earlyExit.reason}\n`;
-			report += `- Recommendation: ${result.earlyExit.recommendation}\n`;
-			report += `- Exit Step: ${result.earlyExit.step}\n`;
-		}
-		
+
 		report += `\n`;
 	}
-	
-	// Proposed fixes
-	const specsWithFixes = results.results.filter((r) => r.fixes && r.fixes.length > 0);
-	if (specsWithFixes.length > 0) {
-		report += `## Proposed Fixes\n\n`;
-		
-		for (const result of specsWithFixes) {
+
+	// Failed tests details
+	const failedTests = results.results.filter((r) => r.status === 'failed');
+	if (failedTests.length > 0) {
+		report += `## Failed Tests\n\n`;
+
+		for (const result of failedTests) {
 			report += `### ${result.spec}\n\n`;
-			
-			for (const fix of result.fixes || []) {
-				report += `**Step ${fix.step}:**\n\n`;
-				report += `**Original Code:**\n\`\`\`typescript\n${fix.originalCode}\n\`\`\`\n\n`;
-				report += `**Proposed Fix:**\n\`\`\`typescript\n${fix.proposedFix}\n\`\`\`\n\n`;
-				report += `**Strategy Change:** ${fix.strategyChange}\n\n`;
+			report += `**Error:** ${result.error || 'Unknown error'}\n`;
+			report += `**Duration:** ${(result.duration / 1000).toFixed(2)}s\n\n`;
+
+			if (result.stepsCompleted && result.stepsCompleted.length > 0) {
+				report += `**Steps Completed:**\n`;
+				for (const step of result.stepsCompleted) {
+					report += `- ${step}\n`;
+				}
+				report += `\n`;
 			}
 		}
 	}
-	
-	// Early exit tests
-	const earlyExitTests = results.results.filter((r) => r.earlyExit);
-	if (earlyExitTests.length > 0) {
-		report += `## Early Exit Tests (Requires Manual Intervention)\n\n`;
-		
-		for (const result of earlyExitTests) {
-			if (!result.earlyExit) continue;
-			
-			report += `### ${result.spec}\n\n`;
-			report += `**Category:** ${result.earlyExit.category}\n`;
-			report += `**Reason:** ${result.earlyExit.reason}\n`;
-			report += `**Recommendation:** ${result.earlyExit.recommendation}\n`;
-			report += `**Steps Taken:** ${result.earlyExit.step} (exited early)\n\n`;
-			
-			if (result.error) {
-				report += `**Error:** ${result.error}\n\n`;
-			}
-		}
-	}
-	
-	// Unfixable tests (no early exit, just couldn't fix)
-	const unfixable = results.results.filter((r) => r.status === 'failed' && (!r.fixes || r.fixes.length === 0) && !r.earlyExit);
-	if (unfixable.length > 0) {
-		report += `## Unfixable Tests\n\n`;
-		
-		for (const result of unfixable) {
-			report += `### ${result.spec}\n\n`;
-			report += `**Error:** ${result.error || 'Unknown error'}\n\n`;
-			
-			if (result.debugInfo) {
-				report += `**Debug Info:**\n`;
-				report += `- URL: ${result.debugInfo.url}\n`;
-				report += `- Title: ${result.debugInfo.title}\n`;
-				report += `- Elements Found: ${result.debugInfo.availableElements?.length || 0}\n\n`;
-			}
-		}
-	}
-	
+
 	return report;
 }
 
@@ -275,16 +313,16 @@ function generateReport(results: OrchestratorResults, executionTime: number): st
  */
 function getSummary(results: OrchestratorResults, executionTime: number): string {
 	const executionTimeSeconds = (executionTime / 1000).toFixed(2);
-	
+	const successRate = ((results.passed / results.total) * 100).toFixed(1);
+
 	let summary = '📊 Summary\n';
 	summary += '==========\n\n';
 	summary += `Total: ${results.total} | `;
 	summary += `Passed: ${results.passed} | `;
-	summary += `Failed: ${results.failedFixed + results.failedUnfixable}\n`;
+	summary += `Failed: ${results.failed}\n`;
+	summary += `Success Rate: ${successRate}%\n`;
 	summary += `Execution Time: ${executionTimeSeconds}s\n`;
-	summary += `LLM API Calls: ${results.llmApiCalls} | `;
-	summary += `Estimated Cost: $${results.estimatedCost.toFixed(2)}\n`;
-	
+
 	return summary;
 }
 
