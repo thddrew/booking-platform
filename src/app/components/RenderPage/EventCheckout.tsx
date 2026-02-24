@@ -1,7 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon, CalendarIcon, ClockIcon, Loader2Icon, UsersIcon } from "lucide-react";
+import {
+	ArrowLeftIcon,
+	CalendarIcon,
+	ClockIcon,
+	Loader2Icon,
+	UsersIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
@@ -75,15 +81,17 @@ export function EventCheckout({
 	const [error, setError] = useState<string | null>(null);
 
 	const activePrices = event.prices || [];
-	const [selectedPrices, setSelectedPrices] = useState<Record<string, number>>(() => {
-		const initial: Record<string, number> = {};
-		activePrices.forEach((price) => {
-			if (price.id) {
-				initial[price.id] = 0;
-			}
-		});
-		return initial;
-	});
+	const [selectedPrices, setSelectedPrices] = useState<Record<string, number>>(
+		() => {
+			const initial: Record<string, number> = {};
+			activePrices.forEach((price) => {
+				if (price.id) {
+					initial[price.id] = 0;
+				}
+			});
+			return initial;
+		},
+	);
 
 	const selectedLineItems = useMemo(() => {
 		return activePrices
@@ -156,16 +164,23 @@ export function EventCheckout({
 				});
 
 				if (result.success && result.bookingId) {
-					// Always redirect to payment page (includes $0 pricing if applicable)
-					router.push(
-						`/tenant-slugs/${tenantSlug}/checkout/payment?bookingId=${result.bookingId}&email=${encodeURIComponent(data.email)}`
-					);
+					if (totalPrice === 0) {
+						router.push(
+							`/tenant-slugs/${tenantSlug}/checkout/success?bookingId=${result.bookingId}&email=${encodeURIComponent(data.email)}`,
+						);
+					} else {
+						router.push(
+							`/tenant-slugs/${tenantSlug}/checkout/payment?bookingId=${result.bookingId}&email=${encodeURIComponent(data.email)}`,
+						);
+					}
 				} else {
 					setError(result.error || "Failed to create booking");
 				}
 			} catch (err) {
 				console.error("Checkout error:", err);
-				setError(err instanceof Error ? err.message : "An unexpected error occurred");
+				setError(
+					err instanceof Error ? err.message : "An unexpected error occurred",
+				);
 			}
 		});
 	};
@@ -197,7 +212,10 @@ export function EventCheckout({
 							</CardHeader>
 							<CardContent>
 								<Form {...form}>
-									<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+									<form
+										onSubmit={form.handleSubmit(onSubmit)}
+										className="space-y-4"
+									>
 										<div className="grid sm:grid-cols-2 gap-4">
 											<FormField
 												control={form.control}
@@ -280,6 +298,8 @@ export function EventCheckout({
 													<Loader2Icon className="h-4 w-4 animate-spin mr-2" />
 													Processing...
 												</>
+											) : totalPrice === 0 ? (
+												"Complete Booking"
 											) : (
 												"Continue to Payment"
 											)}
@@ -312,7 +332,9 @@ export function EventCheckout({
 											</div>
 										)}
 									<div className="min-w-0">
-										<h3 className="font-medium text-base truncate">{event.title}</h3>
+										<h3 className="font-medium text-base truncate">
+											{event.title}
+										</h3>
 									</div>
 								</div>
 
@@ -333,7 +355,9 @@ export function EventCheckout({
 									</div>
 									<div className="flex items-center gap-3 text-sm">
 										<UsersIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-										<span>{totalGuests} guest{totalGuests === 1 ? "" : "s"}</span>
+										<span>
+											{totalGuests} guest{totalGuests === 1 ? "" : "s"}
+										</span>
 									</div>
 								</div>
 
@@ -343,11 +367,16 @@ export function EventCheckout({
 										<Separator />
 										<div className="space-y-3">
 											{activePrices.map((price) => (
-												<div key={price.id} className="flex items-center justify-between gap-3">
+												<div
+													key={price.id}
+													className="flex items-center justify-between gap-3"
+												>
 													<div className="text-sm">
 														<div className="font-medium">{price.label}</div>
 														<div className="text-muted-foreground">
-															{price.amount === 0 ? "Free" : `$${price.amount.toFixed(2)}`}
+															{price.amount === 0
+																? "Free"
+																: `$${price.amount.toFixed(2)}`}
 														</div>
 													</div>
 													<div className="flex items-center gap-2">
@@ -359,7 +388,10 @@ export function EventCheckout({
 																if (!price.id) return;
 																setSelectedPrices((prev) => ({
 																	...prev,
-																	[price.id as string]: Math.max(0, (prev[price.id as string] ?? 0) - 1),
+																	[price.id as string]: Math.max(
+																		0,
+																		(prev[price.id as string] ?? 0) - 1,
+																	),
 																}));
 															}}
 														>
@@ -375,13 +407,15 @@ export function EventCheckout({
 															onClick={() => {
 																if (!price.id) return;
 																const quantityUnit = price.quantityUnit ?? 1;
-																const nextTotalGuests = totalGuests + quantityUnit;
+																const nextTotalGuests =
+																	totalGuests + quantityUnit;
 																if (nextTotalGuests > event.maxQuantity) {
 																	return;
 																}
 																setSelectedPrices((prev) => ({
 																	...prev,
-																	[price.id as string]: (prev[price.id as string] ?? 0) + 1,
+																	[price.id as string]:
+																		(prev[price.id as string] ?? 0) + 1,
 																}));
 															}}
 														>

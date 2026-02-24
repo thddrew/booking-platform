@@ -44,7 +44,11 @@ export async function createGuestBooking({
 			id: eventId,
 		});
 
-		if (!event || (typeof event.tenant === "string" ? event.tenant : event.tenant?.id) !== tenantId) {
+		if (
+			!event ||
+			(typeof event.tenant === "string" ? event.tenant : event.tenant?.id) !==
+				tenantId
+		) {
 			return {
 				success: false,
 				error: "Event not found",
@@ -63,7 +67,9 @@ export async function createGuestBooking({
 		// Find schedule instance data if scheduleId is provided
 		let selectedScheduleInstanceData: Record<string, unknown> | null = null;
 		if (scheduleId && event.schedules?.schedule) {
-			const schedule = event.schedules.schedule.find((s) => s.id === scheduleId);
+			const schedule = event.schedules.schedule.find(
+				(s) => s.id === scheduleId,
+			);
 			if (schedule) {
 				if (!event.maxQuantity || typeof event.maxQuantity !== "number") {
 					return {
@@ -90,9 +96,12 @@ export async function createGuestBooking({
 
 		// Build pricing snapshot from selected prices
 		const pricingSnapshot: Record<string, unknown> = {};
-		const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
+		const activePrices =
+			event.prices?.filter((p) => p.isActive !== false) || [];
 		const activePricesById = new Map(
-			activePrices.filter((price) => price.id).map((price) => [price.id, price]),
+			activePrices
+				.filter((price) => price.id)
+				.map((price) => [price.id, price]),
 		);
 		const selectedEntries = Object.entries(selectedPrices).filter(
 			([, quantity]) => typeof quantity === "number" && quantity > 0,
@@ -111,7 +120,10 @@ export async function createGuestBooking({
 					error: "Selected price is no longer available",
 				};
 			}
-			if (!price.stripePriceId || typeof price.stripePriceId !== "string") {
+			if (
+				price.amount !== 0 &&
+				(!price.stripePriceId || typeof price.stripePriceId !== "string")
+			) {
 				return {
 					success: false,
 					error: "Selected price is missing Stripe price id",
@@ -137,7 +149,7 @@ export async function createGuestBooking({
 			}
 			pricingSnapshot[priceId] = {
 				id: priceId,
-				stripePriceId: price.stripePriceId,
+				stripePriceId: price.stripePriceId || null,
 				isActive: price.isActive ?? true,
 				label: price.label,
 				description: price.description ?? null,
@@ -146,6 +158,12 @@ export async function createGuestBooking({
 				quantity,
 			};
 		}
+
+		// Determine if this is a free booking (all selected prices are $0)
+		const isFreeBooking = selectedEntries.every(([priceId]) => {
+			const price = activePricesById.get(priceId);
+			return price && price.amount === 0;
+		});
 
 		// Create the booking
 		// Note: We use overrideAccess since this is a guest booking and the user isn't authenticated
@@ -160,8 +178,8 @@ export async function createGuestBooking({
 				selectedScheduleInstanceData,
 				customerSnapshot,
 				pricingSnapshot,
-				paymentMethod: "payNow",
-				// Payment status will be updated by Stripe webhook
+				paymentMethod: isFreeBooking ? "payLater" : "payNow",
+				// Payment status will be updated by Stripe webhook (for paid bookings)
 				paymentStatus: null,
 			},
 		});
@@ -233,7 +251,10 @@ export async function getTenantStripeAccount(tenantId: string): Promise<{
 /**
  * Get booking details for the payment page
  */
-export async function getBookingForPayment(bookingId: string, email: string): Promise<{
+export async function getBookingForPayment(
+	bookingId: string,
+	email: string,
+): Promise<{
 	success: boolean;
 	booking?: {
 		id: string;
@@ -311,7 +332,8 @@ export async function getBookingForPayment(bookingId: string, email: string): Pr
 			}
 		}
 
-		const tenantId = typeof booking.tenant === "string" ? booking.tenant : booking.tenant?.id;
+		const tenantId =
+			typeof booking.tenant === "string" ? booking.tenant : booking.tenant?.id;
 
 		return {
 			success: true,
