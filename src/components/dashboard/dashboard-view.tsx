@@ -5,6 +5,7 @@ import StripeNotificationBannerServer from "../stripe-notification/banner.server
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { AvailableEventsToday } from "./available-events-today";
 import { BookingsToday } from "./bookings-today";
+import { Overview } from "./overview";
 
 export default async function DashboardView(args: DashboardViewServerProps) {
 	return (
@@ -29,9 +30,9 @@ export default async function DashboardView(args: DashboardViewServerProps) {
 						</div>
 					</TabsContent>
 					<TabsContent value="overview">
-						<div>
-							<h1>Overview</h1>
-						</div>
+						<Suspense>
+							<Overview />
+						</Suspense>
 					</TabsContent>
 				</Tabs>
 			</div>
