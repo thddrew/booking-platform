@@ -49,5 +49,42 @@ export const Tenants: CollectionConfig = {
 			defaultValue: false,
 			index: true,
 		},
+		{
+			name: "logo",
+			type: "upload",
+			relationTo: "media",
+			admin: {
+				description: "Your business logo",
+			},
+		},
+		{
+			name: "brandColor",
+			type: "text",
+			admin: {
+				description: "Primary brand color (hex code, e.g. #4F46E5)",
+			},
+			defaultValue: "#000000",
+		},
+		{
+			name: "tagline",
+			type: "text",
+			admin: {
+				description: "A short tagline for your business",
+			},
+		},
+		{
+			name: "contactEmail",
+			type: "email",
+			admin: {
+				description: "Public contact email address",
+			},
+		},
+		{
+			name: "contactPhone",
+			type: "text",
+			admin: {
+				description: "Public contact phone number",
+			},
+		},
 	],
 };

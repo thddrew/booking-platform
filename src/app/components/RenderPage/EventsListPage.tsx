@@ -3,6 +3,8 @@ import { EventsListPageFilters } from "./EventsListPageFilters";
 import { eventsListSearchParamsCache, parseDate } from "./EventsListPageFilters/search-params";
 import { eventHasInstancesInRange } from "./EventsListPageFilters/utils/event-has-instances-in-range";
 import { validateDateRange } from "./EventsListPageFilters/utils/validate-date-range";
+import { TenantFooter } from "./TenantFooter";
+import { TenantHeader } from "./TenantHeader";
 import { filterValidPrices } from "./utils/filter-valid-prices";
 
 function toDateOrNull(value: string | Date | null | undefined): Date | null {
@@ -75,9 +77,11 @@ async function EventsListPage({
 
 	return (
 		<div className="min-h-screen bg-background">
+			<TenantHeader tenantSlug={tenantSlug} />
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-[1760px]">
 				<EventsListPageFilters events={events} tenantSlug={tenantSlug} />
 			</div>
+			<TenantFooter tenantSlug={tenantSlug} />
 		</div>
 	);
 }
