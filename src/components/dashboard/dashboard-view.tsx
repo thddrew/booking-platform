@@ -5,12 +5,16 @@ import StripeNotificationBannerServer from "../stripe-notification/banner.server
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { AvailableEventsToday } from "./available-events-today";
 import { BookingsToday } from "./bookings-today";
+import { ViewPublicPageButton } from "./view-public-page-button";
 import { Overview } from "./overview";
 
 export default async function DashboardView(args: DashboardViewServerProps) {
 	return (
 		<Gutter>
 			<div className="twp">
+				<div className="flex justify-end mb-4">
+					<ViewPublicPageButton />
+				</div>
 				<Tabs defaultValue="today">
 					<TabsList>
 						<TabsTrigger value="today">Today</TabsTrigger>
