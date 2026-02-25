@@ -12,7 +12,7 @@
         "@novu/framework": "2.9.0",
         "@paralleldrive/cuid2": "3.0.4",
         "@payloadcms/db-postgres": "3.69.0",
-        "@payloadcms/email-resend": "^3.77.0",
+        "@payloadcms/email-resend": "3.69.0",
         "@payloadcms/live-preview-react": "3.69.0",
         "@payloadcms/next": "3.69.0",
         "@payloadcms/plugin-multi-tenant": "3.69.0",
@@ -630,7 +630,7 @@
 
     "@payloadcms/drizzle": ["@payloadcms/drizzle@3.69.0", "", { "dependencies": { "console-table-printer": "2.12.1", "dequal": "2.0.3", "drizzle-orm": "0.44.7", "prompts": "2.4.2", "to-snake-case": "1.0.0", "uuid": "9.0.0" }, "peerDependencies": { "payload": "3.69.0" } }, "sha512-Fsvij6ruoN7S7q1OfGYs/SSLy3s7wFd4E/efXHmRLjw53xtlRiGXIejmhiUEdNK4d5RHi0yjIblQsbTKnBvirw=="],
 
-    "@payloadcms/email-resend": ["@payloadcms/email-resend@3.77.0", "", { "peerDependencies": { "payload": "3.77.0" } }, "sha512-8sm1mKoTDSs8/n6x72Ms8pXbir/oNm2E8p62n/3CyKSl9L+pKTwnfVqNmuJuOxZA0mYKbVojLP0+gWb1no6Fjg=="],
+    "@payloadcms/email-resend": ["@payloadcms/email-resend@3.69.0", "", { "peerDependencies": { "payload": "3.69.0" } }, "sha512-9zlfxjNXJeQa+hMtNd+px+lQJikbWw5njke8bd60hGdH4vKLMO4Yy/Mc9Y+ssKrcJOi72+hG2wA+w02Xk/2UyA=="],
 
     "@payloadcms/graphql": ["@payloadcms/graphql@3.69.0", "", { "dependencies": { "graphql-scalars": "1.22.2", "pluralize": "8.0.0", "ts-essentials": "10.0.3", "tsx": "4.20.6" }, "peerDependencies": { "graphql": "^16.8.1", "payload": "3.69.0" }, "bin": { "payload-graphql": "bin.js" } }, "sha512-VRFacg4EneV7U9jqerQfNVL/O788WlZbdnMGSwds0mVwC5qPW3sktZhHxJCAksvAFJ+XXtx4GCMv/YK8DgEfxw=="],
 
