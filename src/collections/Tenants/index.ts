@@ -29,14 +29,16 @@ export const Tenants: CollectionConfig = {
 			name: "domain",
 			type: "text",
 			admin: {
-				description: "Your custom domain for branded booking pages (e.g. bookings.yourbusiness.com)",
+				description:
+					"Your custom domain for branded booking pages (e.g. bookings.yourbusiness.com)",
 			},
 		},
 		{
 			name: "slug",
 			type: "text",
 			admin: {
-				description: "Your unique booking page URL (e.g. bookify.app/your-business-name)",
+				description:
+					"Your unique booking page URL (e.g. bookify.app/your-business-name)",
 			},
 			index: true,
 			required: true,
@@ -111,7 +113,8 @@ export const Tenants: CollectionConfig = {
 			type: "checkbox",
 			defaultValue: false,
 			admin: {
-				description: "Enable SMS notifications for booking confirmations and reminders (requires Novu SMS provider configuration)",
+				description:
+					"Enable SMS notifications for booking confirmations and reminders (requires Novu SMS provider configuration)",
 				position: "sidebar",
 			},
 		},

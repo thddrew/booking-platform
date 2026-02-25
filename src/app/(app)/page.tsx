@@ -1,44 +1,50 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
+	BarChart3Icon,
 	CalendarIcon,
+	ClockIcon,
 	CreditCardIcon,
 	GlobeIcon,
 	UsersIcon,
-	ClockIcon,
-	BarChart3Icon,
 } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const features = [
 	{
 		icon: CalendarIcon,
 		title: "Event & Schedule Management",
-		description: "Create events with recurring schedules, set capacity limits, and manage availability in real-time.",
+		description:
+			"Create events with recurring schedules, set capacity limits, and manage availability in real-time.",
 	},
 	{
 		icon: CreditCardIcon,
 		title: "Integrated Payments",
-		description: "Accept payments via Stripe. Support for multiple currencies and automatic invoicing.",
+		description:
+			"Accept payments via Stripe. Support for multiple currencies and automatic invoicing.",
 	},
 	{
 		icon: UsersIcon,
 		title: "Customer Management",
-		description: "Track your customers, bookings, and communication all in one place.",
+		description:
+			"Track your customers, bookings, and communication all in one place.",
 	},
 	{
 		icon: GlobeIcon,
 		title: "Your Own Booking Page",
-		description: "Get a branded booking page your customers can use to browse events and book online.",
+		description:
+			"Get a branded booking page your customers can use to browse events and book online.",
 	},
 	{
 		icon: ClockIcon,
 		title: "Automated Reminders",
-		description: "Send booking confirmations, reminders, and updates automatically via email.",
+		description:
+			"Send booking confirmations, reminders, and updates automatically via email.",
 	},
 	{
 		icon: BarChart3Icon,
 		title: "Dashboard & Analytics",
-		description: "See your bookings, revenue, and customer activity at a glance.",
+		description:
+			"See your bookings, revenue, and customer activity at a glance.",
 	},
 ];
 
@@ -66,14 +72,20 @@ export default function LandingPage() {
 					Online bookings for tours, classes & workshops
 				</h1>
 				<p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-					The easiest way for small businesses to manage schedules, take bookings, and get paid.
-					Set up in minutes, no technical skills required.
+					The easiest way for small businesses to manage schedules, take
+					bookings, and get paid. Set up in minutes, no technical skills
+					required.
 				</p>
 				<div className="flex flex-col sm:flex-row gap-4 justify-center">
 					<Button asChild size="lg" className="text-base px-8">
 						<Link href="/signup">Start Free</Link>
 					</Button>
-					<Button asChild variant="outline" size="lg" className="text-base px-8">
+					<Button
+						asChild
+						variant="outline"
+						size="lg"
+						className="text-base px-8"
+					>
 						<Link href="/admin">Log In</Link>
 					</Button>
 				</div>
@@ -106,9 +118,15 @@ export default function LandingPage() {
 						Ready to take bookings online?
 					</h2>
 					<p className="text-background/70 mb-8">
-						Join hundreds of tour operators, class instructors, and workshop hosts who use Bookify to grow their business.
+						Join hundreds of tour operators, class instructors, and workshop
+						hosts who use Bookify to grow their business.
 					</p>
-					<Button asChild size="lg" variant="secondary" className="text-base px-8">
+					<Button
+						asChild
+						size="lg"
+						variant="secondary"
+						className="text-base px-8"
+					>
 						<Link href="/signup">Get Started — It's Free</Link>
 					</Button>
 				</div>
