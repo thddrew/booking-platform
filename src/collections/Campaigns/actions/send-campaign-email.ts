@@ -29,7 +29,12 @@ export async function sendCampaignEmail(
 		});
 
 		if (!campaign) {
-			return { success: false, sent: 0, failed: 0, error: "Campaign not found" };
+			return {
+				success: false,
+				sent: 0,
+				failed: 0,
+				error: "Campaign not found",
+			};
 		}
 
 		const email = await payload.findByID({
@@ -40,12 +45,22 @@ export async function sendCampaignEmail(
 		});
 
 		if (!email) {
-			return { success: false, sent: 0, failed: 0, error: "Email template not found" };
+			return {
+				success: false,
+				sent: 0,
+				failed: 0,
+				error: "Email template not found",
+			};
 		}
 
 		const subscribers = campaign.subscribers || [];
 		if (subscribers.length === 0) {
-			return { success: false, sent: 0, failed: 0, error: "No subscribers in campaign" };
+			return {
+				success: false,
+				sent: 0,
+				failed: 0,
+				error: "No subscribers in campaign",
+			};
 		}
 
 		const renderedEmail = await renderEmail({
@@ -85,7 +100,8 @@ export async function sendCampaignEmail(
 			success: false,
 			sent: 0,
 			failed: 0,
-			error: err instanceof Error ? err.message : "Failed to send campaign email",
+			error:
+				err instanceof Error ? err.message : "Failed to send campaign email",
 		};
 	}
 }

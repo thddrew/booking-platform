@@ -29,7 +29,15 @@ export async function GET(request: Request) {
 			user,
 		});
 
-		const emailMap = new Map<string, Array<{ id: string; fullName: string | null | undefined; email: string | null | undefined; createdAt: string }>>();
+		const emailMap = new Map<
+			string,
+			Array<{
+				id: string;
+				fullName: string | null | undefined;
+				email: string | null | undefined;
+				createdAt: string;
+			}>
+		>();
 
 		for (const customer of customers.docs) {
 			if (!customer.email) continue;
@@ -51,7 +59,8 @@ export async function GET(request: Request) {
 				email,
 				count: customers.length,
 				customers: customers.sort(
-					(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+					(a, b) =>
+						new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
 				),
 			}));
 
@@ -81,7 +90,12 @@ export async function POST(request: Request) {
 
 		const { keepId, mergeIds } = await request.json();
 
-		if (!keepId || !mergeIds || !Array.isArray(mergeIds) || mergeIds.length === 0) {
+		if (
+			!keepId ||
+			!mergeIds ||
+			!Array.isArray(mergeIds) ||
+			mergeIds.length === 0
+		) {
 			return NextResponse.json(
 				{ error: "keepId and mergeIds[] are required" },
 				{ status: 400 },
