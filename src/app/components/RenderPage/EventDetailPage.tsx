@@ -117,6 +117,9 @@ export async function EventDetailPage({
 		return notFound();
 	}
 
+	const tenantDoc = await payload.findByID({ collection: "tenants", id: tenantId });
+	const currency = (tenantDoc as any)?.currency?.toUpperCase() || "CAD";
+
 	const eventWithValidPrices = filterValidPrices(event);
 	const hasPrices = eventWithValidPrices.prices && eventWithValidPrices.prices.length > 0;
 	const activePrices = eventWithValidPrices.prices || [];
@@ -124,8 +127,32 @@ export async function EventDetailPage({
 		(img) => typeof img === "object" && "url" in img,
 	) || [];
 
+	const jsonLd = {
+		"@context": "https://schema.org",
+		"@type": "Event",
+		name: event.title,
+		startDate: event.schedules?.schedule?.[0]?.dtstart,
+		endDate: event.schedules?.schedule?.[0]?.dtend,
+		eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+		...(event.thumbnail && typeof event.thumbnail === "object" && "url" in event.thumbnail
+			? { image: event.thumbnail.url }
+			: {}),
+		offers: eventWithValidPrices.prices?.map((price) => ({
+			"@type": "Offer",
+			name: price.label,
+			price: price.amount,
+			priceCurrency: currency,
+			availability: "https://schema.org/InStock",
+		})) || [],
+	};
+
 	return (
 		<div className="min-h-screen bg-background">
+			{/* biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data for SEO */}
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+			/>
 			<RefreshRouteOnSave />
 			<div className="fixed top-4 left-4 z-10">
 				<div className="flex items-center justify-between gap-4 px-4 py-2 bg-background/80 backdrop-blur-md rounded-full border border-border shadow-lg">
