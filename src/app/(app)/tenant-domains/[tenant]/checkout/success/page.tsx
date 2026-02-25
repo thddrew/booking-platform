@@ -1,5 +1,10 @@
 import configPromise from "@payload-config";
-import { CalendarIcon, CheckCircle2Icon, ClockIcon, MailIcon } from "lucide-react";
+import {
+	CalendarIcon,
+	CheckCircle2Icon,
+	ClockIcon,
+	MailIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPayload } from "payload";
@@ -66,7 +71,11 @@ export default async function CheckoutSuccessPage({
 	}
 
 	// Parse customer snapshot for display and email validation
-	let customerSnapshot: { email?: string; firstName?: string; lastName?: string } = {};
+	let customerSnapshot: {
+		email?: string;
+		firstName?: string;
+		lastName?: string;
+	} = {};
 	if (booking.customerSnapshot) {
 		if (typeof booking.customerSnapshot === "string") {
 			try {
@@ -85,7 +94,11 @@ export default async function CheckoutSuccessPage({
 	}
 
 	// Parse event snapshot for display
-	let eventSnapshot: { title?: string; subtitle?: string; thumbnail?: { url?: string } } = {};
+	let eventSnapshot: {
+		title?: string;
+		subtitle?: string;
+		thumbnail?: { url?: string };
+	} = {};
 	if (booking.eventSnapshot) {
 		if (typeof booking.eventSnapshot === "string") {
 			try {
@@ -200,7 +213,8 @@ export default async function CheckoutSuccessPage({
 									<span className="font-medium">{customerSnapshot.email}</span>
 								</p>
 								<p className="text-sm text-muted-foreground mt-1">
-									Please save this page or check your email for your booking details.
+									Please save this page or check your email for your booking
+									details.
 								</p>
 							</div>
 						</div>
@@ -209,6 +223,13 @@ export default async function CheckoutSuccessPage({
 
 				{/* Actions */}
 				<div className="flex flex-col sm:flex-row gap-3">
+					<Button asChild variant="outline" className="flex-1">
+						<Link
+							href={`/tenant-domains/${params.tenant}/bookings/history?email=${encodeURIComponent(customerSnapshot.email || "")}`}
+						>
+							View All Bookings
+						</Link>
+					</Button>
 					<Button asChild className="flex-1">
 						<Link href={`/tenant-domains/${params.tenant}/events`}>
 							Browse More Events
