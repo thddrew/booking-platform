@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { Event } from "@/payload-types";
+import { formatPriceShort } from "../utils/format-price";
 import { formatShortDate, formatTime } from "./utils/format-date";
 import { getNextAvailableSlots } from "./utils/get-next-available-slots";
 
@@ -11,6 +12,7 @@ interface EventCardProps {
 	tenantSlug?: string;
 	dateRangeStart: Date | null;
 	dateRangeEnd: Date | null;
+	currency?: string;
 }
 
 export function EventCard({
@@ -18,6 +20,7 @@ export function EventCard({
 	tenantSlug,
 	dateRangeStart,
 	dateRangeEnd,
+	currency,
 }: EventCardProps) {
 	const activePrices = event.prices?.filter((p) => p.isActive !== false) || [];
 	const minPrice = activePrices.length > 0
@@ -56,13 +59,13 @@ export function EventCard({
 								{event.title}
 							</h3>
 						</Link>
-						{!isFree && minPrice !== null ? (
-							<div className="text-[14px] text-foreground shrink-0">
-								<span className="font-medium">${minPrice.toFixed(0)}</span>
-								{activePrices.length > 1 && (
-									<span className="text-muted-foreground ml-1">+</span>
-								)}
-							</div>
+					{!isFree && minPrice !== null ? (
+						<div className="text-[14px] text-foreground shrink-0">
+							<span className="font-medium">{formatPriceShort(minPrice, currency)}</span>
+							{activePrices.length > 1 && (
+								<span className="text-muted-foreground ml-1">+</span>
+							)}
+						</div>
 						) : (
 							<span className="text-[14px] text-foreground shrink-0">Free</span>
 						)}

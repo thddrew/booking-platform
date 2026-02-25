@@ -44,6 +44,11 @@ async function EventBookingPanelWrapper({
 	tenantSlug: string;
 }) {
 	const payload = await getPayload({ config: configPromise });
+
+	const tenantId = typeof event.tenant === "string" ? event.tenant : event.tenant?.id;
+	const tenantDoc = tenantId ? await payload.findByID({ collection: "tenants", id: tenantId }) : null;
+	const currency = (tenantDoc as any)?.currency || "cad";
+
 	const startDate = new Date();
 	startDate.setHours(0, 0, 0, 0);
 	const endDate = new Date();
@@ -71,6 +76,7 @@ async function EventBookingPanelWrapper({
 			hasMultiplePrices={activePrices.length > 1}
 			eventId={event.id}
 			tenantSlug={tenantSlug}
+			currency={currency}
 		/>
 	);
 }

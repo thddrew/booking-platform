@@ -31,6 +31,9 @@ async function EventsListPage({
 	const { isValid: isValidDateRange, startDate: validatedStartDate, endDate: validatedEndDate } =
 		validateDateRange(startDateParsed, endDateParsed);
 
+	const tenantDoc = await payloadSDK.findByID({ collection: "tenants", id: tenantId });
+	const currency = (tenantDoc as any)?.currency || "cad";
+
 	const eventsQuery = await payloadSDK.find({
 		collection: "events",
 		where: {
@@ -79,7 +82,7 @@ async function EventsListPage({
 		<div className="min-h-screen bg-background">
 			<TenantHeader tenantSlug={tenantSlug} />
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-[1760px]">
-				<EventsListPageFilters events={events} tenantSlug={tenantSlug} />
+				<EventsListPageFilters events={events} tenantSlug={tenantSlug} currency={currency} />
 			</div>
 			<TenantFooter tenantSlug={tenantSlug} />
 		</div>

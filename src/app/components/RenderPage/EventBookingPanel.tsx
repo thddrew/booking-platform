@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { AvailableTimeslot } from "./utils/get-available-timeslots";
+import { formatPrice, formatPriceShort } from "./utils/format-price";
 
 function formatDate(date: Date): string {
 	return new Intl.DateTimeFormat("en-US", {
@@ -34,6 +35,7 @@ interface EventBookingPanelProps {
 	hasMultiplePrices: boolean;
 	eventId: string;
 	tenantSlug?: string;
+	currency?: string;
 }
 
 export function EventBookingPanel({
@@ -44,6 +46,7 @@ export function EventBookingPanel({
 	hasMultiplePrices,
 	eventId,
 	tenantSlug,
+	currency,
 }: EventBookingPanelProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -111,7 +114,7 @@ export function EventBookingPanel({
 						{!isFree ? (
 							<>
 								<span className="text-[22px] font-semibold">
-									${minPrice.toFixed(0)}
+									{formatPriceShort(minPrice, currency)}
 								</span>
 								{hasMultiplePrices && (
 									<span className="text-[15px] text-muted-foreground ml-1">
@@ -276,7 +279,7 @@ export function EventBookingPanel({
 								{price.amount === 0 ? (
 									<Badge variant="success">Free</Badge>
 								) : (
-									`$${price.amount.toFixed(2)}`
+									formatPrice(price.amount, currency)
 								)}
 							</span>
 						</div>
@@ -288,7 +291,7 @@ export function EventBookingPanel({
 							{isFree ? (
 								<Badge variant="success">Free</Badge>
 							) : (
-								`$${minPrice.toFixed(2)}`
+								formatPrice(minPrice, currency)
 							)}
 						</span>
 					</div>

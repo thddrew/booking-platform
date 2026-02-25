@@ -12,11 +12,13 @@ import { validateDateRange } from "./utils/validate-date-range";
 interface EventsListPageFiltersProps {
 	events: Event[];
 	tenantSlug?: string;
+	currency?: string;
 }
 
 export function EventsListPageFilters({
 	events,
 	tenantSlug,
+	currency,
 }: EventsListPageFiltersProps) {
 	const [{ search, people, startDate, endDate }, setFilters] = useQueryStates(
 		eventsListSearchParamsParsers,
@@ -86,6 +88,7 @@ export function EventsListPageFilters({
 							tenantSlug={tenantSlug}
 							dateRangeStart={displayStartDate}
 							dateRangeEnd={displayEndDate}
+							currency={currency}
 						/>
 					))}
 				</div>

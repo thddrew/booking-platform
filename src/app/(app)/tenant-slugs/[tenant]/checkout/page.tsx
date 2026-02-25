@@ -117,6 +117,7 @@ export default async function CheckoutPage({
 			tenantId={tenant.id}
 			tenantSlug={params.tenant}
 			user={user || undefined}
+			currency={(tenant as any)?.currency || "cad"}
 		/>
 	);
 }

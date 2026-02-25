@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import type { Event, User } from "@/payload-types";
 import { createGuestBooking } from "./checkout-actions";
+import { formatPrice } from "./utils/format-price";
 
 // Form validation schema
 const customerInfoSchema = z.object({
@@ -50,6 +51,7 @@ interface EventCheckoutProps {
 	tenantId: string;
 	tenantSlug: string;
 	user?: User;
+	currency?: string;
 }
 
 function formatDate(date: Date): string {
@@ -75,6 +77,7 @@ export function EventCheckout({
 	tenantId,
 	tenantSlug,
 	user,
+	currency,
 }: EventCheckoutProps) {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
@@ -374,9 +377,7 @@ export function EventCheckout({
 													<div className="text-sm">
 														<div className="font-medium">{price.label}</div>
 														<div className="text-muted-foreground">
-															{price.amount === 0
-																? "Free"
-																: `$${price.amount.toFixed(2)}`}
+															{formatPrice(price.amount, currency)}
 														</div>
 													</div>
 													<div className="flex items-center gap-2">
@@ -434,7 +435,7 @@ export function EventCheckout({
 								<div className="flex items-center justify-between font-medium">
 									<span>Total</span>
 									<span className="text-lg">
-										{totalPrice === 0 ? "Free" : `$${totalPrice.toFixed(2)}`}
+										{formatPrice(totalPrice, currency)}
 									</span>
 								</div>
 							</CardContent>
