@@ -43,7 +43,10 @@ export async function POST(request: Request) {
 
 		if (existingSlugs.docs.length > 0) {
 			return NextResponse.json(
-				{ error: "A business with this name already exists. Please choose a different name." },
+				{
+					error:
+						"A business with this name already exists. Please choose a different name.",
+				},
 				{ status: 409 },
 			);
 		}
@@ -57,7 +60,10 @@ export async function POST(request: Request) {
 
 		if (existingEmail.docs.length > 0) {
 			return NextResponse.json(
-				{ error: "An account with this email already exists. Please log in instead." },
+				{
+					error:
+						"An account with this email already exists. Please log in instead.",
+				},
 				{ status: 409 },
 			);
 		}
@@ -152,7 +158,9 @@ export async function POST(request: Request) {
 	} catch (err) {
 		console.error("Signup error:", err);
 		return NextResponse.json(
-			{ error: err instanceof Error ? err.message : "Failed to create account" },
+			{
+				error: err instanceof Error ? err.message : "Failed to create account",
+			},
 			{ status: 500 },
 		);
 	}

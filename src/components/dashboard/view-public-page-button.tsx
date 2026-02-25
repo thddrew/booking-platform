@@ -1,7 +1,6 @@
 "use client";
 
 import { ExternalLinkIcon } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -13,8 +12,7 @@ export function ViewPublicPageButton() {
 			try {
 				const res = await fetch("/api/users/me", { credentials: "include" });
 				const data = await res.json();
-				const tenantId =
-					data?.user?.tenant?.id || data?.user?.tenant;
+				const tenantId = data?.user?.tenant?.id || data?.user?.tenant;
 				if (!tenantId) return;
 
 				const tenantRes = await fetch(`/api/tenants/${tenantId}`);

@@ -54,7 +54,10 @@ export default function SignupPage() {
 			{/* Left panel */}
 			<div className="hidden lg:flex flex-col justify-between bg-foreground text-background p-12">
 				<div>
-					<Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+					<Link
+						href="/"
+						className="flex items-center gap-2 text-lg font-semibold"
+					>
 						<KeyRoundIcon className="h-6 w-6" />
 						<span>Bookify</span>
 					</Link>
@@ -64,7 +67,8 @@ export default function SignupPage() {
 						Start taking bookings in minutes
 					</h2>
 					<p className="text-background/70 leading-relaxed">
-						Create your account, set up your first event, and share your booking page with customers. No credit card required.
+						Create your account, set up your first event, and share your booking
+						page with customers. No credit card required.
 					</p>
 				</div>
 				<div className="flex items-center gap-2 text-xs text-background/50">
@@ -83,7 +87,9 @@ export default function SignupPage() {
 								<span>Bookify</span>
 							</Link>
 						</div>
-						<h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
+						<h1 className="text-2xl font-semibold tracking-tight">
+							Create your account
+						</h1>
 						<p className="text-sm text-muted-foreground mt-2">
 							Set up your business and start taking bookings today.
 						</p>
@@ -106,7 +112,8 @@ export default function SignupPage() {
 									/>
 									{slug && (
 										<p className="text-xs text-muted-foreground">
-											Your booking page: bookify.app/<span className="font-mono">{slug}</span>
+											Your booking page: bookify.app/
+											<span className="font-mono">{slug}</span>
 										</p>
 									)}
 								</div>
@@ -144,7 +151,11 @@ export default function SignupPage() {
 										<p className="text-sm text-destructive">{error}</p>
 									</div>
 								)}
-								<Button type="submit" className="w-full h-11" disabled={loading}>
+								<Button
+									type="submit"
+									className="w-full h-11"
+									disabled={loading}
+								>
 									{loading ? (
 										<>
 											<Loader2Icon className="h-4 w-4 animate-spin mr-2" />
@@ -160,7 +171,10 @@ export default function SignupPage() {
 
 					<p className="mt-6 text-center text-sm text-muted-foreground">
 						Already have an account?{" "}
-						<Link href="/admin" className="font-medium text-foreground underline underline-offset-4 hover:text-primary">
+						<Link
+							href="/admin"
+							className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+						>
 							Log in
 						</Link>
 					</p>
