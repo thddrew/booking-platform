@@ -1,4 +1,5 @@
 import type { Page } from "@payload-types";
+import { convertLexicalToHTMLAsync } from "@payloadcms/richtext-lexical/html-async";
 
 import React from "react";
 import { EventDetailPage } from "./EventDetailPage";
@@ -35,14 +36,22 @@ export const RenderPage = async ({
 		return null;
 	}
 
-	return (
-		<React.Fragment>
-			<form action="/api/users/logout" method="post">
-				<button type="submit">Logout</button>
-			</form>
-			<h2>Here you can decide how you would like to render the page data!</h2>
+	const contentHtml = data.content
+		? await convertLexicalToHTMLAsync({ data: data.content })
+		: null;
 
-			<code>{JSON.stringify(data)}</code>
-		</React.Fragment>
+	return (
+		<div className="min-h-screen bg-background">
+			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
+				<h1 className="text-3xl font-semibold mb-6">{data.title}</h1>
+				{contentHtml && (
+					<div
+						className="prose prose-lg dark:prose-invert max-w-none"
+						// biome-ignore lint/security/noDangerouslySetInnerHtml: Lexical HTML is sanitized by convertLexicalToHTMLAsync
+						dangerouslySetInnerHTML={{ __html: contentHtml }}
+					/>
+				)}
+			</div>
+		</div>
 	);
 };

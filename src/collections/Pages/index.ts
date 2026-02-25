@@ -27,5 +27,10 @@ export const Pages: CollectionConfig = {
 			},
 			index: true,
 		},
+		{
+			name: "content",
+			type: "richText",
+			label: "Page Content",
+		},
 	],
 };

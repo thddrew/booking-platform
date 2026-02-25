@@ -39,3 +39,6 @@ This is a multi-tenant booking platform built on Payload CMS v3.69 with Next.js 
 - **Stripe pricing requires a Connected Account**: For event pricing to work (prices visible to visitors, checkout flow), each tenant needs a Connected Account in the `connectedAccounts` collection with `default: true`. Create one via the admin panel (Billing → Connected Accounts → Create New) or via API. The `upsertStripeProduct` afterChange hook on events reads the tenant from the `payload-tenant` cookie, so the admin must have the correct tenant selected in the sidebar filter when publishing events.
 - Events with `$0` pricing will not get `stripePriceId` values from Stripe (expected — Stripe doesn't handle free transactions). The `filterValidPrices` utility now allows free prices (amount === 0) through without a `stripePriceId`. Free bookings skip the payment page and redirect directly to the success page, using `paymentMethod: "payLater"` so the confirmation email fires immediately.
 - Pre-existing lint errors (Biome) and TypeScript errors exist in the codebase; these are not regressions.
+
+### Content Pages
+- The `Pages` collection supports a `content` rich text field (Lexical editor). Tenants should create Pages with slugs `terms` and `privacy` via the admin panel for their Terms of Service and Privacy Policy pages.

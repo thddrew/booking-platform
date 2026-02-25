@@ -1,11 +1,4 @@
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
-import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
-import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
-import { default as default_7991b87cc0bae9985fd5baa05c1cac9b } from '../../../../src/collections/Billing/ConnectedAccounts/components/onboard-stripe-cell'
-import { default as default_3e98d3dc976673ff46f9b53611c9a011 } from '../../../../src/collections/Billing/ConnectedAccounts/components/onboard-stripe-field'
-import { default as default_51936567376f48bbca3c2b3097756e2c } from '../../../../src/collections/Billing/ConnectedAccounts/views/onboarding/index'
-import { default as default_b42dc357258496846168c65da7ecbeeb } from '../../../../src/collections/Billing/Payments/views/list/index'
-import { default as default_f0a3cf713fa331688b37c7b82e5b2f9f } from '../../../../src/collections/Billing/PaymentsSettings/views/list/index'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -29,6 +22,13 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { default as default_7991b87cc0bae9985fd5baa05c1cac9b } from '../../../../src/collections/Billing/ConnectedAccounts/components/onboard-stripe-cell'
+import { default as default_3e98d3dc976673ff46f9b53611c9a011 } from '../../../../src/collections/Billing/ConnectedAccounts/components/onboard-stripe-field'
+import { default as default_51936567376f48bbca3c2b3097756e2c } from '../../../../src/collections/Billing/ConnectedAccounts/views/onboarding/index'
+import { default as default_b42dc357258496846168c65da7ecbeeb } from '../../../../src/collections/Billing/Payments/views/list/index'
+import { default as default_f0a3cf713fa331688b37c7b82e5b2f9f } from '../../../../src/collections/Billing/PaymentsSettings/views/list/index'
 import { default as default_5e8dedc45bbf6f647ad73a64b85f0696 } from '../../../../src/components/blank'
 import { default as default_d052121d767f0d73b21dc1d0a3257c52 } from '../../../../src/collections/Events/field-components/MonthDayPicker'
 import { default as default_6d52e52ed8396c043edd6163b83e5ebc } from '../../../../src/collections/Events/field-components/MonthPicker'
@@ -58,13 +58,6 @@ import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } f
 
 export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
-  "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
-  "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
-  "/src/collections/Billing/ConnectedAccounts/components/onboard-stripe-cell#default": default_7991b87cc0bae9985fd5baa05c1cac9b,
-  "/src/collections/Billing/ConnectedAccounts/components/onboard-stripe-field#default": default_3e98d3dc976673ff46f9b53611c9a011,
-  "/src/collections/Billing/ConnectedAccounts/views/onboarding/index#default": default_51936567376f48bbca3c2b3097756e2c,
-  "/src/collections/Billing/Payments/views/list/index#default": default_b42dc357258496846168c65da7ecbeeb,
-  "/src/collections/Billing/PaymentsSettings/views/list/index#default": default_f0a3cf713fa331688b37c7b82e5b2f9f,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -88,6 +81,13 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
+  "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
+  "/src/collections/Billing/ConnectedAccounts/components/onboard-stripe-cell#default": default_7991b87cc0bae9985fd5baa05c1cac9b,
+  "/src/collections/Billing/ConnectedAccounts/components/onboard-stripe-field#default": default_3e98d3dc976673ff46f9b53611c9a011,
+  "/src/collections/Billing/ConnectedAccounts/views/onboarding/index#default": default_51936567376f48bbca3c2b3097756e2c,
+  "/src/collections/Billing/Payments/views/list/index#default": default_b42dc357258496846168c65da7ecbeeb,
+  "/src/collections/Billing/PaymentsSettings/views/list/index#default": default_f0a3cf713fa331688b37c7b82e5b2f9f,
   "/src/components/blank#default": default_5e8dedc45bbf6f647ad73a64b85f0696,
   "/src/collections/Events/field-components/MonthDayPicker#default": default_d052121d767f0d73b21dc1d0a3257c52,
   "/src/collections/Events/field-components/MonthPicker#default": default_6d52e52ed8396c043edd6163b83e5ebc,
