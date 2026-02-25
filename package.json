@@ -16,7 +16,9 @@
 		"seed": "bun run payload migrate:fresh",
 		"start": "cross-env NODE_OPTIONS=--no-deprecation next start",
 		"lint": "biome check .",
-		"tsc": "tsgo --project tsconfig.json"
+		"tsc": "tsgo --project tsconfig.json",
+		"test": "bun test",
+		"test:unit": "bun test"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "5.2.2",
