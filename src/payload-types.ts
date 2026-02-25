@@ -544,6 +544,10 @@ export interface Event {
    * Send email reminders to attendees 24 hours before the event
    */
   enableReminders?: boolean | null;
+  /**
+   * Allow visitors to join a waitlist when timeslots are fully booked
+   */
+  enableWaitlist?: boolean | null;
   maxQuantity: number;
   customMax?: boolean | null;
   minQuantity?: number | null;
@@ -674,6 +678,7 @@ export interface Log {
  */
 export interface Waitlist {
   id: string;
+  tenant?: (string | null) | Tenant;
   event: string | Event;
   /**
    * The specific timeslot date/time the customer wants
@@ -1093,6 +1098,7 @@ export interface EventsSelect<T extends boolean = true> {
         id?: T;
       };
   enableReminders?: T;
+  enableWaitlist?: T;
   maxQuantity?: T;
   customMax?: T;
   minQuantity?: T;
@@ -1230,6 +1236,7 @@ export interface EmailsSelect<T extends boolean = true> {
  * via the `definition` "waitlist_select".
  */
 export interface WaitlistSelect<T extends boolean = true> {
+  tenant?: T;
   event?: T;
   dtstart?: T;
   dtend?: T;

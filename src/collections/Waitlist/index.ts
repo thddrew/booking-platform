@@ -14,6 +14,14 @@ export const Waitlist: CollectionConfig = {
 	},
 	fields: [
 		{
+			name: "tenant",
+			type: "relationship",
+			relationTo: "tenants",
+			admin: {
+				position: "sidebar",
+			},
+		},
+		{
 			name: "event",
 			type: "relationship",
 			relationTo: "events",

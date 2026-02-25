@@ -36,6 +36,7 @@ interface EventBookingPanelProps {
 	eventId: string;
 	tenantSlug?: string;
 	currency?: string;
+	enableWaitlist?: boolean;
 }
 
 export function EventBookingPanel({
@@ -47,6 +48,7 @@ export function EventBookingPanel({
 	eventId,
 	tenantSlug,
 	currency,
+	enableWaitlist,
 }: EventBookingPanelProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -105,6 +107,36 @@ export function EventBookingPanel({
 
 	const hasNoPrices = activePrices.length === 0;
 	const hasNoTimeslots = availableDates.length === 0;
+
+	const [waitlistEmail, setWaitlistEmail] = useState("");
+	const [waitlistName, setWaitlistName] = useState("");
+	const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+	const [waitlistMessage, setWaitlistMessage] = useState("");
+
+	async function handleJoinWaitlist(slot: AvailableTimeslot) {
+		if (!waitlistEmail) return;
+		setWaitlistStatus("loading");
+		try {
+			const res = await fetch("/api/waitlist", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					eventId,
+					dtstart: slot.dtstart.toISOString(),
+					dtend: slot.dtend.toISOString(),
+					scheduleId: slot.scheduleId,
+					email: waitlistEmail,
+					firstName: waitlistName || undefined,
+				}),
+			});
+			const data = await res.json();
+			setWaitlistStatus("success");
+			setWaitlistMessage(data.message || "Added to waitlist!");
+		} catch {
+			setWaitlistStatus("error");
+			setWaitlistMessage("Failed to join waitlist. Please try again.");
+		}
+	}
 
 	return (
 		<Card className="rounded-2xl shadow-lg">
@@ -166,19 +198,19 @@ export function EventBookingPanel({
 									const slotKey = `${slot.dtstart.toISOString()}-${slot.scheduleId}`;
 									const isSelected = selectedTimeslot?.dtstart.getTime() === slot.dtstart.getTime();
 
-									return (
+								return (
+									<div key={slotKey}>
 										<button
-											key={slotKey}
 											type="button"
-											onClick={() => setSelectedTimeslot(slot)}
-											disabled={!slot.isAvailable}
+											onClick={() => slot.isAvailable ? setSelectedTimeslot(slot) : undefined}
+											disabled={!slot.isAvailable && !enableWaitlist}
 											className={`
 												w-full text-left p-3 rounded-lg border transition-colors
 												${isSelected
 													? "border-primary bg-primary/5"
 													: slot.isAvailable
 														? "border-border hover:border-primary/50 hover:bg-muted/50"
-														: "border-border bg-muted/30 opacity-60 cursor-not-allowed"
+														: "border-border bg-muted/30 opacity-60"
 												}
 											`}
 										>
@@ -198,7 +230,41 @@ export function EventBookingPanel({
 												)}
 											</div>
 										</button>
-									);
+										{!slot.isAvailable && enableWaitlist && (
+											<div className="mt-2 p-3 rounded-lg border border-dashed border-border bg-muted/20">
+												{waitlistStatus === "success" ? (
+													<p className="text-xs text-green-600 dark:text-green-400 text-center">{waitlistMessage}</p>
+												) : (
+													<div className="space-y-2">
+														<p className="text-xs text-muted-foreground">Get notified when a spot opens:</p>
+														<div className="flex gap-2">
+															<input
+																type="email"
+																placeholder="Your email"
+																value={waitlistEmail}
+																onChange={(e) => setWaitlistEmail(e.target.value)}
+																className="flex-1 h-8 px-2 text-xs rounded-md border border-input bg-background"
+															/>
+															<Button
+																type="button"
+																size="sm"
+																variant="outline"
+																className="h-8 text-xs"
+																disabled={!waitlistEmail || waitlistStatus === "loading"}
+																onClick={() => handleJoinWaitlist(slot)}
+															>
+																{waitlistStatus === "loading" ? "..." : "Notify me"}
+															</Button>
+														</div>
+														{waitlistStatus === "error" && (
+															<p className="text-xs text-destructive">{waitlistMessage}</p>
+														)}
+													</div>
+												)}
+											</div>
+										)}
+									</div>
+								);
 								})}
 							</div>
 						</div>

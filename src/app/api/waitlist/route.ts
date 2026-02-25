@@ -4,7 +4,7 @@ import { getPayload } from "payload";
 
 export async function POST(request: Request) {
 	try {
-		const { eventId, dtstart, dtend, scheduleId, email, firstName } =
+		const { eventId, dtstart, dtend, scheduleId, email, firstName, tenantId } =
 			await request.json();
 
 		if (!eventId || !dtstart || !dtend || !email) {
@@ -47,6 +47,7 @@ export async function POST(request: Request) {
 				email,
 				firstName: firstName || null,
 				notified: false,
+				tenant: tenantId || null,
 			},
 		});
 

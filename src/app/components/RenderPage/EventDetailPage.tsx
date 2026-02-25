@@ -77,6 +77,7 @@ async function EventBookingPanelWrapper({
 			eventId={event.id}
 			tenantSlug={tenantSlug}
 			currency={currency}
+			enableWaitlist={event.enableWaitlist === true}
 		/>
 	);
 }
