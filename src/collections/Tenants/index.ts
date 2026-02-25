@@ -50,6 +50,22 @@ export const Tenants: CollectionConfig = {
 			index: true,
 		},
 		{
+			name: "currency",
+			type: "select",
+			defaultValue: "cad",
+			options: [
+				{ label: "CAD - Canadian Dollar", value: "cad" },
+				{ label: "USD - US Dollar", value: "usd" },
+				{ label: "EUR - Euro", value: "eur" },
+				{ label: "GBP - British Pound", value: "gbp" },
+				{ label: "AUD - Australian Dollar", value: "aud" },
+			],
+			admin: {
+				description: "Currency for event pricing and payments",
+				position: "sidebar",
+			},
+		},
+		{
 			name: "logo",
 			type: "upload",
 			relationTo: "media",

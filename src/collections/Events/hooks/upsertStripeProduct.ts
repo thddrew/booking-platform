@@ -41,6 +41,14 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
 			defaultConnectedAccount?.stripeAccountId ?? undefined;
 		const docTenantId = doc.tenant ? extractID(doc.tenant) : null;
 
+		const tenantDoc = docTenantId
+			? await req.payload.findByID({
+					collection: "tenants",
+					id: docTenantId,
+				})
+			: null;
+		const currency = (tenantDoc as any)?.currency || "cad";
+
 		if (!defaultConnectedAccount) {
 			console.log(
 				"No default connected account found for user when upserting stripe product",
@@ -154,13 +162,13 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
 							stripe.prices.create(
 								{
 									product: stripeProductId,
-									currency: "cad", // TODO: make this dynamic
-									active: price.isActive ?? false,
-									unit_amount: convertDollarsToCents(price.amount),
-									nickname: price.label,
-									metadata: {
-										eventId: doc.id,
-										priceId: price.id ?? "",
+							currency,
+								active: price.isActive ?? false,
+								unit_amount: convertDollarsToCents(price.amount),
+								nickname: price.label,
+								metadata: {
+									eventId: doc.id,
+									priceId: price.id ?? "",
 										tenantId: docTenantId,
 									} satisfies StripePriceMetadata,
 								},
@@ -200,13 +208,13 @@ export const upsertStripeProduct: CollectionAfterChangeHook<Event> = async ({
 						stripe.prices.create(
 							{
 								product: stripeProductId,
-								currency: "cad", // TODO: make this dynamic
-								active: price.isActive ?? false,
-								unit_amount: convertDollarsToCents(price.amount),
-								nickname: price.label,
-								metadata: {
-									eventId: doc.id,
-									priceId: price.id ?? null,
+							currency,
+							active: price.isActive ?? false,
+							unit_amount: convertDollarsToCents(price.amount),
+							nickname: price.label,
+							metadata: {
+								eventId: doc.id,
+								priceId: price.id ?? null,
 									tenantId: docTenantId,
 								} satisfies StripePriceMetadata,
 							},

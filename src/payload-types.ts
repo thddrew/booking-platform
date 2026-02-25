@@ -186,6 +186,10 @@ export interface Tenant {
    */
   allowPublicRead?: boolean | null;
   /**
+   * Currency for event pricing and payments
+   */
+  currency?: ('cad' | 'usd' | 'eur' | 'gbp' | 'aud') | null;
+  /**
    * Your business logo
    */
   logo?: (string | null) | Media;
@@ -864,6 +868,7 @@ export interface TenantsSelect<T extends boolean = true> {
   domain?: T;
   slug?: T;
   allowPublicRead?: T;
+  currency?: T;
   logo?: T;
   brandColor?: T;
   tagline?: T;
