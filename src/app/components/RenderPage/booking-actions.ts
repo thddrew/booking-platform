@@ -167,3 +167,81 @@ export async function cancelBooking(
 		};
 	}
 }
+
+interface RescheduleBookingResult {
+	success: boolean;
+	error?: string;
+}
+
+export async function rescheduleBooking(
+	bookingId: string,
+	email: string,
+	newDtstart: string,
+	newDtend: string,
+	newScheduleId?: string,
+): Promise<RescheduleBookingResult> {
+	try {
+		const payload = await getPayload({ config: configPromise });
+
+		const bookingsQuery = await payload.find({
+			collection: "bookings",
+			overrideAccess: true,
+			where: { id: { equals: bookingId } },
+			limit: 1,
+		});
+
+		const booking = bookingsQuery.docs[0];
+		if (!booking) {
+			return { success: false, error: "Booking not found" };
+		}
+
+		let customerSnapshot: { email?: string } = {};
+		if (booking.customerSnapshot) {
+			if (typeof booking.customerSnapshot === "string") {
+				try {
+					customerSnapshot = JSON.parse(booking.customerSnapshot);
+				} catch {
+					customerSnapshot = {};
+				}
+			} else if (typeof booking.customerSnapshot === "object") {
+				customerSnapshot = booking.customerSnapshot as typeof customerSnapshot;
+			}
+		}
+
+		if (customerSnapshot.email !== email) {
+			return { success: false, error: "Invalid booking access" };
+		}
+
+		// Build updated schedule instance data
+		const scheduleInstanceData = newScheduleId
+			? {
+					id: `${newScheduleId}-${newDtstart}`,
+					type: "scheduleInstance",
+					scheduleId: newScheduleId,
+					dtstart: newDtstart,
+					dtend: newDtend,
+				}
+			: booking.selectedScheduleInstanceData;
+
+		await payload.update({
+			collection: "bookings",
+			id: bookingId,
+			overrideAccess: true,
+			data: {
+				dtstart: newDtstart,
+				dtend: newDtend,
+				selectedScheduleInstanceData: scheduleInstanceData,
+			},
+			context: { triggerAfterChange: true },
+		});
+
+		return { success: true };
+	} catch (err) {
+		console.error("Failed to reschedule booking:", err);
+		return {
+			success: false,
+			error:
+				err instanceof Error ? err.message : "Failed to reschedule booking",
+		};
+	}
+}

@@ -218,6 +218,25 @@ export function BookingDetailsClient({
 
 				<Card className="mb-6">
 					<CardHeader>
+						<CardTitle className="text-lg">Reschedule</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-muted-foreground mb-4">
+							Need to change the date or time? You can reschedule to a different
+							available timeslot.
+						</p>
+						<Button asChild variant="outline" className="w-full">
+							<Link
+								href={`${eventsPath.replace("/events", "/bookings/reschedule")}?bookingId=${booking.id}&email=${encodeURIComponent(email)}`}
+							>
+								Reschedule Booking
+							</Link>
+						</Button>
+					</CardContent>
+				</Card>
+
+				<Card className="mb-6">
+					<CardHeader>
 						<CardTitle className="text-lg">Cancel Booking</CardTitle>
 					</CardHeader>
 					<CardContent>
