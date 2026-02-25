@@ -6,12 +6,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { AvailableEventsToday } from "./available-events-today";
 import { BookingsToday } from "./bookings-today";
 import { Overview } from "./overview";
+import { OnboardingChecklist } from "./onboarding-checklist";
 import { ViewPublicPageButton } from "./view-public-page-button";
 
 export default async function DashboardView(args: DashboardViewServerProps) {
 	return (
 		<Gutter>
 			<div className="twp">
+				<OnboardingChecklist />
 				<div className="flex justify-end mb-4">
 					<ViewPublicPageButton />
 				</div>
