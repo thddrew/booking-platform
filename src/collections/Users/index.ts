@@ -7,6 +7,7 @@ import { updateAndDeleteAccess } from "./access/updateAndDelete";
 import { externalUsersLogin } from "./endpoints/externalUsersLogin";
 import { ensureUniqueUsername } from "./hooks/ensureUniqueUsername";
 import { setCookieBasedOnDomain } from "./hooks/setCookieBasedOnDomain";
+import { sendVerificationEmail } from "./hooks/sendVerificationEmail";
 
 const defaultTenantArrayField = tenantsArrayField({
 	tenantsArrayFieldName: "tenants",
@@ -64,6 +65,23 @@ const Users: CollectionConfig = {
 			index: true,
 		},
 		{
+			name: "verified",
+			type: "checkbox",
+			defaultValue: false,
+			admin: {
+				position: "sidebar",
+				readOnly: true,
+				description: "Whether the user's email has been verified",
+			},
+		},
+		{
+			name: "verificationToken",
+			type: "text",
+			admin: {
+				hidden: true,
+			},
+		},
+		{
 			...defaultTenantArrayField,
 			admin: {
 				...(defaultTenantArrayField?.admin || {}),
@@ -77,6 +95,7 @@ const Users: CollectionConfig = {
 
 	hooks: {
 		afterLogin: [setCookieBasedOnDomain],
+		afterChange: [sendVerificationEmail],
 	},
 };
 

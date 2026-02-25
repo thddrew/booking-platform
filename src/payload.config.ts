@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
+import { resendAdapter } from "@payloadcms/email-resend";
 // Plugins
 import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
 import { stripePlugin } from "@payloadcms/plugin-stripe";
@@ -92,6 +93,11 @@ export default buildConfig({
 		safeFileNames: true,
 	},
 	sharp,
+	email: resendAdapter({
+		apiKey: process.env.RESEND_API_KEY || "",
+		defaultFromAddress: "noreply@bookify.app",
+		defaultFromName: "Bookify",
+	}),
 	db: postgresAdapter({
 		idType: "uuid",
 		pool: {

@@ -272,6 +272,11 @@ export interface User {
   tenant?: (string | null) | Tenant;
   roles?: ('super-admin' | 'user')[] | null;
   username?: string | null;
+  /**
+   * Whether the user's email has been verified
+   */
+  verified?: boolean | null;
+  verificationToken?: string | null;
   tenants?:
     | {
         tenant: string | Tenant;
@@ -845,6 +850,8 @@ export interface UsersSelect<T extends boolean = true> {
   tenant?: T;
   roles?: T;
   username?: T;
+  verified?: T;
+  verificationToken?: T;
   tenants?:
     | T
     | {
