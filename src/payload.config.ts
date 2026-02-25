@@ -21,6 +21,7 @@ import { Campaigns } from "./collections/Campaigns";
 import { Customers } from "./collections/Customers";
 import { Emails } from "./collections/Emails";
 import { Events } from "./collections/Events";
+import { Waitlist } from "./collections/Waitlist";
 import { Logs } from "./collections/Logs";
 import { Media } from "./collections/Media";
 import { Pages } from "./collections/Pages";
@@ -86,6 +87,7 @@ export default buildConfig({
 		Media,
 		Campaigns,
 		Emails,
+		Waitlist,
 	],
 	endpoints: [resendWebhookHandler],
 	upload: {

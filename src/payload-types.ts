@@ -80,6 +80,7 @@ export interface Config {
     media: Media;
     campaigns: Campaign;
     emails: Email;
+    waitlist: Waitlist;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -109,6 +110,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
     emails: EmailsSelect<false> | EmailsSelect<true>;
+    waitlist: WaitlistSelect<false> | WaitlistSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -224,6 +226,10 @@ export interface Tenant {
    * Public contact phone number
    */
   contactPhone?: string | null;
+  /**
+   * Enable SMS notifications for booking confirmations and reminders (requires Novu SMS provider configuration)
+   */
+  smsEnabled?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -335,6 +341,32 @@ export interface Customer {
    * One of email or phone is required
    */
   phone?: string | null;
+  /**
+   * Tags for customer segmentation and marketing
+   */
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Customer notification preferences
+   */
+  notificationPreferences?: {
+    /**
+     * Receive booking confirmations, updates, and reminders via email
+     */
+    emailEnabled?: boolean | null;
+    /**
+     * Receive booking reminders via SMS
+     */
+    smsEnabled?: boolean | null;
+    /**
+     * Receive promotional emails and campaign updates
+     */
+    marketingEnabled?: boolean | null;
+  };
   bookings?: {
     docs?: (string | Booking)[];
     hasNextPage?: boolean;
@@ -638,6 +670,28 @@ export interface Log {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waitlist".
+ */
+export interface Waitlist {
+  id: string;
+  event: string | Event;
+  /**
+   * The specific timeslot date/time the customer wants
+   */
+  dtstart: string;
+  dtend: string;
+  scheduleId?: string | null;
+  email: string;
+  firstName?: string | null;
+  /**
+   * Whether the customer has been notified of availability
+   */
+  notified?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -803,6 +857,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'emails';
         value: string | Email;
+      } | null)
+    | ({
+        relationTo: 'waitlist';
+        value: string | Waitlist;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -907,6 +965,7 @@ export interface TenantsSelect<T extends boolean = true> {
   tagline?: T;
   contactEmail?: T;
   contactPhone?: T;
+  smsEnabled?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -921,6 +980,19 @@ export interface CustomersSelect<T extends boolean = true> {
   fullName?: T;
   email?: T;
   phone?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  notificationPreferences?:
+    | T
+    | {
+        emailEnabled?: T;
+        smsEnabled?: T;
+        marketingEnabled?: T;
+      };
   bookings?: T;
   campaign?: T;
   stripeCustomerId?: T;
@@ -1152,6 +1224,21 @@ export interface EmailsSelect<T extends boolean = true> {
   createdAt?: T;
   deletedAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waitlist_select".
+ */
+export interface WaitlistSelect<T extends boolean = true> {
+  event?: T;
+  dtstart?: T;
+  dtend?: T;
+  scheduleId?: T;
+  email?: T;
+  firstName?: T;
+  notified?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
