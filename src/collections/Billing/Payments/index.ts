@@ -7,7 +7,7 @@ export const Payments: CollectionConfig<"payments"> = {
 	},
 	slug: "payments",
 	admin: {
-		group: "Billing",
+		group: "Payments",
 		components: {
 			views: {
 				list: {

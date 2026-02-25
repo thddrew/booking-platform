@@ -5,6 +5,10 @@ import { updateAndDeleteAccess } from "./access/updateAndDelete";
 
 export const Tenants: CollectionConfig = {
 	slug: "tenants",
+	labels: {
+		singular: "Business",
+		plural: "Businesses",
+	},
 	access: {
 		create: isSuperAdminAccess,
 		delete: updateAndDeleteAccess,
@@ -25,14 +29,14 @@ export const Tenants: CollectionConfig = {
 			name: "domain",
 			type: "text",
 			admin: {
-				description: "Used for domain-based tenant handling",
+				description: "Your custom domain for branded booking pages (e.g. bookings.yourbusiness.com)",
 			},
 		},
 		{
 			name: "slug",
 			type: "text",
 			admin: {
-				description: "Used for url paths, example: /tenant-slug/page-slug",
+				description: "Your unique booking page URL (e.g. bookify.app/your-business-name)",
 			},
 			index: true,
 			required: true,
@@ -43,7 +47,7 @@ export const Tenants: CollectionConfig = {
 			type: "checkbox",
 			admin: {
 				description:
-					"If checked, logging in is not required to read. Useful for building public pages.",
+					"Allow visitors to browse and book your events without logging in. Required for public booking pages.",
 				position: "sidebar",
 			},
 			defaultValue: false,

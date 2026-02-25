@@ -6,9 +6,13 @@ import { removeStripeAccount } from "./hooks/remove-stripe-account";
 
 export const ConnectedAccounts: CollectionConfig<"connectedAccounts"> = {
 	slug: "connectedAccounts",
+	labels: {
+		singular: "Payment Setup",
+		plural: "Payment Setup",
+	},
 	defaultSort: "-default",
 	admin: {
-		group: "Billing",
+		group: "Payments",
 		useAsTitle: "name",
 		components: {
 			views: {

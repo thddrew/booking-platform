@@ -121,6 +121,7 @@ export default buildConfig({
 	},
 	plugins: [
 		multiTenantPlugin<Config>({
+			tenantSelectorLabel: "Business",
 			collections: {
 				pages: {},
 				customers: {},
