@@ -1,10 +1,12 @@
 "use client";
 
+import { CheckCircle2Icon, KeyRoundIcon, LockIcon, ShieldCheckIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 
 export default function ResetPasswordPage() {
 	const searchParams = useSearchParams();
@@ -19,12 +21,19 @@ export default function ResetPasswordPage() {
 
 	if (!token) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-background">
-				<Card className="w-full max-w-md mx-4">
-					<CardContent className="pt-6">
-						<p className="text-center text-muted-foreground">
-							Invalid reset link.
+			<div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/30">
+				<Card className="w-full max-w-md mx-4 shadow-lg border-border/50">
+					<CardContent className="pt-8 pb-8 text-center">
+						<div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-destructive/10 mb-4">
+							<LockIcon className="h-6 w-6 text-destructive" />
+						</div>
+						<h2 className="text-lg font-semibold mb-2">Invalid Reset Link</h2>
+						<p className="text-sm text-muted-foreground mb-6">
+							This link is invalid or has expired. Please request a new password reset.
 						</p>
+						<Button variant="outline" onClick={() => router.push("/admin")}>
+							Back to Login
+						</Button>
 					</CardContent>
 				</Card>
 			</div>
@@ -33,17 +42,18 @@ export default function ResetPasswordPage() {
 
 	if (success) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-background">
-				<Card className="w-full max-w-md mx-4">
-					<CardHeader>
-						<CardTitle className="text-center">Password Reset</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						<p className="text-center text-muted-foreground">
-							Your password has been reset successfully.
+			<div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/30">
+				<Card className="w-full max-w-md mx-4 shadow-lg border-border/50">
+					<CardContent className="pt-8 pb-8 text-center">
+						<div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 mb-4">
+							<CheckCircle2Icon className="h-7 w-7 text-green-600 dark:text-green-400" />
+						</div>
+						<h2 className="text-xl font-semibold mb-2">Password Updated</h2>
+						<p className="text-sm text-muted-foreground mb-6">
+							Your password has been reset successfully. You can now sign in with your new password.
 						</p>
 						<Button className="w-full" onClick={() => router.push("/admin")}>
-							Go to Login
+							Sign In
 						</Button>
 					</CardContent>
 				</Card>
@@ -89,52 +99,71 @@ export default function ResetPasswordPage() {
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-background">
-			<Card className="w-full max-w-md mx-4">
-				<CardHeader>
-					<CardTitle className="text-center">Reset Your Password</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div className="space-y-2">
-							<label htmlFor="password" className="text-sm font-medium">
-								New Password
-							</label>
-							<Input
-								id="password"
-								type="password"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								placeholder="Enter new password"
-								required
-								minLength={6}
-							/>
-						</div>
-						<div className="space-y-2">
-							<label htmlFor="confirmPassword" className="text-sm font-medium">
-								Confirm Password
-							</label>
-							<Input
-								id="confirmPassword"
-								type="password"
-								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
-								placeholder="Confirm new password"
-								required
-								minLength={6}
-							/>
-						</div>
-						{error && (
-							<div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-								<p className="text-sm text-destructive">{error}</p>
+		<div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/30">
+			<div className="w-full max-w-md mx-4">
+				<div className="text-center mb-8">
+					<div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
+						<KeyRoundIcon className="h-7 w-7 text-primary" />
+					</div>
+					<h1 className="text-2xl font-semibold tracking-tight">Reset Your Password</h1>
+					<p className="text-sm text-muted-foreground mt-2">
+						Choose a strong password to secure your account.
+					</p>
+				</div>
+
+				<Card className="shadow-lg border-border/50">
+					<CardContent className="pt-6 pb-6">
+						<form onSubmit={handleSubmit} className="space-y-4">
+							<div className="space-y-2">
+								<label htmlFor="password" className="text-sm font-medium">
+									New Password
+								</label>
+								<Input
+									id="password"
+									type="password"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									placeholder="Enter new password"
+									required
+									minLength={6}
+									className="h-11"
+								/>
 							</div>
-						)}
-						<Button type="submit" className="w-full" disabled={loading}>
-							{loading ? "Resetting..." : "Reset Password"}
-						</Button>
-					</form>
-				</CardContent>
-			</Card>
+							<div className="space-y-2">
+								<label htmlFor="confirmPassword" className="text-sm font-medium">
+									Confirm Password
+								</label>
+								<Input
+									id="confirmPassword"
+									type="password"
+									value={confirmPassword}
+									onChange={(e) => setConfirmPassword(e.target.value)}
+									placeholder="Confirm new password"
+									required
+									minLength={6}
+									className="h-11"
+								/>
+							</div>
+							{error && (
+								<div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+									<p className="text-sm text-destructive">{error}</p>
+								</div>
+							)}
+							<Button type="submit" className="w-full h-11" disabled={loading}>
+								{loading ? "Resetting..." : "Reset Password"}
+							</Button>
+						</form>
+					</CardContent>
+				</Card>
+
+				<div className="mt-6">
+					<Separator className="mb-6" />
+					<div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+						<ShieldCheckIcon className="h-3.5 w-3.5" />
+						<span>Secured with end-to-end encryption</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
