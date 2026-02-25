@@ -113,6 +113,56 @@ export const Customers: CollectionConfig<"customers"> = {
 			},
 		},
 		{
+			name: "tags",
+			type: "array",
+			admin: {
+				description: "Tags for customer segmentation and marketing",
+			},
+			fields: [
+				{
+					name: "tag",
+					type: "text",
+					required: true,
+				},
+			],
+		},
+		{
+			name: "notificationPreferences",
+			type: "group",
+			admin: {
+				description: "Customer notification preferences",
+			},
+			fields: [
+				{
+					name: "emailEnabled",
+					type: "checkbox",
+					defaultValue: true,
+					label: "Email Notifications",
+					admin: {
+						description: "Receive booking confirmations, updates, and reminders via email",
+					},
+				},
+				{
+					name: "smsEnabled",
+					type: "checkbox",
+					defaultValue: false,
+					label: "SMS Notifications",
+					admin: {
+						description: "Receive booking reminders via SMS",
+					},
+				},
+				{
+					name: "marketingEnabled",
+					type: "checkbox",
+					defaultValue: true,
+					label: "Marketing Emails",
+					admin: {
+						description: "Receive promotional emails and campaign updates",
+					},
+				},
+			],
+		},
+		{
 			name: "bookings",
 			type: "join",
 			collection: "bookings",

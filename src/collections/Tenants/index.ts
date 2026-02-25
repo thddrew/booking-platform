@@ -102,5 +102,14 @@ export const Tenants: CollectionConfig = {
 				description: "Public contact phone number",
 			},
 		},
+		{
+			name: "smsEnabled",
+			type: "checkbox",
+			defaultValue: false,
+			admin: {
+				description: "Enable SMS notifications for booking confirmations and reminders (requires Novu SMS provider configuration)",
+				position: "sidebar",
+			},
+		},
 	],
 };
