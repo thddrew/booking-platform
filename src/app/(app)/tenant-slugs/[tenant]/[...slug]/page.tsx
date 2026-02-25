@@ -112,7 +112,8 @@ export default async function Page({
 
 	const slug = params?.slug;
 	const slugString = slug?.join("/") || "";
-	const isEventsRoute = slugString === "events" || slugString.startsWith("events/");
+	const isEventsRoute =
+		slugString === "events" || slugString.startsWith("events/");
 
 	let tenant: { id: string } | undefined;
 
@@ -177,7 +178,14 @@ export default async function Page({
 	if (isEventsRoute) {
 		// Parse searchParams to populate the cache for child components
 		await eventsListSearchParamsCache.parse(searchParams);
-		return <RenderPage data={null} slug={slugString} tenantId={tenant.id} tenantSlug={params.tenant} />;
+		return (
+			<RenderPage
+				data={null}
+				slug={slugString}
+				tenantId={tenant.id}
+				tenantSlug={params.tenant}
+			/>
+		);
 	}
 
 	const slugConstraint: Where = slug
@@ -228,5 +236,12 @@ export default async function Page({
 		return notFound();
 	}
 
-	return <RenderPage data={pageData} slug={slugString} tenantId={tenant.id} tenantSlug={params.tenant} />;
+	return (
+		<RenderPage
+			data={pageData}
+			slug={slugString}
+			tenantId={tenant.id}
+			tenantSlug={params.tenant}
+		/>
+	);
 }

@@ -1,11 +1,6 @@
 import configPromise from "@payload-config";
-import { convertLexicalToHTMLAsync } from '@payloadcms/richtext-lexical/html-async';
-import {
-	ArrowLeftIcon,
-	CheckIcon,
-	HeartIcon,
-	Share2Icon,
-} from "lucide-react";
+import { convertLexicalToHTMLAsync } from "@payloadcms/richtext-lexical/html-async";
+import { ArrowLeftIcon, CheckIcon, HeartIcon, Share2Icon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPayload } from "payload";
@@ -45,8 +40,11 @@ async function EventBookingPanelWrapper({
 }) {
 	const payload = await getPayload({ config: configPromise });
 
-	const tenantId = typeof event.tenant === "string" ? event.tenant : event.tenant?.id;
-	const tenantDoc = tenantId ? await payload.findByID({ collection: "tenants", id: tenantId }) : null;
+	const tenantId =
+		typeof event.tenant === "string" ? event.tenant : event.tenant?.id;
+	const tenantDoc = tenantId
+		? await payload.findByID({ collection: "tenants", id: tenantId })
+		: null;
 	const currency = (tenantDoc as any)?.currency || "cad";
 
 	const startDate = new Date();
@@ -62,10 +60,12 @@ async function EventBookingPanelWrapper({
 	});
 
 	const activePrices = event.prices || [];
-	const isFree = activePrices.length === 0 || activePrices.every((p) => p.amount === 0);
-	const minPrice = activePrices.length > 0
-		? Math.min(...activePrices.map((p) => p.amount))
-		: 0;
+	const isFree =
+		activePrices.length === 0 || activePrices.every((p) => p.amount === 0);
+	const minPrice =
+		activePrices.length > 0
+			? Math.min(...activePrices.map((p) => p.amount))
+			: 0;
 
 	return (
 		<EventBookingPanel
@@ -117,15 +117,19 @@ export async function EventDetailPage({
 		return notFound();
 	}
 
-	const tenantDoc = await payload.findByID({ collection: "tenants", id: tenantId });
+	const tenantDoc = await payload.findByID({
+		collection: "tenants",
+		id: tenantId,
+	});
 	const currency = (tenantDoc as any)?.currency?.toUpperCase() || "CAD";
 
 	const eventWithValidPrices = filterValidPrices(event);
-	const hasPrices = eventWithValidPrices.prices && eventWithValidPrices.prices.length > 0;
+	const hasPrices =
+		eventWithValidPrices.prices && eventWithValidPrices.prices.length > 0;
 	const activePrices = eventWithValidPrices.prices || [];
-	const galleryImages = event.gallery?.filter(
-		(img) => typeof img === "object" && "url" in img,
-	) || [];
+	const galleryImages =
+		event.gallery?.filter((img) => typeof img === "object" && "url" in img) ||
+		[];
 
 	const jsonLd = {
 		"@context": "https://schema.org",
@@ -134,23 +138,26 @@ export async function EventDetailPage({
 		startDate: event.schedules?.schedule?.[0]?.dtstart,
 		endDate: event.schedules?.schedule?.[0]?.dtend,
 		eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-		...(event.thumbnail && typeof event.thumbnail === "object" && "url" in event.thumbnail
+		...(event.thumbnail &&
+		typeof event.thumbnail === "object" &&
+		"url" in event.thumbnail
 			? { image: event.thumbnail.url }
 			: {}),
-		offers: eventWithValidPrices.prices?.map((price) => ({
-			"@type": "Offer",
-			name: price.label,
-			price: price.amount,
-			priceCurrency: currency,
-			availability: "https://schema.org/InStock",
-		})) || [],
+		offers:
+			eventWithValidPrices.prices?.map((price) => ({
+				"@type": "Offer",
+				name: price.label,
+				price: price.amount,
+				priceCurrency: currency,
+				availability: "https://schema.org/InStock",
+			})) || [],
 	};
 
 	return (
 		<div className="min-h-screen bg-background">
-			{/* biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data for SEO */}
 			<script
 				type="application/ld+json"
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data for SEO
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
 			/>
 			<RefreshRouteOnSave />
@@ -207,12 +214,15 @@ export async function EventDetailPage({
 
 				<div className="grid lg:grid-cols-[1fr_400px] gap-8 lg:gap-16">
 					<div className="min-w-0">
-
 						{galleryImages.length > 0 && (
 							<div className="mb-8">
 								<div className="grid grid-cols-4 gap-2">
 									{galleryImages.slice(0, 4).map((image, idx) => {
-										if (typeof image === "string" || !("url" in image) || !image.url)
+										if (
+											typeof image === "string" ||
+											!("url" in image) ||
+											!image.url
+										)
 											return null;
 										return (
 											<button
@@ -220,11 +230,11 @@ export async function EventDetailPage({
 												key={image.id}
 												className="relative aspect-square overflow-hidden rounded-lg bg-muted"
 											>
-											<img
-												src={image.url}
-												alt={event.title}
-												className="w-full h-full object-cover hover:opacity-90 transition-opacity"
-											/>
+												<img
+													src={image.url}
+													alt={event.title}
+													className="w-full h-full object-cover hover:opacity-90 transition-opacity"
+												/>
 												{idx === 3 && galleryImages.length > 4 && (
 													<div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-semibold">
 														+{galleryImages.length - 4}
@@ -246,7 +256,9 @@ export async function EventDetailPage({
 
 						{hasPrices && activePrices.length > 0 && (
 							<div className="mb-8 pb-8">
-								<h2 className="text-[22px] font-semibold mb-6">What's included</h2>
+								<h2 className="text-[22px] font-semibold mb-6">
+									What's included
+								</h2>
 								<div className="grid sm:grid-cols-2 gap-4">
 									{activePrices.map((price) => (
 										<div key={price.id} className="flex items-start gap-3">
@@ -268,8 +280,15 @@ export async function EventDetailPage({
 					</div>
 
 					<div className="lg:sticky lg:top-[72px] h-fit">
-						<Suspense fallback={<div className="h-[400px] bg-muted rounded-2xl animate-pulse" />}>
-							<EventBookingPanelWrapper event={eventWithValidPrices} tenantSlug={tenantSlug} />
+						<Suspense
+							fallback={
+								<div className="h-[400px] bg-muted rounded-2xl animate-pulse" />
+							}
+						>
+							<EventBookingPanelWrapper
+								event={eventWithValidPrices}
+								tenantSlug={tenantSlug}
+							/>
 						</Suspense>
 					</div>
 				</div>
