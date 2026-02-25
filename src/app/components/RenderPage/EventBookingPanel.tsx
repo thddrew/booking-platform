@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { AvailableTimeslot } from "./utils/get-available-timeslots";
 import { formatPrice, formatPriceShort } from "./utils/format-price";
+import type { AvailableTimeslot } from "./utils/get-available-timeslots";
 
 function formatDate(date: Date): string {
 	return new Intl.DateTimeFormat("en-US", {
@@ -83,7 +83,8 @@ export function EventBookingPanel({
 		return timeslotsByDate.get(dateKey) || [];
 	}, [selectedDate, timeslotsByDate]);
 
-	const [selectedTimeslot, setSelectedTimeslot] = useState<AvailableTimeslot | null>(null);
+	const [selectedTimeslot, setSelectedTimeslot] =
+		useState<AvailableTimeslot | null>(null);
 
 	useEffect(() => {
 		if (presetDtstart && presetDtend) {
@@ -109,8 +110,10 @@ export function EventBookingPanel({
 	const hasNoTimeslots = availableDates.length === 0;
 
 	const [waitlistEmail, setWaitlistEmail] = useState("");
-	const [waitlistName, setWaitlistName] = useState("");
-	const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+	const [waitlistName, _setWaitlistName] = useState("");
+	const [waitlistStatus, setWaitlistStatus] = useState<
+		"idle" | "loading" | "success" | "error"
+	>("idle");
 	const [waitlistMessage, setWaitlistMessage] = useState("");
 
 	async function handleJoinWaitlist(slot: AvailableTimeslot) {
@@ -160,209 +163,245 @@ export function EventBookingPanel({
 					</div>
 				</div>
 
-			{availableDates.length > 0 ? (
-				<div className="space-y-4 mb-6">
-					<div>
-						<div className="text-xs font-medium text-muted-foreground uppercase mb-2">
-							Select Date
-						</div>
-						<div className="flex flex-wrap gap-2">
-							{availableDates.slice(0, 7).map((date) => {
-								const dateKey = date.toISOString().split("T")[0];
-								const isSelected = selectedDate?.toISOString().split("T")[0] === dateKey;
-								const isToday = date.toDateString() === new Date().toDateString();
-
-								return (
-									<Button
-										key={dateKey}
-										type="button"
-										variant={isSelected ? "default" : "outline"}
-										size="sm"
-										className={isSelected ? "border border-transparent" : undefined}
-										onClick={() => setSelectedDate(date)}
-									>
-										{isToday ? "Today" : formatDate(date)}
-									</Button>
-								);
-							})}
-						</div>
-					</div>
-
-					{selectedDateTimeslots.length > 0 && (
+				{availableDates.length > 0 ? (
+					<div className="space-y-4 mb-6">
 						<div>
 							<div className="text-xs font-medium text-muted-foreground uppercase mb-2">
-								Available Times
+								Select Date
 							</div>
-							<div className="space-y-2 max-h-[300px] overflow-y-auto">
-								{selectedDateTimeslots.map((slot) => {
-									const slotKey = `${slot.dtstart.toISOString()}-${slot.scheduleId}`;
-									const isSelected = selectedTimeslot?.dtstart.getTime() === slot.dtstart.getTime();
+							<div className="flex flex-wrap gap-2">
+								{availableDates.slice(0, 7).map((date) => {
+									const dateKey = date.toISOString().split("T")[0];
+									const isSelected =
+										selectedDate?.toISOString().split("T")[0] === dateKey;
+									const isToday =
+										date.toDateString() === new Date().toDateString();
 
-								return (
-									<div key={slotKey}>
-										<button
+									return (
+										<Button
+											key={dateKey}
 											type="button"
-											onClick={() => slot.isAvailable ? setSelectedTimeslot(slot) : undefined}
-											disabled={!slot.isAvailable && !enableWaitlist}
-											className={`
+											variant={isSelected ? "default" : "outline"}
+											size="sm"
+											className={
+												isSelected ? "border border-transparent" : undefined
+											}
+											onClick={() => setSelectedDate(date)}
+										>
+											{isToday ? "Today" : formatDate(date)}
+										</Button>
+									);
+								})}
+							</div>
+						</div>
+
+						{selectedDateTimeslots.length > 0 && (
+							<div>
+								<div className="text-xs font-medium text-muted-foreground uppercase mb-2">
+									Available Times
+								</div>
+								<div className="space-y-2 max-h-[300px] overflow-y-auto">
+									{selectedDateTimeslots.map((slot) => {
+										const slotKey = `${slot.dtstart.toISOString()}-${slot.scheduleId}`;
+										const isSelected =
+											selectedTimeslot?.dtstart.getTime() ===
+											slot.dtstart.getTime();
+
+										return (
+											<div key={slotKey}>
+												<button
+													type="button"
+													onClick={() =>
+														slot.isAvailable
+															? setSelectedTimeslot(slot)
+															: undefined
+													}
+													disabled={!slot.isAvailable && !enableWaitlist}
+													className={`
 												w-full text-left p-3 rounded-lg border transition-colors
-												${isSelected
-													? "border-primary bg-primary/5"
-													: slot.isAvailable
-														? "border-border hover:border-primary/50 hover:bg-muted/50"
-														: "border-border bg-muted/30 opacity-60"
+												${
+													isSelected
+														? "border-primary bg-primary/5"
+														: slot.isAvailable
+															? "border-border hover:border-primary/50 hover:bg-muted/50"
+															: "border-border bg-muted/30 opacity-60"
 												}
 											`}
-										>
-											<div className="flex items-center justify-between">
-												<div className="flex items-center gap-2">
-													<ClockIcon className="h-4 w-4 text-muted-foreground" />
-													<span className="font-medium text-[15px]">
-														{formatTime(slot.dtstart)} - {formatTime(slot.dtend)}
-													</span>
-												</div>
-												{slot.isAvailable ? (
-													<span className="text-xs text-muted-foreground">
-														{slot.availableSpots} {slot.availableSpots === 1 ? "spot" : "spots"}
-													</span>
-												) : (
-													<span className="text-xs text-muted-foreground">Fully booked</span>
-												)}
-											</div>
-										</button>
-										{!slot.isAvailable && enableWaitlist && (
-											<div className="mt-2 p-3 rounded-lg border border-dashed border-border bg-muted/20">
-												{waitlistStatus === "success" ? (
-													<p className="text-xs text-green-600 dark:text-green-400 text-center">{waitlistMessage}</p>
-												) : (
-													<div className="space-y-2">
-														<p className="text-xs text-muted-foreground">Get notified when a spot opens:</p>
-														<div className="flex gap-2">
-															<input
-																type="email"
-																placeholder="Your email"
-																value={waitlistEmail}
-																onChange={(e) => setWaitlistEmail(e.target.value)}
-																className="flex-1 h-8 px-2 text-xs rounded-md border border-input bg-background"
-															/>
-															<Button
-																type="button"
-																size="sm"
-																variant="outline"
-																className="h-8 text-xs"
-																disabled={!waitlistEmail || waitlistStatus === "loading"}
-																onClick={() => handleJoinWaitlist(slot)}
-															>
-																{waitlistStatus === "loading" ? "..." : "Notify me"}
-															</Button>
+												>
+													<div className="flex items-center justify-between">
+														<div className="flex items-center gap-2">
+															<ClockIcon className="h-4 w-4 text-muted-foreground" />
+															<span className="font-medium text-[15px]">
+																{formatTime(slot.dtstart)} -{" "}
+																{formatTime(slot.dtend)}
+															</span>
 														</div>
-														{waitlistStatus === "error" && (
-															<p className="text-xs text-destructive">{waitlistMessage}</p>
+														{slot.isAvailable ? (
+															<span className="text-xs text-muted-foreground">
+																{slot.availableSpots}{" "}
+																{slot.availableSpots === 1 ? "spot" : "spots"}
+															</span>
+														) : (
+															<span className="text-xs text-muted-foreground">
+																Fully booked
+															</span>
+														)}
+													</div>
+												</button>
+												{!slot.isAvailable && enableWaitlist && (
+													<div className="mt-2 p-3 rounded-lg border border-dashed border-border bg-muted/20">
+														{waitlistStatus === "success" ? (
+															<p className="text-xs text-green-600 dark:text-green-400 text-center">
+																{waitlistMessage}
+															</p>
+														) : (
+															<div className="space-y-2">
+																<p className="text-xs text-muted-foreground">
+																	Get notified when a spot opens:
+																</p>
+																<div className="flex gap-2">
+																	<input
+																		type="email"
+																		placeholder="Your email"
+																		value={waitlistEmail}
+																		onChange={(e) =>
+																			setWaitlistEmail(e.target.value)
+																		}
+																		className="flex-1 h-8 px-2 text-xs rounded-md border border-input bg-background"
+																	/>
+																	<Button
+																		type="button"
+																		size="sm"
+																		variant="outline"
+																		className="h-8 text-xs"
+																		disabled={
+																			!waitlistEmail ||
+																			waitlistStatus === "loading"
+																		}
+																		onClick={() => handleJoinWaitlist(slot)}
+																	>
+																		{waitlistStatus === "loading"
+																			? "..."
+																			: "Notify me"}
+																	</Button>
+																</div>
+																{waitlistStatus === "error" && (
+																	<p className="text-xs text-destructive">
+																		{waitlistMessage}
+																	</p>
+																)}
+															</div>
 														)}
 													</div>
 												)}
 											</div>
-										)}
-									</div>
-								);
-								})}
+										);
+									})}
+								</div>
 							</div>
-						</div>
-					)}
-				</div>
-			) : null}
+						)}
+					</div>
+				) : null}
 
-			{(hasNoPrices || hasNoTimeslots) && (
-				<div className="mb-6 space-y-3">
-					{hasNoPrices && (
-						<Alert variant="destructive">
-							<AlertTriangleIcon />
-							<AlertTitle>No pricing available</AlertTitle>
-							<AlertDescription>
-								This event does not have any valid pricing options configured.
-							</AlertDescription>
-						</Alert>
-					)}
-					{hasNoTimeslots && (
-						<Alert variant="destructive">
-							<AlertTriangleIcon />
-							<AlertTitle>No available times</AlertTitle>
-							<AlertDescription>
-								There are no available time slots for this event at this time.
-							</AlertDescription>
-						</Alert>
-					)}
-				</div>
-			)}
+				{(hasNoPrices || hasNoTimeslots) && (
+					<div className="mb-6 space-y-3">
+						{hasNoPrices && (
+							<Alert variant="destructive">
+								<AlertTriangleIcon />
+								<AlertTitle>No pricing available</AlertTitle>
+								<AlertDescription>
+									This event does not have any valid pricing options configured.
+								</AlertDescription>
+							</Alert>
+						)}
+						{hasNoTimeslots && (
+							<Alert variant="destructive">
+								<AlertTriangleIcon />
+								<AlertTitle>No available times</AlertTitle>
+								<AlertDescription>
+									There are no available time slots for this event at this time.
+								</AlertDescription>
+							</Alert>
+						)}
+					</div>
+				)}
 
-			<Button
-				size="lg"
-				className="w-full rounded-lg"
-				disabled={!selectedTimeslot || !selectedTimeslot.isAvailable || activePrices.length === 0}
-				onClick={() => {
-					if (!selectedTimeslot || !selectedTimeslot.isAvailable || activePrices.length === 0) return;
+				<Button
+					size="lg"
+					className="w-full rounded-lg"
+					disabled={
+						!selectedTimeslot ||
+						!selectedTimeslot.isAvailable ||
+						activePrices.length === 0
+					}
+					onClick={() => {
+						if (
+							!selectedTimeslot ||
+							!selectedTimeslot.isAvailable ||
+							activePrices.length === 0
+						)
+							return;
 
-					// Build checkout URL with booking details
-					const params = new URLSearchParams({
-						eventId,
-						dtstart: selectedTimeslot.dtstart.toISOString(),
-						dtend: selectedTimeslot.dtend.toISOString(),
-						scheduleId: selectedTimeslot.scheduleId,
-					});
+						// Build checkout URL with booking details
+						const params = new URLSearchParams({
+							eventId,
+							dtstart: selectedTimeslot.dtstart.toISOString(),
+							dtend: selectedTimeslot.dtend.toISOString(),
+							scheduleId: selectedTimeslot.scheduleId,
+						});
 
-					// Determine base path based on current route structure
-					// If we're in tenant-slugs, use that; otherwise use tenant-domains
-					const currentPath = window.location.pathname;
-					const isTenantSlugs = currentPath.includes("/tenant-slugs/");
-					const basePath = isTenantSlugs && tenantSlug
-						? `/tenant-slugs/${tenantSlug}/checkout`
-						: currentPath.includes("/tenant-domains/")
-							? `/tenant-domains/${tenantSlug || "checkout"}/checkout`
-							: `/checkout`;
+						// Determine base path based on current route structure
+						// If we're in tenant-slugs, use that; otherwise use tenant-domains
+						const currentPath = window.location.pathname;
+						const isTenantSlugs = currentPath.includes("/tenant-slugs/");
+						const basePath =
+							isTenantSlugs && tenantSlug
+								? `/tenant-slugs/${tenantSlug}/checkout`
+								: currentPath.includes("/tenant-domains/")
+									? `/tenant-domains/${tenantSlug || "checkout"}/checkout`
+									: `/checkout`;
 
-					router.push(`${basePath}?${params.toString()}`);
-				}}
-			>
-				Book Event
-			</Button>
+						router.push(`${basePath}?${params.toString()}`);
+					}}
+				>
+					Book Event
+				</Button>
 
-			<p className="text-center text-[13px] text-muted-foreground mt-4">
-				You won't be charged yet
-			</p>
+				<p className="text-center text-[13px] text-muted-foreground mt-4">
+					You won't be charged yet
+				</p>
 
-			{hasMultiplePrices && activePrices.length > 1 && (
-				<div className="mt-6 pt-6 space-y-3">
-					<Separator />
-					{activePrices.map((price) => (
-						<div
-							key={price.id}
-							className="flex items-center justify-between text-[14px]"
-						>
-							<span className="text-muted-foreground">
-								{price.label}
-							</span>
-							<span className="font-medium">
-								{price.amount === 0 ? (
+				{hasMultiplePrices && activePrices.length > 1 && (
+					<div className="mt-6 pt-6 space-y-3">
+						<Separator />
+						{activePrices.map((price) => (
+							<div
+								key={price.id}
+								className="flex items-center justify-between text-[14px]"
+							>
+								<span className="text-muted-foreground">{price.label}</span>
+								<span className="font-medium">
+									{price.amount === 0 ? (
+										<Badge variant="success">Free</Badge>
+									) : (
+										formatPrice(price.amount, currency)
+									)}
+								</span>
+							</div>
+						))}
+						<Separator />
+						<div className="flex items-center justify-between text-[14px] font-semibold pt-3">
+							<span>Total</span>
+							<span>
+								{isFree ? (
 									<Badge variant="success">Free</Badge>
 								) : (
-									formatPrice(price.amount, currency)
+									formatPrice(minPrice, currency)
 								)}
 							</span>
 						</div>
-					))}
-					<Separator />
-					<div className="flex items-center justify-between text-[14px] font-semibold pt-3">
-						<span>Total</span>
-						<span>
-							{isFree ? (
-								<Badge variant="success">Free</Badge>
-							) : (
-								formatPrice(minPrice, currency)
-							)}
-						</span>
 					</div>
-				</div>
-			)}
+				)}
 			</CardContent>
 		</Card>
 	);

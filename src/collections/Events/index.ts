@@ -432,27 +432,28 @@ export const Events: CollectionConfig<"events"> = {
 						description: "Modify the attendees limits for this event",
 					},
 					fields: [
-					{
-						name: "enableReminders",
-						type: "checkbox",
-						label: "Send Booking Reminders",
-						defaultValue: true,
-						admin: {
-							description:
-								"Send email reminders to attendees 24 hours before the event",
+						{
+							name: "enableReminders",
+							type: "checkbox",
+							label: "Send Booking Reminders",
+							defaultValue: true,
+							admin: {
+								description:
+									"Send email reminders to attendees 24 hours before the event",
+							},
 						},
-					},
-					{
-						name: "enableWaitlist",
-						type: "checkbox",
-						label: "Enable Waitlist",
-						defaultValue: false,
-						admin: {
-							description: "Allow visitors to join a waitlist when timeslots are fully booked",
+						{
+							name: "enableWaitlist",
+							type: "checkbox",
+							label: "Enable Waitlist",
+							defaultValue: false,
+							admin: {
+								description:
+									"Allow visitors to join a waitlist when timeslots are fully booked",
+							},
 						},
-					},
-					{
-						name: "maxQuantity",
+						{
+							name: "maxQuantity",
 							type: "number",
 							label: "Max Attendees",
 							required: true,

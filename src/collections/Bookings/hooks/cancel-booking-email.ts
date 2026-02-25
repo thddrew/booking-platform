@@ -33,9 +33,10 @@ export const cancelBookingEmail: CollectionAfterDeleteHook<Booking> = async ({
 			config: (await import("@payload-config")).default,
 		});
 
-		const eventId = typeof doc.eventRelation === "string"
-			? doc.eventRelation
-			: doc.eventRelation?.id;
+		const eventId =
+			typeof doc.eventRelation === "string"
+				? doc.eventRelation
+				: doc.eventRelation?.id;
 
 		if (eventId && doc.dtstart) {
 			const waitlistEntries = await payload.find({
