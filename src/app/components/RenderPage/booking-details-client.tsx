@@ -252,11 +252,16 @@ export function BookingDetailsClient({
 					</CardContent>
 				</Card>
 
-				<div className="flex flex-col sm:flex-row gap-3">
-					<Button asChild variant="outline" className="flex-1">
-						<Link href={eventsPath}>Browse More Events</Link>
-					</Button>
-				</div>
+			<div className="flex flex-col sm:flex-row gap-3">
+				<Button asChild variant="outline" className="flex-1">
+					<a href={`/api/bookings/ical?bookingId=${booking.id}&email=${encodeURIComponent(email)}`} download>
+						Add to Calendar
+					</a>
+				</Button>
+				<Button asChild variant="outline" className="flex-1">
+					<Link href={eventsPath}>Browse More Events</Link>
+				</Button>
+			</div>
 			</div>
 		</div>
 	);
