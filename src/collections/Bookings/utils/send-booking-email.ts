@@ -5,6 +5,7 @@ import { CustomerSchema } from "@/collections/Customers/utils/schemas";
 import type {
 	BOOKING_CANCELLED,
 	BOOKING_CONFIRMATION,
+	BOOKING_REMINDER,
 	BOOKING_UPDATED,
 } from "@/collections/Emails/utils/email-types";
 import { logSentEmail } from "@/collections/Emails/utils/log-sent-email";
@@ -23,7 +24,8 @@ export const sendBookingEmail = async ({
 	emailType:
 		| typeof BOOKING_CONFIRMATION
 		| typeof BOOKING_CANCELLED
-		| typeof BOOKING_UPDATED;
+		| typeof BOOKING_UPDATED
+		| typeof BOOKING_REMINDER;
 	previousBooking?: Booking | null;
 }) => {
 	if (!booking.tenant) {

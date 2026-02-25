@@ -184,6 +184,33 @@ export async function createGuestBooking({
 			},
 		});
 
+		// Schedule booking reminder workflow
+		if (event.enableReminders !== false) {
+			try {
+				const { Client } = await import("@upstash/workflow");
+				const workflowClient = new Client({
+					token: process.env.QSTASH_TOKEN || "",
+				});
+				const baseUrl = process.env.NEXT_PUBLIC_PAYLOAD_PUBLIC_SERVER_URL || "";
+				const { workflowRunId } = await workflowClient.trigger({
+					url: `${baseUrl}/api/workflows/booking-reminder`,
+					body: { bookingId: booking.id },
+				});
+
+				// Store workflow run ID on booking for potential cancellation
+				if (workflowRunId) {
+					await payload.update({
+						collection: "bookings",
+						id: booking.id,
+						data: { reminderWorkflowRunId: workflowRunId },
+						overrideAccess: true,
+					});
+				}
+			} catch (err) {
+				console.error("Failed to schedule booking reminder:", err);
+			}
+		}
+
 		return {
 			success: true,
 			bookingId: booking.id,

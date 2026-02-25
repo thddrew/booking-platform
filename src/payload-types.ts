@@ -380,11 +380,17 @@ export interface Booking {
     | null;
   rrulestring?: string | null;
   stripeCheckoutSessionId?: string | null;
+  reminderWorkflowRunId?: string | null;
+  /**
+   * Send a reminder email 24 hours before the event
+   */
+  enableReminders?: boolean | null;
   paymentStatus?: string | null;
   paymentMethod?: ('payNow' | 'payLater') | null;
   bookingConfirmationEmail?: (string | null) | Email;
   bookingCancelledEmail?: (string | null) | Email;
   bookingUpdatedEmail?: (string | null) | Email;
+  bookingReminderEmail?: (string | null) | Email;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -482,6 +488,10 @@ export interface Event {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Send email reminders to attendees 24 hours before the event
+   */
+  enableReminders?: boolean | null;
   maxQuantity: number;
   customMax?: boolean | null;
   minQuantity?: number | null;
@@ -987,6 +997,7 @@ export interface EventsSelect<T extends boolean = true> {
         quantity?: T;
         id?: T;
       };
+  enableReminders?: T;
   maxQuantity?: T;
   customMax?: T;
   minQuantity?: T;
@@ -1014,11 +1025,14 @@ export interface BookingsSelect<T extends boolean = true> {
   pricingSnapshot?: T;
   rrulestring?: T;
   stripeCheckoutSessionId?: T;
+  reminderWorkflowRunId?: T;
+  enableReminders?: T;
   paymentStatus?: T;
   paymentMethod?: T;
   bookingConfirmationEmail?: T;
   bookingCancelledEmail?: T;
   bookingUpdatedEmail?: T;
+  bookingReminderEmail?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

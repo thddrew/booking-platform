@@ -433,6 +433,16 @@ export const Events: CollectionConfig<"events"> = {
 					},
 					fields: [
 						{
+							name: "enableReminders",
+							type: "checkbox",
+							label: "Send Booking Reminders",
+							defaultValue: true,
+							admin: {
+								description:
+									"Send email reminders to attendees 24 hours before the event",
+							},
+						},
+						{
 							name: "maxQuantity",
 							type: "number",
 							label: "Max Attendees",

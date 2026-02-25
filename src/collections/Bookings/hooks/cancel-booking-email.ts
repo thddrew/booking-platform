@@ -9,6 +9,19 @@ export const cancelBookingEmail: CollectionAfterDeleteHook<Booking> = async ({
 }) => {
 	if (!context?.triggerAfterChange) return;
 
+	// Cancel scheduled reminder workflow
+	if (doc.reminderWorkflowRunId) {
+		try {
+			const { Client } = await import("@upstash/workflow");
+			const workflowClient = new Client({
+				token: process.env.QSTASH_TOKEN || "",
+			});
+			await workflowClient.cancel({ ids: [doc.reminderWorkflowRunId] });
+		} catch (err) {
+			console.error("Failed to cancel reminder workflow:", err);
+		}
+	}
+
 	await sendBookingEmail({
 		booking: doc,
 		emailType: BOOKING_CANCELLED,

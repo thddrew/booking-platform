@@ -1,6 +1,7 @@
 export const BOOKING_CONFIRMATION = "bookingConfirmationEmail";
 export const BOOKING_CANCELLED = "bookingCancelledEmail";
 export const BOOKING_UPDATED = "bookingUpdatedEmail";
+export const BOOKING_REMINDER = "bookingReminderEmail";
 
 export const BOOKING_EMAIL_TYPES = [
 	{
@@ -14,5 +15,9 @@ export const BOOKING_EMAIL_TYPES = [
 	{
 		label: "Booking Updated",
 		value: BOOKING_UPDATED,
+	},
+	{
+		label: "Booking Reminder",
+		value: BOOKING_REMINDER,
 	},
 ];

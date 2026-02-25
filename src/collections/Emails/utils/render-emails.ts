@@ -6,9 +6,14 @@ import { isTypedObject } from "@/utilities/isTypedObject";
 import type {
 	BOOKING_CANCELLED,
 	BOOKING_CONFIRMATION,
+	BOOKING_REMINDER,
 	BOOKING_UPDATED,
 } from "./email-types";
-import { getVariables, getVariablesData, type VariablesContext } from "./variables";
+import {
+	getVariables,
+	getVariablesData,
+	type VariablesContext,
+} from "./variables";
 
 /**
  * Generates the email subject and body for a Booking
@@ -20,7 +25,8 @@ export const renderBookingEmail = async ({
 	emailType:
 		| typeof BOOKING_CONFIRMATION
 		| typeof BOOKING_CANCELLED
-		| typeof BOOKING_UPDATED;
+		| typeof BOOKING_UPDATED
+		| typeof BOOKING_REMINDER;
 	context: {
 		booking: Booking;
 		customer: Customer;
