@@ -1,7 +1,6 @@
 import type { Page } from "@payload-types";
 import { convertLexicalToHTMLAsync } from "@payloadcms/richtext-lexical/html-async";
 
-import React from "react";
 import { EventDetailPage } from "./EventDetailPage";
 import { EventsListPage } from "./EventsListPage";
 
@@ -19,17 +18,22 @@ export const RenderPage = async ({
 	const slugString = slug || "";
 
 	const isEventsList = slugString === "events";
-	const isEventDetail = slugString.startsWith("events/") && slugString.split("/").length === 2;
+	const isEventDetail =
+		slugString.startsWith("events/") && slugString.split("/").length === 2;
 
 	if (isEventsList && tenantId) {
-		return (
-			<EventsListPage tenantId={tenantId} tenantSlug={tenantSlug} />
-		);
+		return <EventsListPage tenantId={tenantId} tenantSlug={tenantSlug} />;
 	}
 
 	if (isEventDetail && tenantId && tenantSlug) {
 		const eventSlug = slugString.split("/")[1];
-		return <EventDetailPage eventSlug={eventSlug} tenantId={tenantId} tenantSlug={tenantSlug} />;
+		return (
+			<EventDetailPage
+				eventSlug={eventSlug}
+				tenantId={tenantId}
+				tenantSlug={tenantSlug}
+			/>
+		);
 	}
 
 	if (!data) {
