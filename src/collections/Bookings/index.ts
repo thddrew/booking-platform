@@ -96,6 +96,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
 							label: "Start Date",
 							type: "date",
 							required: true,
+							index: true,
 							admin: {
 								hidden: true,
 							},
@@ -105,6 +106,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
 							label: "End Date",
 							type: "date",
 							required: true,
+							index: true,
 							admin: {
 								hidden: true,
 							},
@@ -251,6 +253,7 @@ export const Bookings: CollectionConfig<"bookings"> = {
 					// TODO: show badge field component
 					name: "paymentStatus",
 					type: "text",
+					index: true,
 					admin: {
 						readOnly: true,
 						components: {
