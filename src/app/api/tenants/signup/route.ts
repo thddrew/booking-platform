@@ -72,6 +72,48 @@ export async function POST(request: Request) {
 			},
 		});
 
+		// Create default email templates for the new tenant
+		const defaultTemplates = [
+			{
+				subject: "Booking Confirmed",
+				preview: "Your booking has been confirmed",
+				_status: "published",
+				tenant: tenant.id,
+			},
+			{
+				subject: "Booking Cancelled",
+				preview: "Your booking has been cancelled",
+				_status: "published",
+				tenant: tenant.id,
+			},
+			{
+				subject: "Booking Updated",
+				preview: "Your booking has been updated",
+				_status: "published",
+				tenant: tenant.id,
+			},
+			{
+				subject: "Booking Reminder",
+				preview: "Reminder: Your upcoming booking",
+				_status: "published",
+				tenant: tenant.id,
+			},
+		];
+
+		try {
+			await Promise.all(
+				defaultTemplates.map((template) =>
+					payload.create({
+						collection: "emails",
+						overrideAccess: true,
+						data: template,
+					}),
+				),
+			);
+		} catch (templateErr) {
+			console.error("Failed to create default email templates:", templateErr);
+		}
+
 		const user = await payload.create({
 			collection: "users",
 			overrideAccess: true,
