@@ -51,7 +51,10 @@ const stepConfig = [
 		label: "Set up payments",
 		description: "Connect your Stripe account to accept payments",
 		icon: CreditCardIcon,
-		action: { label: "Set Up Payments", href: "/admin/collections/connectedAccounts/create" },
+		action: {
+			label: "Set Up Payments",
+			href: "/admin/collections/connectedAccounts/create",
+		},
 	},
 	{
 		key: "pageShared" as const,
@@ -109,7 +112,9 @@ export function OnboardingChecklist() {
 				</div>
 				<div className="mt-3">
 					<div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-						<span>{state.completed} of {state.total} steps complete</span>
+						<span>
+							{state.completed} of {state.total} steps complete
+						</span>
 						<span>{progress}%</span>
 					</div>
 					<Progress value={progress} className="h-2" />
@@ -142,7 +147,9 @@ export function OnboardingChecklist() {
 									}`}
 								/>
 								<div className="flex-1 min-w-0">
-									<p className={`text-sm font-medium ${isComplete ? "line-through" : ""}`}>
+									<p
+										className={`text-sm font-medium ${isComplete ? "line-through" : ""}`}
+									>
 										{step.label}
 									</p>
 									<p className="text-xs text-muted-foreground mt-0.5">
@@ -150,7 +157,12 @@ export function OnboardingChecklist() {
 									</p>
 								</div>
 								{!isComplete && action && (
-									<Button asChild size="sm" variant="outline" className="shrink-0">
+									<Button
+										asChild
+										size="sm"
+										variant="outline"
+										className="shrink-0"
+									>
 										<Link href={action.href}>{action.label}</Link>
 									</Button>
 								)}

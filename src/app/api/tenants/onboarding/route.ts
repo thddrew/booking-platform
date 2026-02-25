@@ -1,8 +1,8 @@
 import configPromise from "@payload-config";
+import { getTenantFromCookie } from "@payloadcms/plugin-multi-tenant/utilities";
 import { headers as getHeaders } from "next/headers";
 import { NextResponse } from "next/server";
 import { getPayload } from "payload";
-import { getTenantFromCookie } from "@payloadcms/plugin-multi-tenant/utilities";
 
 export async function GET() {
 	try {
@@ -16,7 +16,10 @@ export async function GET() {
 
 		const tenantId = getTenantFromCookie(headersList, "text") as string | null;
 		if (!tenantId) {
-			return NextResponse.json({ error: "No tenant selected" }, { status: 400 });
+			return NextResponse.json(
+				{ error: "No tenant selected" },
+				{ status: 400 },
+			);
 		}
 
 		const tenant = await payload.findByID({
@@ -40,10 +43,7 @@ export async function GET() {
 		const connectedAccounts = await payload.find({
 			collection: "connectedAccounts",
 			where: {
-				and: [
-					{ tenant: { equals: tenantId } },
-					{ default: { equals: true } },
-				],
+				and: [{ tenant: { equals: tenantId } }, { default: { equals: true } }],
 			},
 			limit: 1,
 			overrideAccess: true,

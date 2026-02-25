@@ -5,8 +5,8 @@ import StripeNotificationBannerServer from "../stripe-notification/banner.server
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { AvailableEventsToday } from "./available-events-today";
 import { BookingsToday } from "./bookings-today";
-import { Overview } from "./overview";
 import { OnboardingChecklist } from "./onboarding-checklist";
+import { Overview } from "./overview";
 import { ViewPublicPageButton } from "./view-public-page-button";
 
 export default async function DashboardView(args: DashboardViewServerProps) {
