@@ -42,6 +42,14 @@ export default function SignupPage() {
 				return;
 			}
 
+			// Set the auth cookie so Payload admin recognizes the session
+			if (data.token) {
+				document.cookie = `payload-token=${data.token}; path=/; max-age=7200; SameSite=Lax`;
+			}
+			// Set the tenant cookie so the admin shows the right business
+			if (data.tenant?.id) {
+				document.cookie = `payload-tenant=${data.tenant.id}; path=/; max-age=7200; SameSite=Lax`;
+			}
 			router.push("/admin");
 		} catch {
 			setError("An unexpected error occurred");
