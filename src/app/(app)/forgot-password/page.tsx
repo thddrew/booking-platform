@@ -1,6 +1,11 @@
 "use client";
 
-import { KeyRoundIcon, Loader2Icon, MailIcon, ShieldCheckIcon } from "lucide-react";
+import {
+	KeyRoundIcon,
+	Loader2Icon,
+	MailIcon,
+	ShieldCheckIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -48,8 +53,9 @@ export default function ForgotPasswordPage() {
 					</div>
 					<h1 className="text-2xl font-semibold mb-2">Check your email</h1>
 					<p className="text-sm text-muted-foreground mb-8">
-						If an account exists for <span className="font-medium">{email}</span>,
-						we've sent a password reset link. Check your inbox and spam folder.
+						If an account exists for{" "}
+						<span className="font-medium">{email}</span>, we've sent a password
+						reset link. Check your inbox and spam folder.
 					</p>
 					<Button asChild variant="outline">
 						<Link href="/admin">Back to Login</Link>
@@ -66,7 +72,9 @@ export default function ForgotPasswordPage() {
 					<div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
 						<KeyRoundIcon className="h-7 w-7 text-primary" />
 					</div>
-					<h1 className="text-2xl font-semibold tracking-tight">Forgot your password?</h1>
+					<h1 className="text-2xl font-semibold tracking-tight">
+						Forgot your password?
+					</h1>
 					<p className="text-sm text-muted-foreground mt-2">
 						Enter your email and we'll send you a reset link.
 					</p>
@@ -110,7 +118,10 @@ export default function ForgotPasswordPage() {
 
 				<p className="mt-6 text-center text-sm text-muted-foreground">
 					Remember your password?{" "}
-					<Link href="/admin" className="font-medium text-foreground underline underline-offset-4 hover:text-primary">
+					<Link
+						href="/admin"
+						className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+					>
 						Back to Login
 					</Link>
 				</p>

@@ -58,7 +58,7 @@ export const sendBookingEmail = async ({
 
 	// Get tenant info for the from address
 	const tenantId = extractID(booking.tenant);
-	let fromName = "Bookify";
+	let _fromName = "Bookify";
 	try {
 		if (tenantId) {
 			const tenant = await payload.findByID({
@@ -67,7 +67,7 @@ export const sendBookingEmail = async ({
 				overrideAccess: true,
 			});
 			if (tenant?.name) {
-				fromName = tenant.name;
+				_fromName = tenant.name;
 			}
 		}
 	} catch {
