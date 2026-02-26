@@ -5,15 +5,16 @@ import {
 	CalendarCheckIcon,
 	ChevronDownIcon,
 	ClockIcon,
+	DollarSignIcon,
 	ExternalLinkIcon,
 	MailIcon,
 	PhoneIcon,
 	UserIcon,
-	UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { PAYMENT_METHODS } from "@/collections/Bookings/utils/payment-methods";
+import type { Booking } from "@/payload-types";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
@@ -107,6 +108,141 @@ interface GroupedEvent {
 	}>;
 }
 
+function DaySummary({
+	grouped,
+	bookings,
+}: {
+	grouped: GroupedEvent[];
+	bookings: Booking[];
+}) {
+	const totalGuests = grouped.reduce(
+		(sum, g) => sum + g.bookings.reduce((s, b) => s + b.guestCount, 0),
+		0,
+	);
+
+	const paidBookings = bookings.filter((b) => b.paymentStatus === "complete");
+	const payLaterBookings = bookings.filter(
+		(b) => (b.paymentMethod as string) === "payLater",
+	);
+	const pendingBookings = bookings.filter(
+		(b) =>
+			b.paymentStatus !== "complete" &&
+			(b.paymentMethod as string) !== "payLater",
+	);
+
+	let collectedRevenue = 0;
+	let pendingRevenue = 0;
+	for (const booking of bookings) {
+		try {
+			const pricing = booking.pricingSnapshot as Record<
+				string,
+				{ amount?: number; quantity?: number }
+			> | null;
+			if (!pricing) continue;
+			const bookingTotal = Object.values(pricing).reduce(
+				(sum, p) => sum + (p.amount || 0) * (p.quantity || 1),
+				0,
+			);
+			if (booking.paymentStatus === "complete") {
+				collectedRevenue += bookingTotal;
+			} else {
+				pendingRevenue += bookingTotal;
+			}
+		} catch {}
+	}
+
+	const totalRevenue = collectedRevenue + pendingRevenue;
+
+	const now = new Date();
+	const nextEvent = grouped.find((g) => g.dtstart > now);
+	const timeUntilNext = nextEvent
+		? Math.max(
+				0,
+				Math.round((nextEvent.dtstart.getTime() - now.getTime()) / 60000),
+			)
+		: null;
+
+	const formatTimeUntil = (minutes: number) => {
+		if (minutes < 60) return `${minutes}m`;
+		const h = Math.floor(minutes / 60);
+		const m = minutes % 60;
+		return m > 0 ? `${h}h ${m}m` : `${h}h`;
+	};
+
+	return (
+		<>
+			{/* Revenue card */}
+			<Card>
+				<CardContent className="pt-5 pb-5">
+					<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+						<DollarSignIcon className="h-3.5 w-3.5" />
+						Today's Revenue
+					</div>
+					<p className="text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
+					<div className="flex items-center gap-3 mt-2 text-xs">
+						{collectedRevenue > 0 && (
+							<span className="text-green-600">
+								${collectedRevenue.toFixed(2)} collected
+							</span>
+						)}
+						{pendingRevenue > 0 && (
+							<span className="text-amber-600">
+								${pendingRevenue.toFixed(2)} pending
+							</span>
+						)}
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* Quick stats */}
+			<Card>
+				<CardContent className="pt-5 pb-5 space-y-4">
+					<div className="flex items-center justify-between">
+						<span className="text-sm text-muted-foreground">Total guests</span>
+						<span className="text-sm font-semibold">{totalGuests}</span>
+					</div>
+					<div className="flex items-center justify-between">
+						<span className="text-sm text-muted-foreground">Events</span>
+						<span className="text-sm font-semibold">{grouped.length}</span>
+					</div>
+					<div className="flex items-center justify-between">
+						<span className="text-sm text-muted-foreground">Paid</span>
+						<span className="text-sm font-semibold text-green-600">
+							{paidBookings.length + payLaterBookings.length}
+						</span>
+					</div>
+					{pendingBookings.length > 0 && (
+						<div className="flex items-center justify-between">
+							<span className="text-sm text-amber-600 font-medium">
+								Needs follow-up
+							</span>
+							<span className="text-sm font-semibold text-amber-600">
+								{pendingBookings.length}
+							</span>
+						</div>
+					)}
+				</CardContent>
+			</Card>
+
+			{/* Next up */}
+			{nextEvent && timeUntilNext !== null && (
+				<Card className="border-primary/20 bg-primary/5">
+					<CardContent className="pt-5 pb-5">
+						<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+							<ClockIcon className="h-3.5 w-3.5" />
+							Next up
+						</div>
+						<p className="text-sm font-semibold">{nextEvent.eventTitle}</p>
+						<p className="text-xs text-muted-foreground mt-1">
+							{nextEvent.time} · starts in {formatTimeUntil(timeUntilNext)}
+						</p>
+					</CardContent>
+				</Card>
+			)}
+		</>
+	);
+}
+
 export function TodaySchedule() {
 	const { data } = useBookingsToday(new Date());
 	const bookings = data?.docs ?? [];
@@ -158,17 +294,6 @@ export function TodaySchedule() {
 		);
 	}, [bookings]);
 
-	const totalGuests = grouped.reduce(
-		(sum, g) => sum + g.bookings.reduce((s, b) => s + b.guestCount, 0),
-		0,
-	);
-	const totalPaid = bookings.filter(
-		(b) =>
-			b.paymentStatus === "complete" ||
-			(b.paymentMethod as string) === "payLater",
-	).length;
-	const totalPending = bookings.length - totalPaid;
-
 	if (bookings.length === 0) {
 		return (
 			<div className="twp">
@@ -189,48 +314,29 @@ export function TodaySchedule() {
 	return (
 		<div className="twp">
 			<h3 className="font-bold text-xl mb-4">Today's Schedule</h3>
+			<div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+				{/* Left column — check-in list */}
+				<div className="space-y-3">
+					{grouped.map((group) => {
+						const totalInGroup = group.bookings.reduce(
+							(s, b) => s + b.guestCount,
+							0,
+						);
 
-			{/* Summary card */}
-			<Card className="mb-4 bg-primary/5 border-primary/20">
-				<CardContent className="py-4">
-					<div className="flex items-center gap-6 text-sm">
-						<div className="flex items-center gap-2">
-							<UsersIcon className="h-4 w-4 text-primary" />
-							<span className="font-semibold">
-								{totalGuests} guest{totalGuests !== 1 ? "s" : ""}
-							</span>
-							<span className="text-muted-foreground">
-								across {grouped.length} event{grouped.length !== 1 ? "s" : ""}
-							</span>
-						</div>
-						<div className="flex items-center gap-3 text-xs">
-							{totalPaid > 0 && (
-								<span className="text-green-600">{totalPaid} paid</span>
-							)}
-							{totalPending > 0 && (
-								<span className="text-amber-600">{totalPending} pending</span>
-							)}
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+						return (
+							<EventBlock
+								key={`${group.eventId}-${group.dtstart.toISOString()}`}
+								group={group}
+								totalGuests={totalInGroup}
+							/>
+						);
+					})}
+				</div>
 
-			{/* Event blocks */}
-			<div className="space-y-3">
-				{grouped.map((group) => {
-					const totalInGroup = group.bookings.reduce(
-						(s, b) => s + b.guestCount,
-						0,
-					);
-
-					return (
-						<EventBlock
-							key={`${group.eventId}-${group.dtstart.toISOString()}`}
-							group={group}
-							totalGuests={totalInGroup}
-						/>
-					);
-				})}
+				{/* Right column — day summary */}
+				<div className="space-y-4">
+					<DaySummary grouped={grouped} bookings={bookings} />
+				</div>
 			</div>
 		</div>
 	);
@@ -243,10 +349,11 @@ function EventBlock({
 	group: GroupedEvent;
 	totalGuests: number;
 }) {
+	const isPast = group.dtstart < new Date();
 	const [open, setOpen] = useState(true);
 
 	return (
-		<Card>
+		<Card className={isPast ? "opacity-60" : ""}>
 			<Collapsible open={open} onOpenChange={setOpen}>
 				<CollapsibleTrigger asChild>
 					<button
@@ -259,6 +366,11 @@ function EventBlock({
 								{group.time}
 							</div>
 							<span className="text-sm font-medium">{group.eventTitle}</span>
+							{isPast && (
+								<Badge variant="secondary" className="text-xs">
+									Completed
+								</Badge>
+							)}
 						</div>
 						<div className="flex items-center gap-3">
 							<span className="text-xs text-muted-foreground">
@@ -327,6 +439,20 @@ function EventBlock({
 								</div>
 							</div>
 						))}
+						{group.bookings.length > 0 && (
+							<div className="pt-2 border-t mt-2">
+								<a
+									href={`mailto:${group.bookings
+										.map((b) => b.customer.email)
+										.filter(Boolean)
+										.join(",")}`}
+									className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+								>
+									<MailIcon className="h-3 w-3" />
+									Email all attendees
+								</a>
+							</div>
+						)}
 					</div>
 				</CollapsibleContent>
 			</Collapsible>
