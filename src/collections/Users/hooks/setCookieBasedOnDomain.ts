@@ -2,10 +2,29 @@ import type { CollectionAfterLoginHook } from "payload";
 
 import { generateCookie, getCookieExpiration, mergeHeaders } from "payload";
 
+function setTenantCookie(req: Parameters<CollectionAfterLoginHook>[0]["req"], tenantId: string) {
+	const tenantCookie = generateCookie({
+		name: "payload-tenant",
+		expires: getCookieExpiration({ seconds: 7200 }),
+		path: "/",
+		returnCookieAsObject: false,
+		value: String(tenantId),
+	});
+
+	const newHeaders = new Headers({
+		"Set-Cookie": tenantCookie as string,
+	});
+
+	req.responseHeaders = req.responseHeaders
+		? mergeHeaders(req.responseHeaders, newHeaders)
+		: newHeaders;
+}
+
 export const setCookieBasedOnDomain: CollectionAfterLoginHook = async ({
 	req,
 	user,
 }) => {
+	// First, try domain-based tenant matching
 	const relatedOrg = await req.payload.find({
 		collection: "tenants",
 		depth: 0,
@@ -17,25 +36,21 @@ export const setCookieBasedOnDomain: CollectionAfterLoginHook = async ({
 		},
 	});
 
-	// If a matching tenant is found, set the 'payload-tenant' cookie
 	if (relatedOrg && relatedOrg.docs.length > 0) {
-		const tenantCookie = generateCookie({
-			name: "payload-tenant",
-			expires: getCookieExpiration({ seconds: 7200 }),
-			path: "/",
-			returnCookieAsObject: false,
-			value: String(relatedOrg.docs[0].id),
-		});
+		setTenantCookie(req, relatedOrg.docs[0].id);
+		return user;
+	}
 
-		// Merge existing responseHeaders with the new Set-Cookie header
-		const newHeaders = new Headers({
-			"Set-Cookie": tenantCookie as string,
-		});
-
-		// Ensure you merge existing response headers if they already exist
-		req.responseHeaders = req.responseHeaders
-			? mergeHeaders(req.responseHeaders, newHeaders)
-			: newHeaders;
+	// Fallback: for non-super-admin users, auto-set the cookie to their first tenant
+	const isSuperAdmin = user?.roles?.includes("super-admin");
+	if (!isSuperAdmin && user?.tenants && Array.isArray(user.tenants) && user.tenants.length > 0) {
+		const firstTenant = user.tenants[0];
+		const tenantId = typeof firstTenant.tenant === "string"
+			? firstTenant.tenant
+			: firstTenant.tenant?.id;
+		if (tenantId) {
+			setTenantCookie(req, tenantId);
+		}
 	}
 
 	return user;
