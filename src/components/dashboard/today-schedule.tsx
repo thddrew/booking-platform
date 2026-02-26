@@ -3,6 +3,7 @@
 import { formatDate } from "date-fns";
 import {
 	CalendarCheckIcon,
+	CheckCircle2Icon,
 	ChevronDownIcon,
 	ClockIcon,
 	DollarSignIcon,
@@ -105,6 +106,7 @@ interface GroupedEvent {
 		paymentStatus: string | null;
 		paymentMethod: string | null;
 		guestCount: number;
+		checkedIn: boolean;
 	}>;
 }
 
@@ -286,6 +288,7 @@ export function TodaySchedule() {
 				paymentStatus: booking.paymentStatus,
 				paymentMethod: booking.paymentMethod || null,
 				guestCount: Math.max(1, guestCount),
+				checkedIn: (booking as any).checkedIn || false,
 			});
 		}
 
@@ -390,9 +393,17 @@ function EventBlock({
 								className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
 							>
 								<div className="flex items-center gap-3 min-w-0">
-									<div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+								<div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${
+									booking.checkedIn
+										? "bg-green-100 ring-2 ring-green-500"
+										: "bg-primary/10"
+								}`}>
+									{booking.checkedIn ? (
+										<CheckCircle2Icon className="h-4 w-4 text-green-600" />
+									) : (
 										<UserIcon className="h-4 w-4 text-primary" />
-									</div>
+									)}
+								</div>
 									<div className="min-w-0">
 										<p className="text-sm font-medium truncate">
 											{booking.customer.fullName ||

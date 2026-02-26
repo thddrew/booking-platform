@@ -240,15 +240,24 @@ export const Bookings: CollectionConfig<"bookings"> = {
 						hidden: true,
 					},
 				},
-				{
-					name: "enableReminders",
-					type: "checkbox",
-					label: "Send Reminder",
-					defaultValue: true,
-					admin: {
-						description: "Send a reminder email 24 hours before the event",
-					},
+			{
+				name: "checkedIn",
+				type: "checkbox",
+				label: "Checked In",
+				defaultValue: false,
+				admin: {
+					description: "Mark this guest as checked in at the event",
 				},
+			},
+			{
+				name: "enableReminders",
+				type: "checkbox",
+				label: "Send Reminder",
+				defaultValue: true,
+				admin: {
+					description: "Send a reminder email 24 hours before the event",
+				},
+			},
 				{
 					// TODO: show badge field component
 					name: "paymentStatus",
