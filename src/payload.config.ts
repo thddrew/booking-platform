@@ -40,12 +40,20 @@ const dirname = path.dirname(filename);
 export default buildConfig({
 	admin: {
 		user: "users",
+		meta: {
+			titleSuffix: "— Bookify",
+			icons: [],
+		},
 		autoLogin:
 			process.env.NODE_ENV === "development" &&
 			process.env.PAYLOAD_AUTOLOGIN === "true"
 				? { email: "demo@payloadcms.com", password: "demo" }
 				: undefined,
 		components: {
+			graphics: {
+				Logo: "/src/components/admin/bookify-logo",
+				Icon: "/src/components/admin/bookify-logo",
+			},
 			afterLogin: ["/src/components/admin/forgot-password-link"],
 			views: {
 				dashboard: {
