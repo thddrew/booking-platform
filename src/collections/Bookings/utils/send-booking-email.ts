@@ -1,6 +1,7 @@
 "use server";
 
-import { waitUntil } from "@vercel/functions";
+import configPromise from "@payload-config";
+import { getPayload } from "payload";
 import { CustomerSchema } from "@/collections/Customers/utils/schemas";
 import type {
 	BOOKING_CANCELLED,
@@ -10,8 +11,6 @@ import type {
 } from "@/collections/Emails/utils/email-types";
 import { logSentEmail } from "@/collections/Emails/utils/log-sent-email";
 import { renderBookingEmail } from "@/collections/Emails/utils/render-emails";
-import { createSubscriberId } from "@/lib/novu/create-subscriber-id";
-import { emailWorkflow } from "@/lib/novu/workflow/email-workflow";
 import type { Booking } from "@/payload-types";
 import { extractID } from "@/utilities/extractID";
 
@@ -40,10 +39,11 @@ export const sendBookingEmail = async ({
 		});
 	}
 
-	const subscriberId = createSubscriberId(
-		extractID(booking.tenant),
-		customer.data.id,
-	);
+	const customerEmail = customer.data.email;
+	if (!customerEmail) {
+		console.warn("No customer email found, skipping email send");
+		return;
+	}
 
 	const { emailId, renderedEmail } = await renderBookingEmail({
 		emailType,
@@ -54,24 +54,45 @@ export const sendBookingEmail = async ({
 		},
 	});
 
-	const { data } = await emailWorkflow.trigger({
-		to: {
-			subscriberId,
-		},
-		payload: renderedEmail,
-	});
+	const payload = await getPayload({ config: configPromise });
 
-	// @ts-expect-error - data type is wrong and there's a nested data object
-	const transactionId = data.data?.transactionId;
+	// Get tenant info for the from address
+	const tenantId = extractID(booking.tenant);
+	let fromName = "Bookify";
+	try {
+		if (tenantId) {
+			const tenant = await payload.findByID({
+				collection: "tenants",
+				id: tenantId,
+				overrideAccess: true,
+			});
+			if (tenant?.name) {
+				fromName = tenant.name;
+			}
+		}
+	} catch {
+		// Fall back to default
+	}
 
-	waitUntil(
-		logSentEmail({
+	try {
+		await payload.sendEmail({
+			to: customerEmail,
+			subject: renderedEmail.subject,
+			html: renderedEmail.body,
+		});
+	} catch (err) {
+		console.error("Failed to send email via Resend:", err);
+		throw err;
+	}
+
+	try {
+		await logSentEmail({
 			emailId,
-			workflowId: emailWorkflow.id,
-			transactionId,
+			workflowId: "direct-resend",
+			transactionId: `resend-${Date.now()}`,
 			createdAt: new Date().toISOString(),
-		}),
-	);
-
-	return transactionId;
+		});
+	} catch {
+		// Non-critical — log failure shouldn't break the booking
+	}
 };
