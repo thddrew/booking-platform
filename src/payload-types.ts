@@ -401,6 +401,10 @@ export interface Booking {
     | null;
   dtstart: string;
   dtend: string;
+  /**
+   * Internal notes about this booking (not visible to the customer)
+   */
+  notes?: string | null;
   customerRelation?: (string | null) | Customer;
   overrideMaxQuantity?: boolean | null;
   eventSnapshot?:
@@ -433,6 +437,10 @@ export interface Booking {
   rrulestring?: string | null;
   stripeCheckoutSessionId?: string | null;
   reminderWorkflowRunId?: string | null;
+  /**
+   * Mark this guest as checked in at the event
+   */
+  checkedIn?: boolean | null;
   /**
    * Send a reminder email 24 hours before the event
    */
@@ -1119,6 +1127,7 @@ export interface BookingsSelect<T extends boolean = true> {
   selectedScheduleInstanceData?: T;
   dtstart?: T;
   dtend?: T;
+  notes?: T;
   customerRelation?: T;
   overrideMaxQuantity?: T;
   eventSnapshot?: T;
@@ -1127,6 +1136,7 @@ export interface BookingsSelect<T extends boolean = true> {
   rrulestring?: T;
   stripeCheckoutSessionId?: T;
   reminderWorkflowRunId?: T;
+  checkedIn?: T;
   enableReminders?: T;
   paymentStatus?: T;
   paymentMethod?: T;

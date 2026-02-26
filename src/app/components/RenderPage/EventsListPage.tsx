@@ -1,3 +1,5 @@
+import configPromise from "@payload-config";
+import { getPayload } from "payload";
 import { payloadSDK } from "@/lib/payload/payload-sdk";
 import { EventsListPageFilters } from "./EventsListPageFilters";
 import { eventsListSearchParamsCache, parseDate } from "./EventsListPageFilters/search-params";
@@ -31,7 +33,8 @@ async function EventsListPage({
 	const { isValid: isValidDateRange, startDate: validatedStartDate, endDate: validatedEndDate } =
 		validateDateRange(startDateParsed, endDateParsed);
 
-	const tenantDoc = await payloadSDK.findByID({ collection: "tenants", id: tenantId });
+	const payload = await getPayload({ config: configPromise });
+	const tenantDoc = await payload.findByID({ collection: "tenants", id: tenantId, overrideAccess: true });
 	const currency = (tenantDoc as any)?.currency || "cad";
 
 	const eventsQuery = await payloadSDK.find({
