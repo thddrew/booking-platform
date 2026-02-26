@@ -168,7 +168,7 @@ export async function POST(request: Request) {
 			data: { email, password },
 		});
 
-		return NextResponse.json({
+		const response = NextResponse.json({
 			success: true,
 			token: loginResult.token,
 			user: {
@@ -181,6 +181,20 @@ export async function POST(request: Request) {
 				slug: tenant.slug,
 			},
 		});
+
+		if (loginResult.token) {
+			const expires = new Date(Date.now() + 7200 * 1000).toUTCString();
+			response.headers.append(
+				"Set-Cookie",
+				`payload-token=${loginResult.token}; Path=/; HttpOnly; SameSite=Lax; Expires=${expires}`,
+			);
+			response.headers.append(
+				"Set-Cookie",
+				`payload-tenant=${tenant.id}; Path=/; SameSite=Lax; Expires=${expires}`,
+			);
+		}
+
+		return response;
 	} catch (err) {
 		console.error("Signup error:", err);
 		return NextResponse.json(
