@@ -118,20 +118,26 @@ export default async function Page({
 	let tenant: { id: string } | undefined;
 
 	// Try to get tenant with normal access (requires authentication)
-	const tenantsQuery = await payload.find({
-		collection: "tenants",
-		overrideAccess: false,
-		user,
-		where: {
-			slug: {
-				equals: params.tenant,
+	try {
+		const tenantsQuery = await payload.find({
+			collection: "tenants",
+			overrideAccess: false,
+			user,
+			where: {
+				slug: {
+					equals: params.tenant,
+				},
 			},
-		},
-	});
+		});
 
-	if (tenantsQuery.docs.length > 0) {
-		tenant = tenantsQuery.docs[0];
-	} else if (isEventsRoute) {
+		if (tenantsQuery.docs.length > 0) {
+			tenant = tenantsQuery.docs[0];
+		}
+	} catch {
+		// Access denied for unauthenticated users — fall through to public access check
+	}
+
+	if (!tenant && isEventsRoute) {
 		// For events routes, allow public access if allowPublicRead is true
 		const publicTenantsQuery = await payload.find({
 			collection: "tenants",
