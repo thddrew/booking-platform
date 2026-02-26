@@ -37,8 +37,9 @@ async function EventsListPage({
 	const tenantDoc = await payload.findByID({ collection: "tenants", id: tenantId, overrideAccess: true });
 	const currency = (tenantDoc as any)?.currency || "cad";
 
-	const eventsQuery = await payloadSDK.find({
+	const eventsQuery = await payload.find({
 		collection: "events",
+		overrideAccess: true,
 		where: {
 			and: [
 				{
