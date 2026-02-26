@@ -113,21 +113,30 @@ export const Bookings: CollectionConfig<"bookings"> = {
 						},
 					],
 				},
-				{
-					type: "ui",
-					name: "eventCalendars",
-					admin: {
-						components: {
-							Field: "/src/collections/Bookings/components/events-calendar",
-						},
-						condition: (_, siblingData) => siblingData.eventRelation,
+			{
+				type: "ui",
+				name: "eventCalendars",
+				admin: {
+					components: {
+						Field: "/src/collections/Bookings/components/events-calendar",
 					},
+					condition: (_, siblingData) => siblingData.eventRelation,
 				},
-			],
-		},
-		{
-			type: "group",
-			label: "Customer Information",
+			},
+			{
+				name: "notes",
+				type: "textarea",
+				label: "Notes",
+				admin: {
+					description: "Internal notes about this booking (not visible to the customer)",
+					placeholder: "e.g., Needs beginner equipment, Birthday group",
+				},
+			},
+		],
+	},
+	{
+		type: "group",
+		label: "Customer Information",
 			fields: [
 				{
 					name: "customerRelation",
