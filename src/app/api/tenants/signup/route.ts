@@ -120,6 +120,32 @@ export async function POST(request: Request) {
 			console.error("Failed to create default email templates:", templateErr);
 		}
 
+		// Create placeholder pages for terms and privacy
+		try {
+			await Promise.all([
+				payload.create({
+					collection: "pages",
+					overrideAccess: true,
+					data: {
+						title: "Terms of Service",
+						slug: "terms",
+						tenant: tenant.id,
+					},
+				}),
+				payload.create({
+					collection: "pages",
+					overrideAccess: true,
+					data: {
+						title: "Privacy Policy",
+						slug: "privacy",
+						tenant: tenant.id,
+					},
+				}),
+			]);
+		} catch (pageErr) {
+			console.error("Failed to create placeholder pages:", pageErr);
+		}
+
 		const user = await payload.create({
 			collection: "users",
 			overrideAccess: true,
