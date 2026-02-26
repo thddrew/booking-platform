@@ -191,15 +191,15 @@ export interface Tenant {
   id: string;
   name: string;
   /**
-   * Used for domain-based tenant handling
+   * Your custom domain for branded booking pages (e.g. bookings.yourbusiness.com)
    */
   domain?: string | null;
   /**
-   * Used for url paths, example: /tenant-slug/page-slug
+   * Your unique booking page URL (e.g. bookify.app/your-business-name)
    */
   slug: string;
   /**
-   * If checked, logging in is not required to read. Useful for building public pages.
+   * Allow visitors to browse and book your events without logging in. Required for public booking pages.
    */
   allowPublicRead?: boolean | null;
   /**

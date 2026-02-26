@@ -3,10 +3,9 @@ import { Gutter } from "@payloadcms/ui";
 import { Suspense } from "react";
 import StripeNotificationBannerServer from "../stripe-notification/banner.server";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { AvailableEventsToday } from "./available-events-today";
-import { BookingsToday } from "./bookings-today";
 import { OnboardingChecklist } from "./onboarding-checklist";
 import { Overview } from "./overview";
+import { TodaySchedule } from "./today-schedule";
 import { ViewPublicPageButton } from "./view-public-page-button";
 
 export default async function DashboardView(args: DashboardViewServerProps) {
@@ -26,14 +25,9 @@ export default async function DashboardView(args: DashboardViewServerProps) {
 						<div className="mb-3">
 							<StripeNotificationBannerServer {...args} />
 						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Suspense>
-								<BookingsToday />
-							</Suspense>
-							<Suspense>
-								<AvailableEventsToday />
-							</Suspense>
-						</div>
+						<Suspense>
+							<TodaySchedule />
+						</Suspense>
 					</TabsContent>
 					<TabsContent value="overview">
 						<Suspense>
