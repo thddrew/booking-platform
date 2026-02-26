@@ -52,7 +52,7 @@ export default buildConfig({
 		components: {
 			graphics: {
 				Logo: "/src/components/admin/bookify-logo",
-				Icon: "/src/components/admin/bookify-logo",
+				Icon: "/src/components/admin/bookify-icon",
 			},
 			afterLogin: ["/src/components/admin/forgot-password-link"],
 			views: {
