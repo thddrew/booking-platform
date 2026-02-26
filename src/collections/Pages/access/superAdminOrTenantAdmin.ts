@@ -15,9 +15,16 @@ export const superAdminOrTenantAdminAccess: Access = ({ req }) => {
 	}
 
 	const adminTenantAccessIDs = getUserTenantIDs(req.user, "tenant-admin");
-	const requestedTenant = req?.data?.tenant;
 
+	// If the request includes a specific tenant, verify the user has access to it
+	const requestedTenant = req?.data?.tenant;
 	if (requestedTenant && adminTenantAccessIDs.includes(requestedTenant)) {
+		return true;
+	}
+
+	// For create operations where tenant is not yet set (multi-tenant plugin sets it in beforeChange),
+	// allow access if the user has tenant-admin role on any tenant
+	if (!requestedTenant && adminTenantAccessIDs.length > 0) {
 		return true;
 	}
 
