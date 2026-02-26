@@ -46,6 +46,7 @@ export default buildConfig({
 				? { email: "demo@payloadcms.com", password: "demo" }
 				: undefined,
 		components: {
+			afterLogin: ["/src/components/admin/forgot-password-link"],
 			views: {
 				dashboard: {
 					Component: "/src/components/dashboard/dashboard-view",
