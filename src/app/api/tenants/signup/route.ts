@@ -85,24 +85,65 @@ export async function POST(request: Request) {
 				preview: "Your booking has been confirmed",
 				_status: "published",
 				tenant: tenant.id,
+				emailContent: {
+					type: "doc",
+					content: [
+						{ type: "paragraph", content: [{ type: "text", text: "Hi " }, { type: "variable", attrs: { id: "customer-name" } }, { type: "text", text: "," }] },
+						{ type: "paragraph", content: [{ type: "text", text: "Your booking has been confirmed! Here are the details:" }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Event: " }, { type: "variable", attrs: { id: "event-name" } }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Date: " }, { type: "variable", attrs: { id: "booking-start-date" } }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Reference: " }, { type: "variable", attrs: { id: "booking-id" } }] },
+						{ type: "paragraph", content: [{ type: "text", text: "We look forward to seeing you!" }] },
+					],
+				},
 			},
 			{
 				subject: "Booking Cancelled",
 				preview: "Your booking has been cancelled",
 				_status: "published",
 				tenant: tenant.id,
+				emailContent: {
+					type: "doc",
+					content: [
+						{ type: "paragraph", content: [{ type: "text", text: "Hi " }, { type: "variable", attrs: { id: "customer-name" } }, { type: "text", text: "," }] },
+						{ type: "paragraph", content: [{ type: "text", text: "Your booking has been cancelled." }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Event: " }, { type: "variable", attrs: { id: "event-name" } }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Reference: " }, { type: "variable", attrs: { id: "booking-id" } }] },
+						{ type: "paragraph", content: [{ type: "text", text: "If you have any questions, please contact us." }] },
+					],
+				},
 			},
 			{
 				subject: "Booking Updated",
 				preview: "Your booking has been updated",
 				_status: "published",
 				tenant: tenant.id,
+				emailContent: {
+					type: "doc",
+					content: [
+						{ type: "paragraph", content: [{ type: "text", text: "Hi " }, { type: "variable", attrs: { id: "customer-name" } }, { type: "text", text: "," }] },
+						{ type: "paragraph", content: [{ type: "text", text: "Your booking has been updated. Here are the new details:" }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Event: " }, { type: "variable", attrs: { id: "event-name" } }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "New Date: " }, { type: "variable", attrs: { id: "booking-start-date" } }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Reference: " }, { type: "variable", attrs: { id: "booking-id" } }] },
+					],
+				},
 			},
 			{
-				subject: "Booking Reminder",
+				subject: "Reminder: Your Upcoming Booking",
 				preview: "Reminder: Your upcoming booking",
 				_status: "published",
 				tenant: tenant.id,
+				emailContent: {
+					type: "doc",
+					content: [
+						{ type: "paragraph", content: [{ type: "text", text: "Hi " }, { type: "variable", attrs: { id: "customer-name" } }, { type: "text", text: "," }] },
+						{ type: "paragraph", content: [{ type: "text", text: "This is a reminder that you have an upcoming booking:" }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Event: " }, { type: "variable", attrs: { id: "event-name" } }] },
+						{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Date: " }, { type: "variable", attrs: { id: "booking-start-date" } }] },
+						{ type: "paragraph", content: [{ type: "text", text: "See you soon!" }] },
+					],
+				},
 			},
 		];
 
