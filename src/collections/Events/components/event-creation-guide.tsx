@@ -1,13 +1,34 @@
 "use client";
 
-import { CalendarIcon, DollarSignIcon, ListIcon, SettingsIcon } from "lucide-react";
+import {
+	CalendarIcon,
+	DollarSignIcon,
+	ListIcon,
+	SettingsIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 const steps = [
-	{ icon: ListIcon, label: "Description", hint: "Add a title, description, and images for your event" },
-	{ icon: CalendarIcon, label: "Schedules", hint: "Set when your event happens — one-time or recurring" },
-	{ icon: DollarSignIcon, label: "Pricing", hint: "Add ticket types and prices (set to $0 for free events)" },
-	{ icon: SettingsIcon, label: "Settings", hint: "Set capacity, enable reminders and waitlist" },
+	{
+		icon: ListIcon,
+		label: "Description",
+		hint: "Add a title, description, and images for your event",
+	},
+	{
+		icon: CalendarIcon,
+		label: "Schedules",
+		hint: "Set when your event happens — one-time or recurring",
+	},
+	{
+		icon: DollarSignIcon,
+		label: "Pricing",
+		hint: "Add ticket types and prices (set to $0 for free events)",
+	},
+	{
+		icon: SettingsIcon,
+		label: "Settings",
+		hint: "Set capacity, enable reminders and waitlist",
+	},
 ];
 
 export default function EventCreationGuide() {
@@ -34,11 +55,14 @@ export default function EventCreationGuide() {
 				}}
 			>
 				<div>
-					<div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>
+					<div
+						style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}
+					>
 						Creating your event
 					</div>
 					<div style={{ fontSize: "13px", color: "#64748b" }}>
-						Fill in each tab to set up your event. Click Publish when you're ready to go live.
+						Fill in each tab to set up your event. Click Publish when you're
+						ready to go live.
 					</div>
 				</div>
 				<button
@@ -92,7 +116,9 @@ export default function EventCreationGuide() {
 						</div>
 						<div>
 							<div style={{ fontWeight: 600 }}>{step.label}</div>
-							<div style={{ color: "#94a3b8", fontSize: "11px" }}>{step.hint}</div>
+							<div style={{ color: "#94a3b8", fontSize: "11px" }}>
+								{step.hint}
+							</div>
 						</div>
 					</div>
 				))}
