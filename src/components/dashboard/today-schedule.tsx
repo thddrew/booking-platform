@@ -393,17 +393,34 @@ function EventBlock({
 								className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
 							>
 								<div className="flex items-center gap-3 min-w-0">
-								<div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${
-									booking.checkedIn
-										? "bg-green-100 ring-2 ring-green-500"
-										: "bg-primary/10"
-								}`}>
+								<button
+									type="button"
+									title={booking.checkedIn ? "Checked in — click to undo" : "Click to check in"}
+									onClick={async () => {
+										try {
+											await fetch(`/api/bookings/${booking.id}`, {
+												method: "PATCH",
+												headers: { "Content-Type": "application/json" },
+												credentials: "include",
+												body: JSON.stringify({ checkedIn: !booking.checkedIn }),
+											});
+											window.location.reload();
+										} catch {
+											// silently fail
+										}
+									}}
+									className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 cursor-pointer transition-all hover:scale-110 ${
+										booking.checkedIn
+											? "bg-green-100 ring-2 ring-green-500"
+											: "bg-primary/10 hover:bg-green-50 hover:ring-1 hover:ring-green-300"
+									}`}
+								>
 									{booking.checkedIn ? (
 										<CheckCircle2Icon className="h-4 w-4 text-green-600" />
 									) : (
 										<UserIcon className="h-4 w-4 text-primary" />
 									)}
-								</div>
+								</button>
 									<div className="min-w-0">
 										<p className="text-sm font-medium truncate">
 											{booking.customer.fullName ||
