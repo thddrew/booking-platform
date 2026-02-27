@@ -58,24 +58,35 @@ export const sendBookingEmail = async ({
 
 	// Get tenant info for the from address
 	const tenantId = extractID(booking.tenant);
-	let _fromName = "Bookify";
+	let fromName = "Bookify";
+	let tenantDoc: {
+		name?: string;
+		emailDomainVerified?: boolean | null;
+		emailDomain?: string | null;
+	} | null = null;
 	try {
 		if (tenantId) {
-			const tenant = await payload.findByID({
+			tenantDoc = await payload.findByID({
 				collection: "tenants",
 				id: tenantId,
 				overrideAccess: true,
 			});
-			if (tenant?.name) {
-				_fromName = tenant.name;
+			if (tenantDoc?.name) {
+				fromName = tenantDoc.name;
 			}
 		}
 	} catch {
 		// Fall back to default
 	}
 
+	const fromAddress =
+		tenantDoc?.emailDomainVerified && tenantDoc?.emailDomain
+			? `${fromName} <bookings@${tenantDoc.emailDomain}>`
+			: undefined;
+
 	try {
 		await payload.sendEmail({
+			...(fromAddress ? { from: fromAddress } : {}),
 			to: customerEmail,
 			subject: renderedEmail.subject,
 			html: renderedEmail.body,

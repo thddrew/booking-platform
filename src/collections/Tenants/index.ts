@@ -118,5 +118,33 @@ export const Tenants: CollectionConfig = {
 				position: "sidebar",
 			},
 		},
+		{
+			name: "emailDomain",
+			type: "text",
+			admin: {
+				description:
+					"Your custom email domain (e.g. sunsetkayak.com). Requires DNS verification.",
+				position: "sidebar",
+			},
+		},
+		{
+			name: "emailDomainId",
+			type: "text",
+			admin: {
+				readOnly: true,
+				hidden: true,
+				description: "Resend domain ID for verification",
+			},
+		},
+		{
+			name: "emailDomainVerified",
+			type: "checkbox",
+			defaultValue: false,
+			admin: {
+				readOnly: true,
+				position: "sidebar",
+				description: "Whether the email domain has been verified with Resend",
+			},
+		},
 	],
 };
