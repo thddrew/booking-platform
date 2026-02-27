@@ -117,43 +117,15 @@ export default async function Page({
 
 	let tenant: { id: string } | undefined;
 
-	// Try to get tenant with normal access (requires authentication)
-	try {
-		const tenantsQuery = await payload.find({
-			collection: "tenants",
-			overrideAccess: false,
-			user,
-			where: {
-				slug: {
-					equals: params.tenant,
-				},
-			},
-		});
-
-		if (tenantsQuery.docs.length > 0) {
-			tenant = tenantsQuery.docs[0];
-		}
-	} catch {
-		// Access denied for unauthenticated users — fall through to public access check
-	}
-
-	if (!tenant && isEventsRoute) {
-		// For events routes, allow public access if allowPublicRead is true
+	if (isEventsRoute) {
+		// For events routes, always use public access if allowPublicRead is enabled
 		const publicTenantsQuery = await payload.find({
 			collection: "tenants",
 			overrideAccess: true,
 			where: {
 				and: [
-					{
-						slug: {
-							equals: params.tenant,
-						},
-					},
-					{
-						allowPublicRead: {
-							equals: true,
-						},
-					},
+					{ slug: { equals: params.tenant } },
+					{ allowPublicRead: { equals: true } },
 				],
 			},
 		});
@@ -161,19 +133,48 @@ export default async function Page({
 		if (publicTenantsQuery.docs.length > 0) {
 			tenant = publicTenantsQuery.docs[0];
 		} else {
+			// Not public — try authenticated access
+			try {
+				const authQuery = await payload.find({
+					collection: "tenants",
+					overrideAccess: false,
+					user,
+					where: { slug: { equals: params.tenant } },
+				});
+				if (authQuery.docs.length > 0) {
+					tenant = authQuery.docs[0];
+				}
+			} catch {}
+
+			if (!tenant) {
+				redirect(
+					`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
+						`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
+					)}`,
+				);
+			}
+		}
+	} else {
+		// Non-events routes require authentication
+		try {
+			const tenantsQuery = await payload.find({
+				collection: "tenants",
+				overrideAccess: false,
+				user,
+				where: { slug: { equals: params.tenant } },
+			});
+			if (tenantsQuery.docs.length > 0) {
+				tenant = tenantsQuery.docs[0];
+			}
+		} catch {}
+
+		if (!tenant) {
 			redirect(
 				`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
 					`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
 				)}`,
 			);
 		}
-	} else {
-		// For non-events routes, require authentication
-		redirect(
-			`/tenant-slugs/${params.tenant}/login?redirect=${encodeURIComponent(
-				`/tenant-slugs/${params.tenant}${slug ? `/${slug.join("/")}` : ""}`,
-			)}`,
-		);
 	}
 
 	if (!tenant) {
