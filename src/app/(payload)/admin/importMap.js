@@ -47,7 +47,6 @@ import { default as default_7dde171538f1d8da72c2c1836ab45d4c } from '../../../..
 import { default as default_7d34dd62f461980e60120db298b813ec } from '../../../../src/collections/Emails/components/recipient-label'
 import { default as default_35d6eeb07b1b0435e1330d78dc0b0930 } from '../../../../src/components/admin/bookify-icon'
 import { default as default_e4671fe7a2ac3f0d36022a404484bf3c } from '../../../../src/components/admin/bookify-logo'
-import { default as default_ec6577d02f8f8600723f6d1e08028ce6 } from '../../../../src/components/admin/forgot-password-link'
 import { default as default_6a45e4f5620d40cdf60c9fd3da134521 } from '../../../../src/components/stripe-notification/banner.server'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { default as default_df4731919bbe5e00b1791b88adcc7eb9 } from '../../../../src/components/providers/react-query'
@@ -109,7 +108,6 @@ export const importMap = {
   "/src/collections/Emails/components/recipient-label#default": default_7d34dd62f461980e60120db298b813ec,
   "/src/components/admin/bookify-icon#default": default_35d6eeb07b1b0435e1330d78dc0b0930,
   "/src/components/admin/bookify-logo#default": default_e4671fe7a2ac3f0d36022a404484bf3c,
-  "/src/components/admin/forgot-password-link#default": default_ec6577d02f8f8600723f6d1e08028ce6,
   "/src/components/stripe-notification/banner.server#default": default_6a45e4f5620d40cdf60c9fd3da134521,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "/src/components/providers/react-query#default": default_df4731919bbe5e00b1791b88adcc7eb9,

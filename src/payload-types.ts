@@ -230,6 +230,18 @@ export interface Tenant {
    * Enable SMS notifications for booking confirmations and reminders (requires Novu SMS provider configuration)
    */
   smsEnabled?: boolean | null;
+  /**
+   * Your custom email domain (e.g. sunsetkayak.com). Requires DNS verification.
+   */
+  emailDomain?: string | null;
+  /**
+   * Resend domain ID for verification
+   */
+  emailDomainId?: string | null;
+  /**
+   * Whether the email domain has been verified with Resend
+   */
+  emailDomainVerified?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -979,6 +991,9 @@ export interface TenantsSelect<T extends boolean = true> {
   contactEmail?: T;
   contactPhone?: T;
   smsEnabled?: T;
+  emailDomain?: T;
+  emailDomainId?: T;
+  emailDomainVerified?: T;
   updatedAt?: T;
   createdAt?: T;
 }
