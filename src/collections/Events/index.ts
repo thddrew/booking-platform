@@ -73,6 +73,16 @@ export const Events: CollectionConfig<"events"> = {
 	},
 	fields: [
 		{
+			type: "ui",
+			name: "creationGuide",
+			admin: {
+				components: {
+					Field: "/src/collections/Events/components/event-creation-guide",
+				},
+				condition: (_, __, ctx) => ctx.operation === "create",
+			},
+		},
+		{
 			// TODO: use a Switch component instead of a checkbox
 			// this likely needs to be a custom component
 			type: "checkbox",
