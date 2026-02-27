@@ -56,6 +56,7 @@ import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc056
 import { default as default_b25b6ab9cc9a519bde7fd26e0ab112bd } from '../../../../src/components/dashboard/dashboard-view'
 import { default as default_da38590ff3ba72e686c0cf77be2cf57d } from '../../../../src/components/stripe-checkout/checkout-view'
 import { default as default_f83036f8249290e7f3600cb150b87829 } from '../../../../src/components/stripe-checkout/checkout-success-view'
+import { default as default_b108b56071fc2bf052f38effd7b67f44 } from '../../../../src/components/admin/email-domain-setup'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 
 export const importMap = {
@@ -117,5 +118,6 @@ export const importMap = {
   "/src/components/dashboard/dashboard-view#default": default_b25b6ab9cc9a519bde7fd26e0ab112bd,
   "/src/components/stripe-checkout/checkout-view#default": default_da38590ff3ba72e686c0cf77be2cf57d,
   "/src/components/stripe-checkout/checkout-success-view#default": default_f83036f8249290e7f3600cb150b87829,
+  "/src/components/admin/email-domain-setup#default": default_b108b56071fc2bf052f38effd7b67f44,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
 }

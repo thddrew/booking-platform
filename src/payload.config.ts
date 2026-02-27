@@ -69,6 +69,10 @@ export default buildConfig({
 					Component: "/src/components/stripe-checkout/checkout-success-view",
 					path: "/checkout/success",
 				},
+				emailDomain: {
+					Component: "/src/components/admin/email-domain-setup",
+					path: "/email-domain",
+				},
 			},
 			beforeDashboard: [
 				{
