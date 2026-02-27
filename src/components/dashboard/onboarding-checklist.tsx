@@ -6,6 +6,7 @@ import {
 	CircleIcon,
 	CreditCardIcon,
 	ExternalLinkIcon,
+	MailIcon,
 	RocketIcon,
 	UserCheckIcon,
 } from "lucide-react";
@@ -63,6 +64,15 @@ const stepConfig = [
 		description: "Send your booking link to customers",
 		icon: ExternalLinkIcon,
 		action: null, // Dynamic — uses tenant slug
+	},
+];
+
+const bonusSteps = [
+	{
+		label: "Set up your email domain",
+		description: "Send booking emails from your own domain (e.g. bookings@yourbusiness.com)",
+		icon: MailIcon,
+		href: "/admin/email-domain",
 	},
 ];
 
@@ -171,6 +181,31 @@ export function OnboardingChecklist() {
 						);
 					})}
 				</div>
+
+				{state.isComplete && bonusSteps.length > 0 && (
+					<div className="mt-4 pt-4 border-t">
+						<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+							Optional
+						</p>
+						{bonusSteps.map((step) => (
+							<div
+								key={step.label}
+								className="flex items-start gap-3 p-3 rounded-lg bg-background border"
+							>
+								<step.icon className="h-5 w-5 mt-0.5 shrink-0 text-muted-foreground" />
+								<div className="flex-1 min-w-0">
+									<p className="text-sm font-medium">{step.label}</p>
+									<p className="text-xs text-muted-foreground mt-0.5">
+										{step.description}
+									</p>
+								</div>
+								<Button asChild size="sm" variant="outline" className="shrink-0">
+									<Link href={step.href}>Set Up</Link>
+								</Button>
+							</div>
+						))}
+					</div>
+				)}
 			</CardContent>
 		</Card>
 	);
