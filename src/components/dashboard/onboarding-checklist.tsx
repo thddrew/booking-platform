@@ -49,10 +49,10 @@ const stepConfig = [
 	{
 		key: "paymentsSetup" as const,
 		label: "Set up payments",
-		description: "Connect your Stripe account to accept payments",
+		description: "Create a payment account and complete Stripe onboarding to accept payments",
 		icon: CreditCardIcon,
 		action: {
-			label: "Set Up Payments",
+			label: "Connect Stripe",
 			href: "/admin/collections/connectedAccounts/create",
 		},
 	},
