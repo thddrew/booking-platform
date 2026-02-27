@@ -54,7 +54,7 @@ export default buildConfig({
 				Logo: "/src/components/admin/bookify-logo",
 				Icon: "/src/components/admin/bookify-icon",
 			},
-		views: {
+			views: {
 				dashboard: {
 					Component: "/src/components/dashboard/dashboard-view",
 					exact: true,
